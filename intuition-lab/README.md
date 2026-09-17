@@ -27,22 +27,42 @@ The useful distinction is between **mean**, **per-gene marginals**, **gene-gene 
 
 [Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t2_spatial_failure_playground.ipynb) · [notebook](t2_spatial_failure_playground.ipynb)
 
-This notebook keeps expression fixed and changes the geometry in controlled ways:
+This started as a set of simple geometry controls. One of them exposed a scorer invariance failure that is more important than the tutorial example itself.
+
+#### Proper rotations can change two shape scores
+
+The public scorer says embryos may arrive in arbitrary rigid frames, so a proper rotation of the exact same point cloud should not change a shape score. I tested that directly on the public `sample_heart_9.5.h5ad` cloud:
+
+- 72 z-axis rotations: `0°, 5°, ..., 355°`
+- 50 random rotations from SO(3)
+
+Across those 122 proper rotations, `d2_shape` and `scale_log_ratio` stay invariant to numerical precision. `sliced_wasserstein` and `occupancy_dice` do not.
+
+The failure is discrete. After reproducing the scorer's `_match_n(seed=0)` step and PCA canonicalization exactly:
+
+- 61 rotations end up with PCA frames of the same handedness: SW is essentially zero and Dice is `1.0`
+- 61 end up with opposite-handed PCA frames: SW is `0.0384619` and Dice is `0.627451`
+
+PCA handedness predicts **all 61 failures exactly**. The principal axes themselves are stable; the largest off-diagonal basis error after accounting for the known rotation is about `3e-14`.
+
+The mechanism is that SVD chooses each principal-axis sign arbitrarily. Independent PCA canonicalization can therefore introduce an odd number of sign flips even when the world transform was a proper rotation. The downstream alignment only searches the four determinant-`+1` sign combinations, so it cannot undo that induced reflection.
+
+The full audit is in [`rotation_audit.py`](rotation_audit.py), with [raw results](results/task2_rotation_audit.csv) and a [compact summary](results/task2_rotation_audit_summary.json). I filed the reproducer upstream as [aristoteleo/veckit#7](https://github.com/aristoteleo/veckit/issues/7).
+
+#### Other spatial controls
+
+The notebook also tests:
 
 - translation
-- proper rotation
+- a single proper rotation
 - reflection
 - 2× uniform scale
 - anisotropic stretch
 - shuffling expression states among the exact same spatial coordinates
 
-The last control is especially useful. The point cloud is literally unchanged. Only which biological state sits at which location changes. That separates global tissue geometry from local biological organization.
+The expression-location shuffle is especially useful: the point cloud is literally unchanged, while neighborhood MMD changes because biological states were moved to the wrong locations.
 
-#### A surprisingly important blind spot: reflection
-
-The public scorer source documents that the distance-based shape term is reflection-invariant. A mirrored embryo can therefore look perfect to that part of the shape panel. `sliced_wasserstein` and `occupancy_dice` only search over proper rotations, but the organizers explicitly caution that they have not been calibrated as laterality tests either.
-
-That is exactly the kind of thing that is much easier to remember after seeing a mirrored embryo score than after reading a metric formula.
+There is also a separate documented limitation: `d2_shape` is reflection-invariant. That laterality issue is distinct from the proper-rotation failure above.
 
 ### Task 3: perturbation-response failures
 
@@ -63,7 +83,7 @@ This makes it obvious why a mutant prediction can have very high absolute expres
 The notebooks are executed automatically against the pinned public scorer. The current raw tables and figures are in **[RESULTS.md](RESULTS.md)**.
 
 - **T1 repeated mean:** pseudobulk Pearson `1`, while MMD is `0.2613`. A right average can still be a collapsed population.
-- **T2 mirror:** `d2_shape` `0.00126` versus translation control `0.00126`. This is the scorer's documented laterality blind spot, not a bug in the notebook.
+- **T2 rotation audit:** 61/122 proper rotations receive non-identity SW/Dice scores, exactly when independent PCA canonicalization chooses opposite handedness.
 - **T2 expression-location shuffle:** neighborhood MMD `0.121` while the point cloud itself is unchanged.
 - **T3 no-response:** absolute pseudobulk Pearson `0.9033` even though the knockout response is zero.
 
@@ -71,17 +91,16 @@ The notebooks are executed automatically against the pinned public scorer. The c
 
 ## Reproduce the results
 
-All three notebooks pin `veckit` to:
+All three notebooks and the rotation audit pin `veckit` to:
 
 `46d41e63f42a9aab815db20b742feeccd249cb17`
 
-The result-refresh workflow executes the notebooks against that same scorer revision and regenerates the CSVs/figures in [`results/`](results/). The tiny public examples are intentionally small, so some distributional metrics are noisy. If a qualitative pattern matters to your method, repeat the same control on the full released training pair.
-
-You can also regenerate the summary directly:
+The result-refresh workflow executes the notebooks against that same scorer revision, runs the invariance audit, and regenerates the committed result files. The tiny public examples are intentionally small, so some distributional metrics are noisy. The rotation audit is different: every comparison is the exact same 150-point cloud under a known proper rigid transform.
 
 ```bash
 pip install "git+https://github.com/aristoteleo/veckit.git@46d41e63f42a9aab815db20b742feeccd249cb17" matplotlib pandas
 python intuition-lab/generate_results.py
+python intuition-lab/rotation_audit.py
 ```
 
 ## What this is useful for
@@ -90,12 +109,13 @@ These controls are not diagnoses. If your model resembles one of them, it gives 
 
 For example, good perturbation direction with poor severity suggests a different problem from high absolute correlation with a near-zero response. Likewise, good T2 shape with poor neighborhood structure points somewhere very different from a global scale error.
 
-That is the goal of the lab: turn a vector of scorer numbers into something you can reason about.
+The rotation audit is the exception: it found a property of the scorer itself rather than a model failure.
 
 ## Sources
 
 - [Challenge evaluation](https://virtualembryo.ai/challenge/evaluation)
 - [Official `veckit` scorer](https://github.com/aristoteleo/veckit)
-- [`shape_metrics.py` reflection/laterality note](https://github.com/aristoteleo/veckit/blob/46d41e63f42a9aab815db20b742feeccd249cb17/common/shape_metrics.py)
+- [`shape_metrics.py`](https://github.com/aristoteleo/veckit/blob/46d41e63f42a9aab815db20b742feeccd249cb17/common/shape_metrics.py)
+- [Upstream rotation-invariance issue](https://github.com/aristoteleo/veckit/issues/7)
 
 Independent community resource. The official challenge documentation and scorer remain the source of truth.
