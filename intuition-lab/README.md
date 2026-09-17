@@ -2,80 +2,53 @@
 
 The easiest way I found to understand the Virtual Embryo metrics was to stop reading metric definitions and start breaking predictions on purpose.
 
-Each notebook takes a public target, keeps one property correct, damages another, and then runs the official scorer. The examples are target-aware by design. They are for understanding and debugging the evaluation, **not for estimating held-out performance**.
+Each notebook takes a public target, keeps some properties fixed, damages one other property, and runs the official scorer. The examples are deliberately target-aware. They are debugging experiments, **not hidden-board estimates**.
 
-If the underlying biology/data objects are still unfamiliar, start with the [ML guide](../ml-guide/README.md).
+If the single-cell objects themselves are still unfamiliar, the separate [ML guide](https://github.com/i-habib/community-projects/tree/main/ml-guide) is a better place to start.
 
-## The three labs
-
-### Task 1: population failures
+## Task 1: right mean, wrong population
 
 [Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t1_population_failure_playground.ipynb) · [notebook](t1_population_failure_playground.ipynb)
 
-The notebook asks what happens when the average expression is right but the population is wrong.
-
-It compares:
+The Task 1 notebook compares the real target with four controls:
 
 - the same cells in a different row order
-- one mean cell repeated over and over
-- each gene independently shuffled across cells
-- a population resampled from only one observed cell state
+- the mean cell repeated over and over
+- each gene shuffled independently across cells
+- cells resampled from only one observed state
 
-The useful distinction is between **mean**, **per-gene marginals**, **gene-gene structure**, and **population mixture**. Those are easy to blur together when looking at one aggregate score.
+These separate a few things that are easy to conflate: a correct pseudobulk mean, correct per-gene marginals, realistic gene-gene structure, and a realistic mixture of cell states.
 
-### Task 2: spatial failures
+## Task 2: break the tissue in controlled ways
 
 [Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t2_spatial_failure_playground.ipynb) · [notebook](t2_spatial_failure_playground.ipynb)
 
-This started as a set of simple geometry controls. One of them exposed a scorer invariance failure that is more important than the tutorial example itself.
+The notebook tries translation, rotation, reflection, uniform scaling, anisotropic stretch, and an expression-location shuffle. The last control keeps the exact same point cloud and the exact same set of expression vectors, but assigns those vectors to different positions. Shape stays fixed while local biological organization is destroyed.
 
-#### Proper rotations can change two shape scores
+### The rotation control found a scorer bug
 
-The public scorer says embryos may arrive in arbitrary rigid frames, so a proper rotation of the exact same point cloud should not change a shape score. I tested that directly on the public `sample_heart_9.5.h5ad` cloud:
+A proper rigid rotation should only change the coordinate frame. On the public `sample_heart_9.5.h5ad` cloud, however, some proper rotations change `sliced_wasserstein` and `occupancy_dice`.
 
-- 72 z-axis rotations: `0°, 5°, ..., 355°`
-- 50 random rotations from SO(3)
+I checked 72 z-axis rotations and 50 random rotations from SO(3). After reproducing the scorer's `_match_n(seed=0)` and PCA canonicalization exactly:
 
-Across those 122 proper rotations, `d2_shape` and `scale_log_ratio` stay invariant to numerical precision. `sliced_wasserstein` and `occupancy_dice` do not.
+- 61 rotations produce same-handed PCA frames and score essentially as identity: SW ≈ 0, Dice = `1.0`
+- 61 produce opposite-handed PCA frames and all receive the same penalty: SW = `0.0384619`, Dice = `0.627451`
 
-The failure is discrete. After reproducing the scorer's `_match_n(seed=0)` step and PCA canonicalization exactly:
+PCA handedness predicts all 61 failures with no false positives or false negatives. The principal axes themselves are stable; the largest off-diagonal basis error after accounting for the known rotation is about `3e-14`.
 
-- 61 rotations end up with PCA frames of the same handedness: SW is essentially zero and Dice is `1.0`
-- 61 end up with opposite-handed PCA frames: SW is `0.0384619` and Dice is `0.627451`
+The issue comes from independent SVD sign choices. PCA can insert an odd number of sign flips even when the original transform has determinant `+1`, while the downstream alignment only searches determinant-`+1` sign combinations and therefore cannot undo the induced reflection.
 
-PCA handedness predicts **all 61 failures exactly**. The principal axes themselves are stable; the largest off-diagonal basis error after accounting for the known rotation is about `3e-14`.
+The reproducer is in [`rotation_audit.py`](rotation_audit.py), with [raw results](results/task2_rotation_audit.csv) and a [summary](results/task2_rotation_audit_summary.json). I filed it upstream as [aristoteleo/veckit#7](https://github.com/aristoteleo/veckit/issues/7).
 
-The mechanism is that SVD chooses each principal-axis sign arbitrarily. Independent PCA canonicalization can therefore introduce an odd number of sign flips even when the world transform was a proper rotation. The downstream alignment only searches the four determinant-`+1` sign combinations, so it cannot undo that induced reflection.
+This is separate from the known fact that `d2_shape` is reflection-invariant.
 
-The full audit is in [`rotation_audit.py`](rotation_audit.py), with [raw results](results/task2_rotation_audit.csv) and a [compact summary](results/task2_rotation_audit_summary.json). I filed the reproducer upstream as [aristoteleo/veckit#7](https://github.com/aristoteleo/veckit/issues/7).
-
-#### Other spatial controls
-
-The notebook also tests:
-
-- translation
-- a single proper rotation
-- reflection
-- 2× uniform scale
-- anisotropic stretch
-- shuffling expression states among the exact same spatial coordinates
-
-The expression-location shuffle is especially useful: the point cloud is literally unchanged, while neighborhood MMD changes because biological states were moved to the wrong locations.
-
-There is also a separate documented limitation: `d2_shape` is reflection-invariant. That laterality issue is distinct from the proper-rotation failure above.
-
-### Task 3: perturbation-response failures
+## Task 3: perturbation response, not just absolute similarity
 
 [Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/task3_response_playground.ipynb) · [notebook](task3_response_playground.ipynb)
 
-The Task 3 lab starts from the public matched WT/Mab21l2 pair and changes only the response:
+Starting from the public matched WT/Mab21l2 pair, the notebook tries no response, several response magnitudes, a reversed response, and the right response values assigned to the wrong genes.
 
-- no response
-- 25%, 50%, 100%, 150%, and 200% of the known mean response
-- reversed response
-- the same response values assigned to the wrong genes
-
-This makes it obvious why a mutant prediction can have very high absolute expression correlation while completely missing the actual knockout effect.
+The useful lesson is that a prediction can still look very WT-like in absolute expression while missing the knockout effect almost completely.
 
 <!-- AUTO_RESULTS_START -->
 ### What the public mini examples actually show
@@ -89,13 +62,9 @@ The notebooks are executed automatically against the pinned public scorer. The c
 
 <!-- AUTO_RESULTS_END -->
 
-## Reproduce the results
+## Reproducing it
 
-All three notebooks and the rotation audit pin `veckit` to:
-
-`46d41e63f42a9aab815db20b742feeccd249cb17`
-
-The result-refresh workflow executes the notebooks against that same scorer revision, runs the invariance audit, and regenerates the committed result files. The tiny public examples are intentionally small, so some distributional metrics are noisy. The rotation audit is different: every comparison is the exact same 150-point cloud under a known proper rigid transform.
+Everything is pinned to `veckit` commit `46d41e63f42a9aab815db20b742feeccd249cb17`. A GitHub Actions workflow executes the notebooks, reruns the rotation audit, and refreshes the committed tables and figures.
 
 ```bash
 pip install "git+https://github.com/aristoteleo/veckit.git@46d41e63f42a9aab815db20b742feeccd249cb17" matplotlib pandas
@@ -103,13 +72,7 @@ python intuition-lab/generate_results.py
 python intuition-lab/rotation_audit.py
 ```
 
-## What this is useful for
-
-These controls are not diagnoses. If your model resembles one of them, it gives you a concrete hypothesis to test.
-
-For example, good perturbation direction with poor severity suggests a different problem from high absolute correlation with a near-zero response. Likewise, good T2 shape with poor neighborhood structure points somewhere very different from a global scale error.
-
-The rotation audit is the exception: it found a property of the scorer itself rather than a model failure.
+The public mini datasets are tiny, so I would not over-interpret small changes in their distributional metrics. The rotation audit is cleaner: every comparison is the same 150-point cloud under a known proper rigid transform.
 
 ## Sources
 

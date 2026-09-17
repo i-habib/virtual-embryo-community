@@ -1,31 +1,24 @@
 # Virtual Embryo Intuition Lab
 
-Controlled experiments for understanding what the Virtual Embryo Challenge scorer notices when one property of a prediction is deliberately broken.
+I built this to answer a simple debugging question: if I keep most of a prediction fixed and break one thing, which scorer terms move?
 
-## Intuition Lab
+The repo has one set of controlled experiments for each Virtual Embryo task:
 
-**[`intuition-lab/`](intuition-lab/)** contains matched teaching experiments for all three tasks:
+- **Task 1:** preserve the mean while collapsing or scrambling the population.
+- **Task 2:** change geometry, scale, or the mapping between expression and position while keeping other pieces fixed.
+- **Task 3:** weaken, reverse, remove, or misassign a known perturbation response.
 
-- **Task 1:** right mean, wrong population; gene-wise shuffling; one-state resampling
-- **Task 2:** translation/rotation/reflection/scale controls, anisotropic distortion, and expression-location shuffling
-- **Task 3:** no response, weak/strong response, reversed response, and response assigned to the wrong genes
+The notebooks use the organizers' public mini examples and known targets on purpose. They are for understanding the scorer, not for estimating hidden-board performance.
 
-The notebooks use known public targets on purpose. They are scorer/intuition experiments, not hidden-board estimates.
+The Task 2 controls also turned up a real scorer issue: some proper rigid rotations of the exact same point cloud change `sliced_wasserstein` and `occupancy_dice`. A 122-rotation audit traced it to PCA handedness, and the reproducer is filed upstream as [`veckit#7`](https://github.com/aristoteleo/veckit/issues/7).
 
-The repo also includes the Task 2 rigid-rotation audit that found a reproducible PCA-canonicalization invariance issue in the public scorer, with the finding filed upstream as [`veckit#7`](https://github.com/aristoteleo/veckit/issues/7).
+Start with [`intuition-lab/README.md`](intuition-lab/README.md). The current executed tables and figures are in [`intuition-lab/RESULTS.md`](intuition-lab/RESULTS.md).
 
-Start with **[`intuition-lab/README.md`](intuition-lab/README.md)** and the committed **[`RESULTS.md`](intuition-lab/RESULTS.md)**.
+## Related resources
 
-## Other community resources
+- [External Data Catalog](https://github.com/i-habib/external-data-catalog) — public data sources with real-release validation and preprocessing adapters.
+- [Community Projects](https://github.com/i-habib/community-projects) — the ML guide, Data Safety Kit, and Metric Lens.
 
-The smaller standalone projects were consolidated into **[i-habib/community-projects](https://github.com/i-habib/community-projects)**:
-
-- ML Guide
-- Data Safety Kit
-- Metric Lens
-
-The larger external-data contribution remains separate at **[i-habib/external-data-catalog](https://github.com/i-habib/external-data-catalog)**.
-
-These are independent community resources, not official challenge tools. The official rules, evaluation pages, and scorer remain the source of truth.
+Independent community work. The official challenge rules and scorer are the source of truth.
 
 MIT licensed.
