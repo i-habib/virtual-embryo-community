@@ -15,7 +15,7 @@ Start here if `.h5ad`, pseudobulk, spatial transcriptomics, or population-level 
 **[`intuition-lab/`](intuition-lab/)** breaks predictions in controlled ways and runs the public scorer.
 
 - Task 1: right mean, wrong population
-- Task 2: harmless frame changes, wrong scale/shape, mirrored geometry, and right point cloud with biology in the wrong places
+- Task 2: rigid-frame invariance, wrong scale/shape, mirrored geometry, and right point cloud with biology in the wrong places
 - Task 3: no response, weak/strong response, reversed response, and response assigned to the wrong genes
 
 Rather than memorizing metric acronyms, you can see which scorer terms react when one known property is broken. The notebooks are executed automatically against a pinned `veckit` revision, and the committed tables/figures live in [`intuition-lab/RESULTS.md`](intuition-lab/RESULTS.md).
@@ -42,7 +42,7 @@ That project covers a different problem: finding useful public resources, checki
 
 ## Reliability
 
-CI runs the Data Safety and Metric Lens tests and checks every committed notebook for valid JSON/Python cells. A separate workflow executes all three Intuition Lab notebooks against the pinned public scorer and commits the resulting tables and figures.
+CI runs the Data Safety and Metric Lens tests and checks every committed notebook for valid JSON/Python cells. A separate workflow executes all three Intuition Lab notebooks and the Task 2 invariance probes against the pinned public scorer and commits the resulting tables and figures.
 
 These are community resources, not official challenge tools. The official rules, evaluation pages, and scorer are the source of truth.
 
