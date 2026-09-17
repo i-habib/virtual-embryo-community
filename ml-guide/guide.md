@@ -1,12 +1,10 @@
 # Virtual Embryo for ML people
 
-If your background is mostly normal ML, the first few minutes with this challenge are weird. You open an `.h5ad`, see a giant matrix, and it is tempting to think you are doing regression on cells.
+If your background is mostly normal ML, the first few minutes with this challenge are weird. You open an `.h5ad`, see a giant matrix, and your regression instincts kick in.
 
-You are not.
+The useful mental model is simpler: **generate a future population of cells**. Task 2 also asks where those cells sit in tissue. Task 3 asks how the population changes under a genetic perturbation.
 
-The cleanest way I found to think about the challenge is: **you are generating a new population of cells**. Sometimes those cells also need positions in 3D. In Task 3, the population should additionally reflect a genetic perturbation.
-
-That one idea explains most of the evaluation.
+That framing explains most of the evaluation and rules out several bad modeling ideas immediately.
 
 ## What is one example?
 
@@ -16,7 +14,7 @@ For Task 1, one measured cell is a gene-expression vector
 x_i \in \mathbb{R}^{G}.
 \]
 
-Put all cells from one embryo or stage together and you get
+Put the cells from a stage together and you get
 
 \[
 X_t \in \mathbb{R}^{n_t \times G}.
@@ -24,126 +22,98 @@ X_t \in \mathbb{R}^{n_t \times G}.
 
 A row is a cell. A column is a gene. An entry is the released expression value for that gene in that cell.
 
-The important part is that **the whole matrix is the object of interest**. The target is not one future vector.
-
-It is useful to write a stage as a distribution
+The whole matrix is the prediction object. It helps to write a developmental stage as a distribution
 
 \[
-X_t \sim p_t(x).
+X_t \sim p_t(x)
 \]
 
-and your prediction as another sample
+and a prediction as another sample
 
 \[
-\hat X_t \sim q_\theta(x \mid \text{what you observed}).
+\hat X_t \sim q_\theta(x \mid \text{earlier data}).
 \]
 
-You do not need a probabilistic model for this notation to help. It is just a reminder that the scorer compares populations.
+You do not need a probabilistic model for this notation to be useful. It is just a reminder that the scorer compares populations rather than paired rows.
 
 ### There is no “same cell later”
 
-This is probably the easiest mistake to make.
+An E8.5 cell and an E9.5 cell are different measured cells. The assay destroys the cell, later experiments sample other cells, and development includes division and differentiation.
 
-An E8.5 cell and an E9.5 cell are not an input-target pair. The measurement destroys the cell, the later experiment measures different cells, and development includes division and differentiation anyway.
-
-So this picture is wrong:
+So there is no target like
 
 \[
 x_i^{(8.5)} \rightarrow x_i^{(9.5)}.
 \]
 
-A better picture is
+The object you actually observe is closer to
 
 \[
 p_{8.5}(x),\; p_{9.5}(x) \rightarrow p_{10.5}(x).
 \]
 
-Once that clicks, things like optimal transport, changing mixture proportions, and distributional metrics stop feeling arbitrary.
+This is why soft population matching, changing mixture proportions, and distributional metrics show up naturally.
 
-## A little biology vocabulary
-
-You do not need a developmental-biology course before trying a baseline. You do need enough vocabulary to know what the matrix means.
+## Enough biology vocabulary to start
 
 ### Gene expression
 
-A gene can be more or less active in a cell. The released matrix contains processed measurements of that activity. Treat those values as expression features, not raw molecule counts unless the source explicitly says otherwise.
+A gene can be more or less active in a cell. The released matrix contains processed measurements of that activity. Do not silently treat those values as raw molecule counts. In particular, arithmetic on log-normalized values is a modeling convenience rather than a literal transcript-count operation.
 
-### Cell state / cell type
+### Cell state and cell type
 
-Different cells run different programs. In ML terms, the population is strongly multimodal:
+Cell populations are strongly multimodal. A rough mixture view is
 
 \[
 p_t(x)=\sum_k \pi_k(t) p_t(x\mid k).
 \]
 
-Both pieces can change with development:
-
-- \(\pi_k(t)\): how common state \(k\) is
-- \(p_t(x\mid k)\): what cells in that state look like
-
-A model can therefore have the correct global mean and still generate a terrible population.
+Both the mixture weights \(\pi_k(t)\) and the within-state distributions can change during development. A model can therefore get the global mean right while producing a biologically silly population.
 
 ### Pseudobulk
 
-Average expression across cells:
+Average expression across cells is
 
 \[
 \bar x_t=\frac{1}{n_t}\sum_i x_i.
 \]
 
-This is useful and lossy.
-
-For example, these populations can have the same average:
-
-```text
-50% [high gene 1, low gene 2]
-50% [low gene 1, high gene 2]
-```
-
-and
-
-```text
-100% [medium gene 1, medium gene 2]
-```
-
-The mean cannot tell you that one population has two states and the other has one.
+It is useful and very lossy. A 50/50 mixture of two opposite cell states can have the same average as one homogeneous medium state. That is the easiest example of why a good mean is not enough.
 
 ### Differential expression
 
-A simple first approximation is the change in pseudobulk:
+A first approximation to a developmental or perturbation response is
 
 \[
 \Delta = \bar x_{\text{target}}-\bar x_{\text{reference}}.
 \]
 
-Which genes move, which direction they move, and how much they move are all useful signals. The official metrics are more careful than this one equation, but it is enough intuition to start.
+Which genes move, which direction they move, and how strongly they move are distinct pieces of information. The official metrics are more careful, but this is enough intuition for debugging.
 
 ### AnnData
 
-An `.h5ad` is mostly a container around the matrix and metadata.
+An `.h5ad` is mostly a matrix plus metadata:
 
 ```text
 adata.X                    cells × genes
 adata.var_names            gene names
 adata.obs                  per-cell metadata
-adata.obsm['spatial_3D']   xyz coordinates for spatial tasks
+adata.obsm['spatial_3D']   xyz coordinates when the VEC object is spatial
 ```
 
-The [data-tour notebook](notebooks/virtual_embryo_data_tour.ipynb) opens the organizers' tiny public examples and shows these directly.
+The [data-tour notebook](notebooks/virtual_embryo_data_tour.ipynb) opens the organizers' public mini examples and shows these fields directly.
 
-# Task 1: generate a later cell population
+# Task 1: generate a later population
 
-Task 1 gives you earlier developmental stages and asks for a later one.
-
-A copy-last baseline says
+A copy-last baseline uses the latest observed population as the future prediction:
 
 \[
 q(x)=p_{9.5}(x).
 \]
 
-That is bad biology, but a useful floor. It tells you what “development stops here” looks like.
+It is a useful floor because its failure mode is obvious: development stops.
 
-A slightly less dumb baseline moves the mean:
+A slightly better educational baseline moves the mean
 
 \[
 \Delta=\bar x_{9.5}-\bar x_{8.5},
@@ -151,215 +121,112 @@ A slightly less dumb baseline moves the mean:
 \hat x=x+\alpha\Delta.
 \]
 
-Now average expression can move in the right direction. But every cell is still pushed by the same vector.
+That can move aggregate expression in a sensible direction, but every cell receives the same shift. It cannot naturally handle state-specific changes, branching, new states, or changing proportions.
 
-Real development can do things that this has no way to represent:
+The next useful step is usually state-aware. Estimate different motion for different cell states or neighborhoods in a learned latent space, and model the population weights separately. After that, methods such as optimal transport or learned generative dynamics become attractive because they can represent soft transitions and continuous state changes without inventing one-to-one cell identities.
 
-- one state changes more than another
-- proportions change
-- one state branches into several
-- new states appear
+One warning about optimal transport: a coupling between observed stages explains how mass could move **between those stages**. It does not automatically solve extrapolation beyond the last observed time point.
 
-A useful progression is therefore:
+# Task 2: expression attached to tissue geometry
 
-```text
-copy latest stage
-    ↓
-move the global mean
-    ↓
-move different states differently
-    ↓
-change state proportions
-    ↓
-generate continuous or new states
-```
-
-The score reflects both changing genes and the generated population itself. That is why “predict pseudobulk well” is only part of the problem.
-
-# Task 2: now the cells have to form a tissue
-
-Task 2 attaches a 3D coordinate to each cell:
+Task 2 gives each cell a coordinate
 
 \[
 (x_i,c_i),
 \qquad
-x_i\in\mathbb R^{500},\; c_i\in\mathbb R^3.
+x_i\in\mathbb R^{G},\; c_i\in\mathbb R^3.
 \]
 
-A useful mental model is a point cloud with biological features attached to each point.
+I think of this as a point cloud with biological features attached to the points.
 
-There are several independent ways to fail.
+Two failures matter immediately. The global tissue shape can be wrong even when expression looks plausible, or the global shape can be right while the wrong cell states occupy the wrong neighborhoods.
 
-**Good expression, bad geometry.** The cells are plausible but the tissue has the wrong shape or scale.
+There is also a coordinate-frame trap. Embryos are not supplied in one globally registered xyz frame, so naive absolute-coordinate regression can optimize an arbitrary orientation. Translation and proper rotation should be treated as frame choices when reasoning about the public shape metrics.
 
-**Good global geometry, bad local biology.** The cloud looks right but the wrong expression states are next to each other.
+The current public scorer has an additional implementation issue here. In controlled tests, some **proper rigid rotations of the exact same point cloud** receive a sliced-Wasserstein and occupancy-Dice penalty. A 72-angle sweep plus 50 random SO(3) rotations traced the failure to arbitrary SVD signs during PCA canonicalization: opposite-handed canonical frames are exactly the cases that fail because the downstream alignment only searches determinant-+1 sign flips. The full reproducer is in the [Task 2 Intuition Lab](../intuition-lab/README.md) and the finding is filed upstream as [`veckit#7`](https://github.com/aristoteleo/veckit/issues/7).
 
-**Good-looking coordinates in the wrong frame.** The embryos are not given in a shared global coordinate system. Absolute xyz MSE is a poor target when the evaluation intentionally ignores global translation and rotation.
+That scorer pathology is separate from the documented fact that the distance-based `d2_shape` term is reflection-blind.
 
-There is also a subtle laterality issue. The public scorer's distance-based shape term is reflection-invariant, so mirroring an embryo can leave that component essentially unchanged. The [Task 2 Intuition Lab](../intuition-lab/README.md) makes this visible instead of leaving it buried in a metric definition.
+The most useful modeling control is simpler: hold the point cloud fixed and randomly reassign expression rows to coordinates. Shape is unchanged, while local biological organization is destroyed. If your method fails that distinction, better geometry alone will not fix it.
 
-The most useful T2 control in that lab is even simpler: keep the exact same point cloud and exact same expression rows, but randomly reassign which expression row sits at which point. Global geometry is unchanged while local biological organization is scrambled.
+# Task 3: predict a perturbation response
 
-# Task 3: predict the effect of an intervention
+Task 3 adds a knockout. You see WT development and one observed perturbation, then generalize to another gene.
 
-Task 3 adds a knockout.
-
-You see normal development and one observed perturbation, then have to generalize to another gene.
-
-The useful object to think about is the response away from matched wild type:
+A useful summary is the response away from matched WT
 
 \[
 \Delta_{KO}\approx \bar x_{KO}-\bar x_{WT}.
 \]
 
-Do not read that as literal paired-cell subtraction. It is population-level intuition.
+This is population-level intuition, not paired-cell subtraction.
 
-Why frame the problem this way? Because a mutant embryo still mostly looks like an embryo. A model can return something extremely similar to WT and still achieve high absolute expression correlation while missing nearly all of the actual knockout effect.
+The reason to think in responses is practical. A mutant embryo still shares most of its expression program with WT. Copying WT can therefore achieve surprisingly high absolute expression correlation while missing the knockout effect.
 
-A few controlled mistakes make the distinction clearer:
+Controlled failures make this concrete:
 
 \[
 \hat\Delta=0
 \]
 
-No response.
+means no response,
 
 \[
 \hat\Delta=0.3\Delta
 \]
 
-Right general direction, phenotype too weak.
+gets the direction roughly right but makes the phenotype too weak, and
 
 \[
 \hat\Delta=-\Delta
 \]
 
-Responsive genes move the wrong way.
+moves responsive genes the wrong way.
+
+The [Task 3 Intuition Lab](../intuition-lab/task3_response_playground.ipynb) scores those cases directly.
+
+There is a bigger modeling issue that is easy to miss: **one observed knockout does not identify a general gene-to-phenotype function**. Challenge data alone give almost no supervision over perturbation identity. A serious T3 model therefore needs transferable structure from somewhere else, such as gene-function annotations, regulatory priors, pretrained representations, or a strong mechanistic inductive bias. Any external data still have to satisfy the challenge rules and be disclosed.
+
+# What should I actually try?
+
+I would use a short capability ladder rather than start with architecture names.
+
+**1. Identity / copy-last.** Get the complete pipeline working and establish the trivial floor.
+
+**2. State-aware shifts and mixture changes.** Let different cell states move differently and allow their proportions to change. This is the first baseline that addresses the obvious weakness of a global mean shift.
+
+**3. Soft or learned population dynamics.** Use OT, latent dynamics, flows, diffusion, or another generative model only when you can name the missing capability it supplies: continuous transitions, new states, realistic diversity, or extrapolation.
+
+A generic latent version looks like
 
 \[
-\hat\Delta=P\Delta
+z=E(x), \qquad z_{t+\Delta}=F(z_t,t,\Delta),
 \]
 
-Right collection of effect sizes, wrong genes.
+followed by a decoder. For Task 2 the dynamics also need a meaningful treatment of space.
 
-The [Task 3 Intuition Lab](../intuition-lab/task3_response_playground.ipynb) runs exactly these failures through the public scorer.
+**4. Perturbation conditioning.** For Task 3, condition on gene identity or gene representation and test whether the model predicts a response away from WT rather than merely reconstructing WT-like embryos.
 
-# A modeling ladder that is actually useful
-
-Architecture names matter less than knowing what capability is missing.
-
-## 0. Copy last / WT identity
-
-Use it to prove your pipeline works. It has no model of development or perturbation.
-
-## 1. Global mean shift
-
-Estimate one average change vector and apply it to sampled cells.
-
-This models “things change,” but every cell still changes the same way.
-
-## 2. State-aware dynamics
-
-Split cells using provided labels, clusters, or a learned latent representation.
-
-For state \(k\), estimate something like
-
-\[
-\Delta_k=\mu_{k,t}-\mu_{k,t-1}
-\]
-
-and separately model mixture weights \(\pi_k(t)\).
-
-Now states can move differently and their proportions can change.
-
-## 3. Soft population matching / optimal transport
-
-Instead of inventing hard cell correspondences, infer a soft coupling between stages.
-
-Conceptually:
-
-```text
-early A ───────▶ later C
-       └───────▶ later D
-
-early B ───────▶ later E
-```
-
-This fits development naturally because mass can split across descendants.
-
-The catch is extrapolation. A coupling explains transitions you observed. It does not automatically tell you how to continue beyond them.
-
-## 4. Learned latent dynamics
-
-Encode cells
-
-\[
-z=E(x)
-\]
-
-and learn time-conditioned dynamics
-
-\[
-z_{t+\Delta}=F(z_t,t,\Delta).
-\]
-
-Then decode.
-
-This could be an ODE, flow model, VAE, diffusion model, transformer, or something simpler. The useful questions are more basic:
-
-- does it generate diversity rather than one mean?
-- can proportions change?
-- can it create states not literally copied from the previous stage?
-- does it have any reason to extrapolate sensibly?
-
-For Task 2, ask the same questions about space.
-
-## 5. Condition on the perturbation
-
-For Task 3, add perturbation identity \(g\):
-
-\[
-q_\theta(x,c\mid t,g,\text{WT context}).
-\]
-
-One observed knockout is nowhere near enough to learn arbitrary gene effects from scratch. You need some transferable structure, such as gene-function priors, pretrained representations, regulatory information, or a model whose inductive bias can use the WT developmental context.
+The architecture can be fancy later. First make sure it can express the failure mode you are trying to fix.
 
 # Debug from the failure
 
-This table is more useful than a list of fashionable architectures.
-
 | What looks wrong? | What your method may be missing |
 |---|---|
-| mean expression change is wrong | basic temporal / perturbation shift |
-| mean is good but cell-state score is poor | mixture changes or multimodal generation |
-| cell states look right but covariance is bad | realistic within-state diversity / gene-gene structure |
+| mean expression change is wrong | basic temporal or perturbation shift |
+| mean is good but population score is poor | mixture changes or multimodal generation |
+| state mixture looks right but covariance is bad | realistic within-state diversity / gene-gene structure |
 | T2 molecular scores are good but shape is bad | explicit geometry model |
 | T2 shape is good but neighborhoods are bad | coupling between state and position |
-| T3 prediction looks almost exactly like WT | perturbation conditioning |
+| T3 prediction stays close to WT | perturbation conditioning |
 | T3 moves the right genes but too weakly | response-magnitude calibration |
-| T3 changes lots of genes in the wrong direction | gene-specific response structure |
+| T3 changes genes in the wrong direction | gene-specific response structure |
 
-# Five traps worth remembering
+# Before training anything large
 
-**1. Cells are not paired across stages.** If your loss depends on row `i` matching row `i`, you probably invented a target that does not exist.
+Run the [data tour](notebooks/virtual_embryo_data_tour.ipynb), make the simplest valid baseline, and then break it deliberately with the [Intuition Lab](../intuition-lab/README.md). After each modeling change, inspect which metric moved rather than only the weighted total.
 
-**2. A good mean can hide a terrible population.** This is why the challenge has distributional terms.
-
-**3. Cell-type labels are useful scaffolding, not the submission.** You generate cells, not labels.
-
-**4. Absolute T2 coordinates are not sacred.** Translation and rotation of the whole embryo are frame choices.
-
-**5. Task 3 is about the response away from WT.** High mutant-state correlation can coexist with a useless perturbation prediction.
-
-# What I would do before training anything large
-
-1. Run the [data tour](notebooks/virtual_embryo_data_tour.ipynb).
-2. Produce the simplest valid copy-last or WT-identity prediction and score it locally.
-3. Run the [Intuition Lab](../intuition-lab/README.md) for the task you care about.
-4. Make one small modeling change whose purpose you can state in one sentence.
-5. Look at *which* metric moved, not only the weighted total.
-
-By then you should be able to say something concrete like:
+You should end up with a sentence like:
 
 > I need a model that changes cell-state proportions without collapsing within-state diversity.
 
@@ -374,6 +241,6 @@ Use the challenge site for anything contractual:
 - [Rules](https://virtualembryo.ai/challenge/rules)
 - [Public local scorer and mini examples](https://github.com/aristoteleo/veckit)
 
-For submission plumbing, [`vec-community-kit`](https://github.com/xxx12e/vec-community-kit) already covers validation, simple baselines, pseudo-validation, first-submission setup, and Agent-track evidence. This guide is about the modeling problem instead.
+For submission plumbing, [`vec-community-kit`](https://github.com/xxx12e/vec-community-kit) already covers validation, simple baselines, pseudo-validation, first-submission setup, and Agent-track evidence. This guide focuses on what the prediction object means and what capabilities a model needs.
 
-Written against the public challenge materials available on 2026-09-16. If a rule or metric changes, the official site wins.
+Written against the public challenge materials available on 2026-09-17. If a rule or metric changes, the official site wins.
