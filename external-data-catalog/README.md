@@ -1,58 +1,53 @@
 # Virtual Embryo external-data catalog
 
-A small catalog of public resources that are actually relevant to the Virtual Embryo Challenge, with **task-aware preprocessing scripts** for each one.
+A curated set of public resources that look genuinely useful for the Virtual Embryo Challenge, together with the scripts needed to turn each source into something usable.
 
-This is separate from the [Data Safety Kit](../data-safety/). The safety kit answers:
+The catalog is intentionally small. A list of fifty vaguely related atlases would save nobody time. Each entry here has:
 
-> Is this stage / genotype obviously allowed, excluded, or ambiguous under the published rules?
+- a reason you might actually use it
+- stage/modality notes that matter for VEC
+- a task-aware processor
+- provenance output
+- an explicit caveat about what the adapter does **not** establish
 
-This catalog answers the more practical follow-up:
+The challenge rules are still the authority. This package only automates the mechanical parts.
 
-> Which external resources are worth looking at, and how do I turn them into a clean file without accidentally carrying protected stages into training?
+Rules snapshot: **2026-09-16**. Re-check the [official rules](https://virtualembryo.ai/challenge/rules) before a final submission.
 
-The challenge explicitly allows public external data, pretrained models, and published code when licences permit and the source is disclosed. It also says that cells inside protected stage/genotype windows must be removed from a broader resource before training. That makes preprocessing part of eligibility, not just convenience.
+## Current catalog
 
-Rules snapshot used here: **2026-09-16**. Re-check the [official rules](https://virtualembryo.ai/challenge/rules) before a final submission.
-
-## What is in the first release
-
-| Resource | Why it is useful | Main caveat | Processor |
+| Resource | What it adds | Main caveat | Adapter |
 |---|---|---|---|
-| Extended Mouse Atlas, E6.5–E9.5 | dense developmental scRNA time course; strong T1 prior | protected interpolation stages must be filtered for T2 | `process_extended_mouse_atlas.py` |
-| sc3D / GSE197353 | whole-embryo spatial transcriptomics and 3D reconstructions | E8.5 is protected for T2-heart | `process_sc3d.py` |
-| GSE247450 MERFISH | same broad modality family as T2/T3; E9.5 and E15.5 WT | 300-gene panel, not the VEC 500-gene panel | `process_gse247450.py` |
-| Tabula Muris | adult mouse cell-state / tissue priors | developmentally distant from the challenge | `process_tabula_muris.py` |
-| Mouse GO annotations | non-measured gene-function prior, especially useful for T3 | not expression data; use as gene features, not a cell atlas | `prepare_mouse_go.py` |
+| Extended Mouse Atlas | dense E6.5–E9.5 whole-embryo scRNA time course | task-specific stage filtering for T2 | `process_extended_mouse_atlas.py` |
+| sc3D / GSE197353 | genome-wide spatial embryo maps; 3D reconstructions at E8.5/E9.0 | E8.5 is protected for T2-heart; E9.5 material is partial 2D, not a 3D reconstruction | `process_sc3d.py` |
+| GSE247450 MERFISH | WT E9.5/E15.5 MERFISH; useful same-modality prior | 300 genes, not VEC's 500-gene panel | `process_gse247450.py` |
+| Tabula Muris | adult tissue/cell-state expression prior | developmentally far from the challenge | `process_tabula_muris.py` |
+| Mouse GO annotations | functional gene prior for perturbation conditioning | annotations, not measured embryo expression | `prepare_mouse_go.py` |
 
-The machine-readable details live in [`catalog.json`](catalog.json). You can inspect one task at a time:
+Machine-readable metadata is in [`catalog.json`](catalog.json). To see the entries and their task notes:
 
 ```bash
 python audit_catalog.py --task t2-heart
 ```
 
-## The preprocessing contract
+## What every cell-data adapter tries to do
 
-The cell-data processors follow the same pattern:
+1. Read the upstream file without silently changing stage labels.
+2. Parse embryonic stage explicitly.
+3. Remove cells/files that fall inside the selected task's mechanically protected stage window.
+4. Optionally intersect genes with a panel you supply.
+5. Put 3D coordinates in `obsm['spatial_3D']` when the source actually provides them.
+6. Write a `*.provenance.json` sidecar with the source, task, filtering, stage information, cell counts, and gene overlap.
 
-1. read the upstream file without silently relabeling stages;
-2. turn stage labels into numeric embryonic days;
-3. remove any cells/files in the protected window for the task you selected;
-4. optionally intersect genes with a VEC panel you supply;
-5. standardize 3D coordinates to `obsm['spatial_3D']` when the source has them;
-6. write a sidecar `*.provenance.json` recording what went in, what was removed, and what came out.
-
-The processors **do not** claim that a dataset is scientifically useful just because it passes the stage rule. They also do not make biological judgments about comparable mutant alleles or phenocopies. Those still require organizer clarification.
+A clean output file is **not** an eligibility ruling. Genotype-specific questions, phenocopies, comparable alleles, licenses, and scientific usefulness still need human review.
 
 ## 1. Extended Mouse Atlas
 
 Source: <https://marionilab.github.io/ExtendedMouseAtlas/>
 
-The atlas contains 430,339 cells across E6.5–E9.5. That makes it unusually useful for T1, because all of those stages are at or before the released E9.5 boundary. For Task 2 it needs filtering:
+The combined atlas contains **430,339 cells across 13 time points from E6.5 to E9.5**. The public `embryo_complete.h5ad` contains log-normalized UMI counts, raw counts in `.raw`, metadata, and precomputed layouts.
 
-- embryo setting: remove stages strictly between E7.25 and E8.0;
-- heart setting: remove stages strictly between E8.25 and E8.75.
-
-After downloading/extracting `embryo_complete.h5ad`:
+This is the strongest general-purpose expression/developmental prior in the current catalog.
 
 ```bash
 python processors/process_extended_mouse_atlas.py \
@@ -61,25 +56,19 @@ python processors/process_extended_mouse_atlas.py \
   --out processed/extended_mouse_atlas.t1.h5ad
 ```
 
-For a T2-heart expression prior:
+For T2-heart, the processor removes cells strictly inside `(E8.25, E8.75)` before writing the result. For T2-embryo it removes cells strictly inside `(E7.25, E8.0)`.
 
-```bash
-python processors/process_extended_mouse_atlas.py \
-  embryo_complete.h5ad \
-  --task t2-heart \
-  --gene-list vec_500_genes.txt \
-  --out processed/extended_mouse_atlas.t2-heart.h5ad
-```
-
-The processor records the exact stages removed in the provenance sidecar.
+If you explicitly want to rebuild normalized values from `adata.raw`, use `--use-raw-counts`; otherwise the processor preserves the released expression representation.
 
 ## 2. sc3D / GSE197353
 
-Source: <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197353>
+GEO: <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197353>
 
-The study provides whole E8.5 and E9.0 spatial embryos plus partial E9.5 material. Processed 3D h5ad objects are linked from the paper/figshare.
+Paper/data availability: <https://pmc.ncbi.nlm.nih.gov/articles/PMC10335937/>
 
-For T2-heart, **do not mix the E8.5 object into training**. E8.5 is the held-out interpolation stage. E9.0 and E9.5 are outside that interpolation window.
+The study profiled complete E8.5 and E9.0 embryos plus partial E9.5 material with Slide-seq. The paper distributes **3D visualization h5ad objects for E8.5 and E9.0**. The partial E9.5 sections are useful spatial data, but they should not be described as another whole-embryo 3D reconstruction.
+
+For T2-heart, E8.5 falls inside the protected interpolation window. E9.0 and the E9.5 boundary are outside that window.
 
 ```bash
 python processors/process_sc3d.py \
@@ -89,15 +78,18 @@ python processors/process_sc3d.py \
   --out-dir processed/sc3d
 ```
 
-The command will skip the E8.5 file for T2-heart rather than trusting you to remember.
+The adapter infers the stage from the filename, skips protected files for the selected task, intersects the supplied gene panel, and standardizes 3D coordinates when present.
 
-## 3. GSE247450 embryonic endothelial MERFISH
+Useful direct 3D objects cited by the paper:
+
+- E8.5 Embryo 2: <https://figshare.com/articles/dataset/E8_5_Embryo2_h5ad/21695849/1>
+- E9.0: <https://figshare.com/articles/dataset/E9_0_Embryo_h5ad/21695879/1>
+
+## 3. GSE247450 MERFISH
 
 Source: <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE247450>
 
-The public GEO series contains two E9.5 WT sagittal regions and one E15.5 WT region, measured with a 300-gene MERFISH panel. E9.5 is permitted and E15.5 is beyond the E13.5 extrapolation protection window.
-
-Download/extract `GSE247450_RAW.tar`, then:
+The public series contains **two E9.5 WT sagittal regions and one E15.5 WT region**, measured on Vizgen MERSCOPE with a 300-gene panel. GEO distributes per-sample cell-by-gene and cell-metadata CSVs.
 
 ```bash
 python processors/process_gse247450.py raw/GSE247450 \
@@ -106,15 +98,17 @@ python processors/process_gse247450.py raw/GSE247450 \
   --out-dir processed/gse247450
 ```
 
-The adapter pairs each `*_cell_by_gene.csv.gz` file with its metadata file, detects matrix orientation using cell IDs, standardizes coordinates when it can find them, and preserves only genes shared with the supplied panel.
+The adapter pairs each matrix with the matching metadata file, detects orientation from cell IDs, preserves the shared genes in requested order, and copies coordinates into `spatial_3D` when the metadata exposes a recognizable 3D coordinate triplet.
+
+Do not assume every MERFISH export has a meaningful z coordinate. The processor reports whether it found a 3D spatial field instead of inventing one.
 
 ## 4. Tabula Muris
 
-Source/loading instructions: <https://github.com/czbiohub-sf/tabula-muris-vignettes/blob/master/data/README.md>
+Data instructions: <https://github.com/czbiohub-sf/tabula-muris-vignettes/blob/master/data/README.md>
 
-This is adult data, so it is outside the embryonic protected windows. Its value is mostly as an expression/cell-state prior rather than as a direct developmental target.
+Tabula Muris is adult data from roughly 100,000 cells across 20 organs/tissues. It is not a developmental substitute for the embryo atlases above. Its plausible use is as a broad tissue/cell-state expression prior.
 
-For example, keep only heart cells and the genes you care about:
+The project publishes Python-ready h5ad matrices and matching metadata files.
 
 ```bash
 python processors/process_tabula_muris.py TM_droplet_mat.h5ad \
@@ -125,13 +119,15 @@ python processors/process_tabula_muris.py TM_droplet_mat.h5ad \
   --out processed/tabula_muris_heart.h5ad
 ```
 
-Do not treat “allowed” as “automatically useful.” Adult heart is much farther from the challenge regime than E9-stage developmental data.
+Only pass `--normalize` when you are starting from counts. The flag applies library-size normalization followed by `log1p`.
 
 ## 5. Mouse Gene Ontology annotations
 
-MGI lists the current mouse GAF here: <https://www.informatics.jax.org/downloads/reports/index.html>
+MGI download page: <https://www.informatics.jax.org/downloads/reports/index.html>
 
-GO annotations are useful for Task 3 because they give each perturbation gene a structured functional prior without using measured expression from a held-out embryo.
+Current mouse GAF: <https://current.geneontology.org/annotations/gaf/MOUSE-mod.gaf.gz>
+
+This is a different kind of external resource. It gives gene-function edges rather than another embryo measurement, which can be useful when representing the identity of a Task 3 perturbation.
 
 ```bash
 python processors/prepare_mouse_go.py MOUSE-mod.gaf.gz \
@@ -140,28 +136,38 @@ python processors/prepare_mouse_go.py MOUSE-mod.gaf.gz \
   --out processed/mouse_go_vec500.csv
 ```
 
-The output is a simple gene–GO edge table with evidence codes and references, ready to turn into bag-of-terms features or embeddings.
+The output is a gene–GO edge table with evidence codes and references. Keep the evidence codes; whether to include IEA annotations is a modeling choice, not a preprocessing fact.
 
 ## Gene panels
 
-The repository does **not** copy challenge gene lists into this package. Pass your own text file, one gene symbol per line, via `--gene-list`. This keeps the processors useful even if the challenge panel changes.
+Pass a text file containing one gene symbol per line with `--gene-list`. The adapters preserve the requested order for genes that are actually present and report missing genes in provenance.
+
+The catalog does not vendor VEC gene lists so that the preprocessing code is not silently tied to an old panel revision.
 
 ## Provenance
 
-Every cell-data adapter writes a `*.provenance.json` next to the h5ad output. Keep it. It records the source, selected task, filtering, stage(s), cell counts, gene overlap, and the rules snapshot used by the adapter.
+Every cell-data adapter writes `*.provenance.json` beside its h5ad output. Keep that sidecar with the processed file.
 
-That sidecar is intentionally boring: the challenge asks teams to disclose external sources, versions/stages, and how the material entered the method. Recording those facts during preprocessing is much easier than reconstructing them at the deadline.
+At minimum it records:
+
+- upstream source/input
+- selected VEC task
+- stage field and parsed stages when applicable
+- protected stages/files removed
+- cells before/after
+- requested/present/missing genes
+- rules snapshot used by the adapter
+
+That information is much easier to capture during preprocessing than reconstruct at submission time.
 
 ## Tests
 
-The small unit tests do not download the large atlases. They cover stage parsing, exact boundary behavior, file-name staging, and GSE247450 file pairing:
-
 ```bash
-pytest -q external-data-catalog/tests
+pytest -q tests
 ```
 
-The source-specific scripts use lazy `anndata` imports, so the rule/parsing tests run even before the heavier scientific stack is installed.
+The tests stay small: no multi-GB atlas downloads. They cover stage parsing, exact open/closed boundary behavior, filename staging, panel intersection helpers, and GSE247450 file pairing. Source-specific end-to-end commands should still be smoke-tested on the exact release you plan to use.
 
 ## Scope
 
-This is a curated starting point, not an exhaustive atlas directory and not an official eligibility ruling. The official rules and written organizer answers override this catalog.
+This is a curated starting point, not an exhaustive external-data directory. An entry being present means “worth inspecting,” not “guaranteed to improve your model” or “organizer-approved.”
