@@ -1,76 +1,95 @@
 # Virtual Embryo Intuition Lab
 
-A small set of controlled experiments for understanding what the Virtual Embryo scorer is actually rewarding.
+The easiest way I found to understand the Virtual Embryo metrics was to stop reading metric definitions and start breaking predictions on purpose.
 
-The goal is not to provide another starter kit or another leaderboard baseline. The official docs and existing community tools already cover submission mechanics well. This package is for a different question:
+Each notebook takes a public target, keeps one property correct, damages another, and then runs the official scorer. The examples are target-aware by design. They are for understanding and debugging the evaluation, **not for estimating held-out performance**.
 
-> If I deliberately break one property of a prediction while keeping another property correct, which part of the scorer notices?
+If the underlying biology/data objects are still unfamiliar, start with the [ML guide](../ml-guide/README.md).
 
-That makes the evaluation much easier to reason about before you start training serious models.
+## The three labs
 
-## Learning path
+### Task 1: population failures
 
-Start with the broader [Virtual Embryo for ML people guide](../ml-guide/README.md), then run the playground for the task you care about.
+[Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t1_population_failure_playground.ipynb) · [notebook](t1_population_failure_playground.ipynb)
 
-### Task 1 — population failure playground
+The notebook asks what happens when the average expression is right but the population is wrong.
 
-[Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t1_population_failure_playground.ipynb) · [view notebook](t1_population_failure_playground.ipynb)
+It compares:
 
-Controlled failures:
+- the same cells in a different row order
+- one mean cell repeated over and over
+- each gene independently shuffled across cells
+- a population resampled from only one observed cell state
 
-- row-order shuffle: same set of cells, different order
-- repeated mean: perfect pseudobulk, no population diversity
-- gene-wise shuffle: same marginal distribution for every gene, broken joint structure
-- one-state resample: real cells, deliberately wrong mixture
+The useful distinction is between **mean**, **per-gene marginals**, **gene-gene structure**, and **population mixture**. Those are easy to blur together when looking at one aggregate score.
 
-The useful lesson is that **a good average is not a good generated population**.
+### Task 2: spatial failures
 
-### Task 2 — spatial failure playground
+[Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t2_spatial_failure_playground.ipynb) · [notebook](t2_spatial_failure_playground.ipynb)
 
-[Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/t2_spatial_failure_playground.ipynb) · [view notebook](t2_spatial_failure_playground.ipynb)
-
-Controlled failures:
+This notebook keeps expression fixed and changes the geometry in controlled ways:
 
 - translation
 - proper rotation
 - reflection
-- uniform scaling
-- anisotropic stretching
-- expression-location shuffle
+- 2× uniform scale
+- anisotropic stretch
+- shuffling expression states among the exact same spatial coordinates
 
-The last one keeps the exact same 3D point cloud and exact same collection of expression vectors, but attaches those expression states to the wrong positions. It cleanly separates **global geometry** from **local biological organization**.
+The last control is especially useful. The point cloud is literally unchanged. Only which biological state sits at which location changes. That separates global tissue geometry from local biological organization.
 
-### Task 3 — perturbation response playground
+#### A surprisingly important blind spot: reflection
 
-[Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/t3-response-playground/t3_response_playground.ipynb) · [view notebook](../t3-response-playground/t3_response_playground.ipynb)
+The public scorer source documents that the distance-based shape term is reflection-invariant. A mirrored embryo can therefore look perfect to that part of the shape panel. `sliced_wasserstein` and `occupancy_dice` only search over proper rotations, but the organizers explicitly caution that they have not been calibrated as laterality tests either.
 
-Controlled failures:
+That is exactly the kind of thing that is much easier to remember after seeing a mirrored embryo score than after reading a metric formula.
+
+### Task 3: perturbation-response failures
+
+[Open in Colab](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/intuition-lab/task3_response_playground.ipynb) · [notebook](task3_response_playground.ipynb)
+
+The Task 3 lab starts from the public matched WT/Mab21l2 pair and changes only the response:
 
 - no response
-- response too weak / too strong
+- 25%, 50%, 100%, 150%, and 200% of the known mean response
 - reversed response
-- correct effect sizes assigned to the wrong genes
+- the same response values assigned to the wrong genes
 
-The useful lesson is that **looking like a plausible mutant state is not the same as predicting the knockout effect**.
+This makes it obvious why a mutant prediction can have very high absolute expression correlation while completely missing the actual knockout effect.
 
-## Why the notebooks use known targets
+<!-- AUTO_RESULTS_START -->
+### What the public mini examples actually show
 
-These are teaching/debugging experiments, not benchmark estimates.
+The result tables are generated from the pinned public scorer by CI. See [RESULTS.md](RESULTS.md) for the current values and figures.
+<!-- AUTO_RESULTS_END -->
 
-Each notebook deliberately uses a public known target to construct synthetic failure cases. That lets us hold one property fixed and break another with certainty. It would be inappropriate to interpret any resulting score as evidence of held-out performance.
+## Reproduce the results
 
-## Reproducibility
-
-The notebooks pin the organizers' public `veckit` scorer and example files to the same Git commit:
+All three notebooks pin `veckit` to:
 
 `46d41e63f42a9aab815db20b742feeccd249cb17`
 
-The tiny bundled examples make the notebooks quick to run, but also noisy. If a qualitative effect matters to your own method, repeat the same diagnostic with the full released training files.
+The result-refresh workflow executes the notebooks against that same scorer revision and regenerates the CSVs/figures in [`results/`](results/). The tiny public examples are intentionally small, so some distributional metrics are noisy. If a qualitative pattern matters to your method, repeat the same control on the full released training pair.
 
-## Official sources
+You can also regenerate the summary directly:
 
-- Challenge tasks: https://virtualembryo.ai/challenge/tasks
-- Evaluation: https://virtualembryo.ai/challenge/evaluation
-- Local scorer: https://github.com/aristoteleo/veckit
+```bash
+pip install "git+https://github.com/aristoteleo/veckit.git@46d41e63f42a9aab815db20b742feeccd249cb17" matplotlib pandas
+python intuition-lab/generate_results.py
+```
 
-Independent community resource. The official challenge documentation remains the source of truth.
+## What this is useful for
+
+These controls are not diagnoses. If your model resembles one of them, it gives you a concrete hypothesis to test.
+
+For example, good perturbation direction with poor severity suggests a different problem from high absolute correlation with a near-zero response. Likewise, good T2 shape with poor neighborhood structure points somewhere very different from a global scale error.
+
+That is the goal of the lab: turn a vector of scorer numbers into something you can reason about.
+
+## Sources
+
+- [Challenge evaluation](https://virtualembryo.ai/challenge/evaluation)
+- [Official `veckit` scorer](https://github.com/aristoteleo/veckit)
+- [`shape_metrics.py` reflection/laterality note](https://github.com/aristoteleo/veckit/blob/46d41e63f42a9aab815db20b742feeccd249cb17/common/shape_metrics.py)
+
+Independent community resource. The official challenge documentation and scorer remain the source of truth.
