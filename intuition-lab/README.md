@@ -83,7 +83,7 @@ This makes it obvious why a mutant prediction can have very high absolute expres
 The notebooks are executed automatically against the pinned public scorer. The current raw tables and figures are in **[RESULTS.md](RESULTS.md)**.
 
 - **T1 repeated mean:** pseudobulk Pearson `1`, while MMD is `0.2613`. A right average can still be a collapsed population.
-- **T2 mirror:** `d2_shape` `0.00126` versus translation control `0.00126`. This is the scorer's documented laterality blind spot, not a bug in the notebook.
+- **T2 proper 67° rotation:** sliced Wasserstein `0.03846` and occupancy Dice `0.6275` even though the point cloud is unchanged up to a proper rotation. The dedicated audit reproduces this as the PCA-handedness issue reported upstream in `veckit#7`.
 - **T2 expression-location shuffle:** neighborhood MMD `0.121` while the point cloud itself is unchanged.
 - **T3 no-response:** absolute pseudobulk Pearson `0.9033` even though the knockout response is zero.
 

@@ -15,18 +15,20 @@ These are **teaching controls on known public targets**, not held-out benchmark 
 
 ## Task 2
 
-| controlled prediction | shape distance | sliced Wasserstein | scale log-ratio | neighborhood MMD |
-|---|---:|---:|---:|---:|
-| translated | 0.00126 | 0 | -0 | -0.00793 |
-| rotated | 0.00126 | 0.03846 | 0 | -0.00793 |
-| reflected | 0.00126 | 0 | -0 | -0.00793 |
-| scaled_x2 | 0.00126 | 0 | 0.6931 | -0.00793 |
-| anisotropic_stretch | 0.05617 | 0.07799 | 0.1136 | 0.00818 |
-| expression_location_shuffle | 0.00126 | 0 | 0 | 0.121 |
+| controlled prediction | shape distance | sliced Wasserstein | occupancy Dice | scale log-ratio | neighborhood MMD |
+|---|---:|---:|---:|---:|---:|
+| translated | 0.00126 | 0 | 1 | -0 | -0.00793 |
+| rotated | 0.00126 | 0.03846 | 0.6275 | 0 | -0.00793 |
+| reflected | 0.00126 | 0 | 1 | -0 | -0.00793 |
+| scaled_x2 | 0.00126 | 0 | 1 | 0.6931 | -0.00793 |
+| anisotropic_stretch | 0.05617 | 0.07799 | 0.5895 | 0.1136 | 0.00818 |
+| expression_location_shuffle | 0.00126 | 0 | 1 | 0 | 0.121 |
 
-### The reflection lesson
+### The rotation audit changed how to read this table
 
-The distance-based shape term is reflection-invariant. A mirrored embryo can therefore look perfect to that part of the panel. The official scorer source explicitly documents this laterality blind spot. `sliced_wasserstein` and `occupancy_dice` only optimize over proper rotations, but the organizers also caution that they are not calibrated laterality tests.
+The 67° `rotated` row is a proper rigid rotation of the exact same point cloud, yet the current public scorer penalizes sliced Wasserstein and occupancy Dice for some proper rotations. A separate 72-angle + 50-random-SO(3) audit traced this to independently signed PCA frames: opposite-handed PCA canonicalizations are exactly the cases that fail. See [`rotation_audit.py`](rotation_audit.py), the committed audit outputs, and [upstream issue #7](https://github.com/aristoteleo/veckit/issues/7).
+
+The older reflection observation still matters separately: `d2_shape` is reflection-blind by construction. Do not treat either phenomenon as a statement about biological laterality performance.
 
 ![Task 2 metric changes](results/task2_metric_changes.png)
 
