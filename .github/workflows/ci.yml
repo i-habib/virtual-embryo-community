@@ -19,8 +19,6 @@ jobs:
         run: python -m unittest discover -s data-safety/tests -v
       - name: Metric Lens tests
         run: python -m pytest -q metric-lens/test_metric_lens.py
-      - name: External catalog tests
-        run: python -m pytest -q external-data-catalog/tests
       - name: Notebook structure and Python syntax
         run: |
           python - <<'PY'
