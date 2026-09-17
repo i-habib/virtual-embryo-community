@@ -1,0 +1,62 @@
+{
+  "veckit_commit": "46d41e63f42a9aab815db20b742feeccd249cb17",
+  "sample": "sample_heart_9.5.h5ad",
+  "n_points": 150,
+  "z_sweep_n": 72,
+  "random_so3_n": 50,
+  "parity_groups": [
+    {
+      "kind": "random_so3",
+      "pca_sign_parity": -1,
+      "n": 28,
+      "sw_mean": 0.020604591082491235,
+      "sw_max": 0.038461903353983355,
+      "dice_mean": 0.8004201680672268,
+      "dice_min": 0.6274509803921569,
+      "d2_range": 4.618701254788249e-17,
+      "scale_abs_max": 3.33066907387547e-16
+    },
+    {
+      "kind": "random_so3",
+      "pca_sign_parity": 1,
+      "n": 22,
+      "sw_mean": 0.020979220011263847,
+      "sw_max": 0.038461903353983355,
+      "dice_mean": 0.7967914438502675,
+      "dice_min": 0.6274509803921569,
+      "d2_range": 2.2551405187698492e-17,
+      "scale_abs_max": 2.2204460492503136e-16
+    },
+    {
+      "kind": "z_sweep",
+      "pca_sign_parity": -1,
+      "n": 42,
+      "sw_mean": 0.031135826524653246,
+      "sw_max": 0.03846190335398337,
+      "dice_mean": 0.6984126984126984,
+      "dice_min": 0.6274509803921569,
+      "d2_range": 1.973247953923618e-17,
+      "scale_abs_max": 0.0
+    },
+    {
+      "kind": "z_sweep",
+      "pca_sign_parity": 1,
+      "n": 30,
+      "sw_mean": 5.408172105918015e-16,
+      "sw_max": 3.132489350285283e-15,
+      "dice_mean": 1.0,
+      "dice_min": 1.0,
+      "d2_range": 7.37257477290143e-18,
+      "scale_abs_max": 0.0
+    }
+  ],
+  "overall": {
+    "sliced_wasserstein_min": 1.4558920520618806e-16,
+    "sliced_wasserstein_max": 0.03846190335398337,
+    "occupancy_dice_min": 0.6274509803921569,
+    "occupancy_dice_max": 1.0,
+    "d2_shape_range": 4.7921736023859296e-17,
+    "scale_log_ratio_abs_max": 3.33066907387547e-16,
+    "max_pca_basis_offdiag": 3.243030545825374e-14
+  }
+}
