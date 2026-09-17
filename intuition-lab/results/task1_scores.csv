@@ -1,0 +1,5 @@
+prediction,de_score,de_direction,energy_distance,mmd_u,variogram,variance_ratio,composition_JSD,pseudobulk_pearson
+row_order_only,0.5152,1.0,-0.8259,-0.00813,0.0,1.0,0.0,1.0
+repeated_mean,0.5152,1.0,25.08162,0.26126,0.018838,0.0,0.0131,1.0
+gene_wise_shuffle,0.5152,1.0,-0.3622,0.24634,0.000166,1.0,0.0132,1.0
+one_state_only,0.0606,0.3355,7.59721,0.1966,0.013762,0.898,0.7336,0.9328

@@ -60,7 +60,13 @@ This makes it obvious why a mutant prediction can have very high absolute expres
 <!-- AUTO_RESULTS_START -->
 ### What the public mini examples actually show
 
-The result tables are generated from the pinned public scorer by CI. See [RESULTS.md](RESULTS.md) for the current values and figures.
+The notebooks are executed automatically against the pinned public scorer. The current raw tables and figures are in **[RESULTS.md](RESULTS.md)**.
+
+- **T1 repeated mean:** pseudobulk Pearson `1`, while MMD is `0.2613`. A right average can still be a collapsed population.
+- **T2 mirror:** `d2_shape` `0.00126` versus translation control `0.00126`. This is the scorer's documented laterality blind spot, not a bug in the notebook.
+- **T2 expression-location shuffle:** neighborhood MMD `0.121` while the point cloud itself is unchanged.
+- **T3 no-response:** absolute pseudobulk Pearson `0.9033` even though the knockout response is zero.
+
 <!-- AUTO_RESULTS_END -->
 
 ## Reproduce the results

@@ -1,0 +1,7 @@
+prediction,mmd_u,variogram,d2_shape,sliced_wasserstein,occupancy_dice,scale_log_ratio,neighborhood_mmd,morans_I_agreement
+translated,-0.00807,0.0,0.00126,0.0,1.0,-0.0,-0.00793,1.0
+rotated,-0.00807,0.0,0.00126,0.03846,0.6275,0.0,-0.00793,1.0
+reflected,-0.00807,0.0,0.00126,0.0,1.0,-0.0,-0.00793,1.0
+scaled_x2,-0.00807,0.0,0.00126,0.0,1.0,0.6931,-0.00793,1.0
+anisotropic_stretch,-0.00807,0.0,0.05617,0.07799,0.5895,0.1136,0.00818,0.9252
+expression_location_shuffle,-0.00807,0.0,0.00126,0.0,1.0,0.0,0.12104,0.0741
