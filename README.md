@@ -18,7 +18,7 @@ Start here if `.h5ad`, pseudobulk, spatial transcriptomics, or population-level 
 - Task 2: harmless frame changes, wrong scale/shape, mirrored geometry, and right point cloud with biology in the wrong places
 - Task 3: no response, weak/strong response, reversed response, and response assigned to the wrong genes
 
-The point is to learn what the metrics notice by experiment rather than by acronym. The notebooks are executed automatically against a pinned `veckit` revision, and the current tables/figures live in [`intuition-lab/RESULTS.md`](intuition-lab/RESULTS.md).
+Rather than memorizing metric acronyms, you can see which scorer terms react when one known property is broken. The notebooks are executed automatically against a pinned `veckit` revision, and the committed tables/figures live in [`intuition-lab/RESULTS.md`](intuition-lab/RESULTS.md).
 
 ## 3. Data Safety Kit
 
@@ -26,7 +26,7 @@ The point is to learn what the metrics notice by experiment rather than by acron
 
 It handles the stage windows that are mechanically specified, including exact open/closed boundaries and broad resources that span both permitted and protected stages. Cases that need biological judgment, such as comparable alleles or phenocopies, return `ASK_ORGANIZERS` instead of guessing.
 
-It also includes a tiny source registry/disclosure renderer so provenance is recorded while you work.
+It also includes a small source registry/disclosure renderer so provenance is recorded while you work.
 
 ## 4. Metric Lens
 
@@ -34,13 +34,15 @@ It also includes a tiny source registry/disclosure renderer so provenance is rec
 
 It is a small debugging utility, not a hidden-score predictor.
 
-## External-data catalog
+## Related: external-data catalog
 
-A separate catalog + preprocessing package is currently staged under **[`external-data-catalog/`](external-data-catalog/)**. It is being split into its own repository because it has a different job: finding useful public resources and getting them into a clean, task-aware format.
+The curated source catalog and preprocessing adapters now live in their own repository: **[i-habib/external-data-catalog](https://github.com/i-habib/external-data-catalog)**.
+
+That project covers a different problem: finding useful public resources, checking the task-relevant stage caveats, and converting them into cleaner inputs with provenance sidecars.
 
 ## Reliability
 
-CI runs the Data Safety, Metric Lens, and external-catalog unit tests and checks every committed notebook for valid JSON/Python cells. A separate result-refresh workflow executes the Intuition Lab notebooks against the pinned public scorer and regenerates their result tables.
+CI runs the Data Safety and Metric Lens tests and checks every committed notebook for valid JSON/Python cells. A separate workflow executes all three Intuition Lab notebooks against the pinned public scorer and commits the resulting tables and figures.
 
 These are community resources, not official challenge tools. The official rules, evaluation pages, and scorer are the source of truth.
 
