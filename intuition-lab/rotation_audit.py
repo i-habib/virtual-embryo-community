@@ -46,28 +46,40 @@ def random_proper_rotation(rng: np.random.Generator) -> np.ndarray:
 
 
 def pca_basis(C: np.ndarray) -> np.ndarray:
-    """Reproduce veckit's `_canonicalise` SVD input exactly.
-
-    The second centering looks redundant mathematically, but reproducing it matters here:
-    singular-vector signs are arbitrary, so tiny floating-point differences can change the
-    discrete sign pattern even when the principal axes themselves are identical.
-    """
+    """Reproduce veckit's `_canonicalise` SVD input exactly."""
     C = np.asarray(C, float)
     X = C - C.mean(0)
     _, _, vt = np.linalg.svd(X - X.mean(0), full_matrices=False)
     return vt.T
 
 
-def svd_sign_parity(C: np.ndarray, R: np.ndarray) -> tuple[int, str, float]:
-    """Compare observed PCA basis after rotation with the mathematically expected one.
+def match_n_like_scorer(A: np.ndarray, B: np.ndarray, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
+    """Reproduce shape_metrics._match_n, including its independent row permutations.
 
-    If B is the original right-singular-vector basis, a proper input rotation R should
-    produce R @ B, up to independent column signs. The product of those three signs
-    says whether SVD selected the same (+1) or opposite (-1) handedness.
+    Even when the two clouds have the same size, `_match_n` calls `rng.choice(..., n,
+    replace=False)` independently for A and B. That preserves each point set but changes
+    floating-point summation order before centering/SVD, which can change arbitrary SVD signs.
+    """
+    rng = np.random.default_rng(seed)
+    n = min(A.shape[0], B.shape[0])
+    return (
+        A[rng.choice(A.shape[0], n, replace=False)],
+        B[rng.choice(B.shape[0], n, replace=False)],
+    )
+
+
+def svd_sign_parity(C: np.ndarray, R: np.ndarray, seed: int = 0) -> tuple[int, str, float]:
+    """Measure PCA sign parity on the exact arrays canonicalized by the scorer.
+
+    If B is the target PCA basis, a proper world-frame rotation R should produce R @ B,
+    up to independent column signs. We first reproduce `_match_n`, because its row-order
+    changes affect floating-point centering and therefore arbitrary SVD sign choices.
     """
     center = C.mean(0, keepdims=True)
-    B0 = pca_basis(C)
-    Brot = pca_basis((C - center) @ R.T + center)
+    rotated = (C - center) @ R.T + center
+    A, B = match_n_like_scorer(rotated, C, seed=seed)
+    B0 = pca_basis(B)
+    Brot = pca_basis(A)
     M = (R @ B0).T @ Brot
     diag = np.diag(M)
     signs = np.where(diag >= 0, 1, -1).astype(int)
@@ -79,7 +91,7 @@ def svd_sign_parity(C: np.ndarray, R: np.ndarray) -> tuple[int, str, float]:
 def score_rotation(C: np.ndarray, R: np.ndarray, kind: str, label: str, angle_deg=None) -> dict:
     center = C.mean(0, keepdims=True)
     rotated = (C - center) @ R.T + center
-    parity, signs, offdiag = svd_sign_parity(C, R)
+    parity, signs, offdiag = svd_sign_parity(C, R, seed=0)
     sw, sw_spread = sliced_wasserstein(rotated, C, seed=0)
     dice, dice_resolution = occupancy_dice(rotated, C, seed=0)
     return {
@@ -121,7 +133,7 @@ def main():
     ax.set_title("Rigid-frame invariance audit")
     bad = sweep[sweep["pca_sign_parity"] < 0]
     if len(bad):
-        ax.scatter(bad["angle_deg"], bad["sliced_wasserstein"], marker="x", label="PCA parity = -1")
+        ax.scatter(bad["angle_deg"], bad["sliced_wasserstein"], marker="x", label="matched-PCA parity = -1")
     ax.legend()
     fig.tight_layout()
     fig.savefig(RESULTS / "task2_rotation_audit.png", dpi=160)
@@ -137,8 +149,6 @@ def main():
         scale_abs_max=("scale_log_ratio", lambda x: float(np.abs(x).max())),
     ).reset_index()
 
-    # A direct mechanism check: if parity alone predicts every non-identity score,
-    # the failure is the SVD-handedness / proper-flip mismatch rather than unstable axes.
     tol = 1e-10
     expected_bad = df["pca_sign_parity"] < 0
     observed_bad = (df["sliced_wasserstein"] > tol) | (df["occupancy_dice"] < 1 - tol)
