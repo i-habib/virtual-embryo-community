@@ -46,8 +46,15 @@ def random_proper_rotation(rng: np.random.Generator) -> np.ndarray:
 
 
 def pca_basis(C: np.ndarray) -> np.ndarray:
-    X = C - C.mean(0, keepdims=True)
-    _, _, vt = np.linalg.svd(X, full_matrices=False)
+    """Reproduce veckit's `_canonicalise` SVD input exactly.
+
+    The second centering looks redundant mathematically, but reproducing it matters here:
+    singular-vector signs are arbitrary, so tiny floating-point differences can change the
+    discrete sign pattern even when the principal axes themselves are identical.
+    """
+    C = np.asarray(C, float)
+    X = C - C.mean(0)
+    _, _, vt = np.linalg.svd(X - X.mean(0), full_matrices=False)
     return vt.T
 
 
@@ -55,7 +62,7 @@ def svd_sign_parity(C: np.ndarray, R: np.ndarray) -> tuple[int, str, float]:
     """Compare observed PCA basis after rotation with the mathematically expected one.
 
     If B is the original right-singular-vector basis, a proper input rotation R should
-    produce R @ B, up to independent column signs.  The product of those three signs
+    produce R @ B, up to independent column signs. The product of those three signs
     says whether SVD selected the same (+1) or opposite (-1) handedness.
     """
     center = C.mean(0, keepdims=True)
@@ -130,6 +137,13 @@ def main():
         scale_abs_max=("scale_log_ratio", lambda x: float(np.abs(x).max())),
     ).reset_index()
 
+    # A direct mechanism check: if parity alone predicts every non-identity score,
+    # the failure is the SVD-handedness / proper-flip mismatch rather than unstable axes.
+    tol = 1e-10
+    expected_bad = df["pca_sign_parity"] < 0
+    observed_bad = (df["sliced_wasserstein"] > tol) | (df["occupancy_dice"] < 1 - tol)
+    mechanism_matches = bool(np.array_equal(expected_bad.to_numpy(), observed_bad.to_numpy()))
+
     summary = {
         "veckit_commit": VECKIT_COMMIT,
         "sample": "sample_heart_9.5.h5ad",
@@ -137,6 +151,12 @@ def main():
         "z_sweep_n": int((df.kind == "z_sweep").sum()),
         "random_so3_n": int((df.kind == "random_so3").sum()),
         "parity_groups": parity.to_dict(orient="records"),
+        "mechanism_check": {
+            "tolerance": tol,
+            "opposite_handed_count": int(expected_bad.sum()),
+            "non_identity_sw_or_dice_count": int(observed_bad.sum()),
+            "parity_exactly_predicts_failures": mechanism_matches,
+        },
         "overall": {
             "sliced_wasserstein_min": float(df.sliced_wasserstein.min()),
             "sliced_wasserstein_max": float(df.sliced_wasserstein.max()),
