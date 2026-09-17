@@ -41,6 +41,8 @@ jobs:
           jupyter nbconvert --to notebook --execute --inplace intuition-lab/task3_response_playground.ipynb --ExecutePreprocessor.timeout=900
       - name: Regenerate compact result tables and figures
         run: python intuition-lab/generate_results.py
+      - name: Audit rigid-rotation invariance
+        run: python intuition-lab/rotation_audit.py
       - name: Commit refreshed evidence
         run: |
           git config user.name "github-actions[bot]"
