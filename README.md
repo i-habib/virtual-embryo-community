@@ -1,57 +1,47 @@
 # Virtual Embryo community resources
 
-A few independent resources I made while getting familiar with the Virtual Embryo Challenge. They are meant to fill gaps around the official documentation, not replace it.
+A set of independent resources for the Virtual Embryo Challenge. Each one solves a different problem entrants run into.
 
-I have grouped the useful pieces into two main packages rather than treating every small notebook as a separate project.
+## 1. ML Guide
 
-## 1. Intuition Lab — understand what the tasks are actually measuring
+**[`ml-guide/`](ml-guide/)** is for people who know machine learning but not much single-cell or developmental biology.
 
-Start with **[`ml-guide/`](ml-guide/)** if you know machine learning but have little or no single-cell background.
+It explains what the challenge is actually asking you to generate, why cells are not paired across developmental stages, what changes between Tasks 1–3, and what modeling capability each common failure mode points to.
 
-Then use **[`intuition-lab/`](intuition-lab/)** to break each task in controlled ways and watch the official scorer react:
+Start here if `.h5ad`, pseudobulk, spatial transcriptomics, or population-level prediction are still fuzzy.
 
-- **Task 1:** keep the mean right while destroying population diversity, gene-gene structure, or cell-state mixture.
-- **Task 2:** separate harmless coordinate-frame changes from wrong scale, wrong shape, and wrong local biological organization.
-- **Task 3:** keep a plausible mutant state while making the knockout response too weak, too strong, reversed, or assigned to the wrong genes.
+## 2. Intuition Lab
 
-The point is to make abstract phrases like “cell-state distribution,” “joint structure,” and “local spatial organization” concrete before you spend time training a serious model.
+**[`intuition-lab/`](intuition-lab/)** breaks predictions in controlled ways and runs the public scorer.
 
-The notebooks use only public known targets and are explicitly **teaching/debugging experiments, not held-out benchmark estimates**.
+- Task 1: right mean, wrong population
+- Task 2: harmless frame changes, wrong scale/shape, mirrored geometry, and right point cloud with biology in the wrong places
+- Task 3: no response, weak/strong response, reversed response, and response assigned to the wrong genes
 
-## 2. Data Safety Kit — audit external data before it becomes a problem
+The point is to learn what the metrics notice by experiment rather than by acronym. The notebooks are executed automatically against a pinned `veckit` revision, and the current tables/figures live in [`intuition-lab/RESULTS.md`](intuition-lab/RESULTS.md).
 
-**[`data-safety/`](data-safety/)** is a conservative helper for external datasets, pretrained models, and published code.
+## 3. Data Safety Kit
 
-It includes:
+**[`data-safety/`](data-safety/)** is a conservative checker for the challenge's external-data rules.
 
-- a stage/genotype checker for the cases that are mechanically clear from the published rules
-- `FILTER_REQUIRED` handling for general-purpose resources that span both allowed and protected stages
-- explicit `ASK_ORGANIZERS` results for cases that require biological judgment rather than pretending the rule can be automated
-- a tiny source registry and renderer so external-data disclosures are recorded while you work
-- boundary tests for the easy-to-misremember stage rules
+It handles the stage windows that are mechanically specified, including exact open/closed boundaries and broad resources that span both permitted and protected stages. Cases that need biological judgment, such as comparable alleles or phenocopies, return `ASK_ORGANIZERS` instead of guessing.
 
-This is not an official eligibility oracle. The current challenge rules and organizer answers always win.
+It also includes a tiny source registry/disclosure renderer so provenance is recorded while you work.
 
-## Smaller utility
+## 4. Metric Lens
 
-**[`metric-lens/`](metric-lens/)** takes raw local `veckit` metrics and shows where the weighted score is coming from, including a simple “if only this metric reached its published ceiling, how many points are available?” view.
+**[`metric-lens/`](metric-lens/)** turns raw local `veckit` metrics into their weighted public-board contributions and shows how much score headroom is associated with each metric.
 
-It is useful during iteration, but I consider the two packages above the more generally useful community resources.
+It is a small debugging utility, not a hidden-score predictor.
 
-## Why these, rather than another starter kit?
+## External-data catalog
 
-The first ideas were a submission validator, baseline writer, first-submission tutorial, and Agent-track evidence helper. After checking the official `veckit` repository and existing community projects, those jobs were already covered well. Rebuilding them would mostly create duplicate plumbing.
+A separate catalog + preprocessing package is currently staged under **[`external-data-catalog/`](external-data-catalog/)**. It is being split into its own repository because it has a different job: finding useful public resources and getting them into a clean, task-aware format.
 
-The remaining friction was different:
+## Reliability
 
-1. A general ML entrant can make a valid file while still not understanding what a “future population of cells” means or why there is no cell-to-cell target across time.
-2. Metric definitions are much easier to internalize when you deliberately preserve one property and break another.
-3. The external-data rules are permissive but nuanced enough that a general-purpose atlas or pretrained model can accidentally contain protected material.
+CI runs the Data Safety, Metric Lens, and external-catalog unit tests and checks every committed notebook for valid JSON/Python cells. A separate result-refresh workflow executes the Intuition Lab notebooks against the pinned public scorer and regenerates their result tables.
 
-The development notes in [`DEVELOPMENT.md`](DEVELOPMENT.md) record how the scope changed and what was dropped along the way.
-
-## Status
-
-These are independent community resources, not official Virtual Embryo tools. None use hidden challenge data. The official challenge site, rules, and scorer remain the source of truth.
+These are community resources, not official challenge tools. The official rules, evaluation pages, and scorer are the source of truth.
 
 MIT licensed.
