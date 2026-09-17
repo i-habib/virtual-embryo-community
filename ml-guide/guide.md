@@ -427,7 +427,12 @@ and separately model the mixture weights
 \pi_k(t).
 \]
 
-Now you can change both where each state lives in expression space and how common each state is.
+Now you can change both
+
+- where each state lives in expression space
+- how common each state is
+
+This is often the first baseline that actually respects the structure of the problem.
 
 **Still misses:** continuous transitions and genuinely new states if you hard-code a fixed set of clusters.
 
@@ -440,6 +445,16 @@ Instead of assuming cell identities, infer a **soft coupling** between populatio
 Conceptually, ask:
 
 > Which mass at time \(t\) could plausibly flow into which mass at \(t+1\)?
+
+A schematic:
+
+```mermaid
+flowchart LR
+    A1[Early state A] -->|0.7| C[Later state C]
+    A1 -->|0.3| D[Later state D]
+    B1[Early state B] -->|0.2| C
+    B1 -->|0.8| E[Later state E]
+```
 
 This is why optimal transport is such a natural tool in developmental single-cell work: it does not require one-to-one matches, and it naturally handles splitting mass across descendants.
 
