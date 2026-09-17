@@ -35,6 +35,44 @@ HELDOUT_GENES = {
     "β catenin": "β-catenin",
 }
 
+@dataclass(frozen=True)
+class StageWindow:
+    lo: float
+    hi: float
+    include_lo: bool
+    include_hi: bool
+
+    def contains(self, x: float) -> bool:
+        left = x > self.lo or (self.include_lo and x == self.lo)
+        right = x < self.hi or (self.include_hi and x == self.hi)
+        return left and right
+
+    def intersects_closed_range(self, lo: float, hi: float) -> bool:
+        """Whether this protected set intersects the resource's closed [lo, hi] range."""
+        left = max(lo, self.lo)
+        right = min(hi, self.hi)
+        if left < right:
+            return True
+        if left > right:
+            return False
+        return self.contains(left)
+
+    def contains_closed_range(self, lo: float, hi: float) -> bool:
+        """Whether every point in the resource's closed [lo, hi] range is protected."""
+        return self.contains(lo) and self.contains(hi)
+
+PROTECTED_WINDOWS = {
+    # External extrapolation data is excluded after E9.5 through E13.5 inclusive.
+    "t1": (StageWindow(9.5, 13.5, False, True),),
+    # Heart has the interpolation window plus the same extrapolation window.
+    "t2-heart": (
+        StageWindow(8.25, 8.75, False, False),
+        StageWindow(9.5, 13.5, False, True),
+    ),
+    # Embryo interpolation is strictly between the released bracketing stages.
+    "t2-embryo": (StageWindow(7.25, 8.0, False, False),),
+}
+
 @dataclass
 class Verdict:
     status: str
@@ -52,13 +90,7 @@ def canonical_task(task: str) -> str:
 
 def protected_stage(task: str, stage: float) -> bool:
     """True only for mechanically explicit stage exclusions."""
-    if task == "t1":
-        return stage > 9.5 and stage <= 13.5
-    if task == "t2-heart":
-        return (8.25 < stage < 8.75) or (stage > 9.5 and stage <= 13.5)
-    if task == "t2-embryo":
-        return 7.25 < stage < 8.0
-    return False
+    return any(w.contains(stage) for w in PROTECTED_WINDOWS.get(task, ()))
 
 def check_stage(task: str, stage: float) -> Verdict:
     task = canonical_task(task)
@@ -86,7 +118,14 @@ def check_stage(task: str, stage: float) -> Verdict:
     )
 
 def interval_relation(task: str, lo: float, hi: float) -> Verdict:
+    """Classify a resource spanning every stage in the closed range [lo, hi].
+
+    The protected challenge intervals have open/closed boundaries. We therefore do exact
+    interval intersection rather than probing endpoints or nearby floating-point samples.
+    """
     task = canonical_task(task)
+    if not (math.isfinite(lo) and math.isfinite(hi)):
+        raise ValueError("Range bounds must be finite.")
     if lo > hi:
         lo, hi = hi, lo
     if task == "t3":
@@ -96,37 +135,36 @@ def interval_relation(task: str, lo: float, hi: float) -> Verdict:
             "Inspect the resource by genotype/condition and ask about any held-out or phenocopying perturbations.",
             task,
         )
-    probes = [lo, hi]
-    boundaries = {
-        "t1": [9.5, 13.5],
-        "t2-heart": [8.25, 8.75, 9.5, 13.5],
-        "t2-embryo": [7.25, 8.0],
-    }[task]
-    for b in boundaries:
-        if lo < b < hi:
-            eps = 1e-6
-            probes.extend([max(lo, b-eps), min(hi, b+eps)])
-    states = [protected_stage(task, x) for x in probes]
-    any_bad = any(states)
-    any_good = any(not s for s in states)
-    if any_bad and any_good:
+    if lo == hi:
+        return check_stage(task, lo)
+
+    windows = PROTECTED_WINDOWS[task]
+    touched = [w for w in windows if w.intersects_closed_range(lo, hi)]
+    if not touched:
         return Verdict(
-            "FILTER_REQUIRED",
-            f"The resource range E{lo:g}–E{hi:g} crosses both permitted and protected stages for {task}.",
-            "Remove cells/samples inside the protected window before training and disclose the filtering in the method summary.",
+            "CLEAR_BY_STAGE_RULE",
+            f"The supplied range E{lo:g}–E{hi:g} does not intersect a mechanically explicit protected stage window for {task}.",
+            "Still inspect all conditions/genotypes, licences, and the latest official rules.",
             task,
         )
-    if any_bad:
+
+    # A continuous resource range is fully protected only if one protected interval contains
+    # the whole thing. Otherwise it contains both permitted and protected stages and must be
+    # filtered. This correctly handles [E8.25, E8.75]: both endpoints are permitted while
+    # the entire open interval between them is protected.
+    fully_protected = any(w.contains_closed_range(lo, hi) for w in windows)
+    if fully_protected:
         return Verdict(
             "EXCLUDED",
-            f"The supplied range E{lo:g}–E{hi:g} lies inside a protected external-data window for {task}.",
+            f"The supplied range E{lo:g}–E{hi:g} lies entirely inside a protected external-data window for {task}.",
             "Do not use the measured data for this task.",
             task,
         )
+
     return Verdict(
-        "CLEAR_BY_STAGE_RULE",
-        f"The supplied range E{lo:g}–E{hi:g} does not cross a mechanically explicit protected stage window for {task}.",
-        "Still inspect all conditions/genotypes, licences, and the latest official rules.",
+        "FILTER_REQUIRED",
+        f"The resource range E{lo:g}–E{hi:g} contains both permitted and protected stages for {task}.",
+        "Remove cells/samples inside every protected window before training and disclose the filtering in the method summary.",
         task,
     )
 
