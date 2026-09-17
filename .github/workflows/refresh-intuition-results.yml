@@ -11,12 +11,18 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: intuition-results-main
+  cancel-in-progress: true
+
 jobs:
   execute:
     if: ${{ !contains(github.event.head_commit.message || '', '[intuition-results]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -44,5 +50,7 @@ jobs:
             echo "No result changes"
           else
             git commit -m "Refresh Intuition Lab results [intuition-results] [skip ci]"
-            git push
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
