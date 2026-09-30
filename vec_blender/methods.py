@@ -113,12 +113,10 @@ def mean_graft(
         obs_indices=np.arange(b.n_obs),
         obs_prefix="mean_graft",
     )
-    out.uns["vec_blender"].update(
-        {
-            "method": "mean_graft",
-            "clip_min": None if clip_min is None else float(clip_min),
-        }
-    )
+    stored = {"method": "mean_graft"}
+    if clip_min is not None:
+        stored["clip_min"] = float(clip_min)
+    out.uns["vec_blender"].update(stored)
 
     mean_error = float(np.max(np.abs(X.mean(axis=0) - mu_a)))
     negative_fraction = float(np.mean(X < 0))
