@@ -38,6 +38,14 @@ def _run_blend(args) -> None:
         result = population_mix(a, b, alpha=args.alpha, n_out=args.n_out, seed=args.seed)
     elif args.method == "mean-graft":
         result = mean_graft(a, b, clip_min=args.clip_min)
+        if args.clip_min is None and result.report["negative_fraction"] > 0:
+            pct = 100.0 * result.report["negative_fraction"]
+            raise ValueError(
+                "mean-graft produced negative expression values "
+                f"({pct:.3g}% of entries). veckit rejects negative prediction.X. "
+                "Re-run with --clip-min 0 to make a scorer-valid file; clipping "
+                "sacrifices the exact-mean guarantee."
+            )
     elif args.method == "quantile-graft":
         result = quantile_graft(a, b)
     elif args.method == "spatial-transplant":
@@ -98,7 +106,12 @@ def build_parser() -> argparse.ArgumentParser:
     blend.add_argument("--alpha", type=float, default=0.5, help="A fraction for mixture")
     blend.add_argument("--n-out", type=int, default=None)
     blend.add_argument("--seed", type=int, default=0)
-    blend.add_argument("--clip-min", type=float, default=None)
+    blend.add_argument(
+        "--clip-min",
+        type=float,
+        default=None,
+        help="floor mean-graft expression values; use 0 if an exact graft goes negative",
+    )
     blend.add_argument("--components", type=int, default=24)
     blend.add_argument(
         "--assignment", choices=("auto", "hungarian", "greedy"), default="auto"
