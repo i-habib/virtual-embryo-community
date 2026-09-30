@@ -84,6 +84,15 @@ def save_and_score(
     reference: Path | None = None,
     wt: Path | None = None,
 ) -> dict:
+    X = dense(pred)
+    if not np.isfinite(X).all():
+        raise ValueError(f"{name}: prediction contains non-finite expression values")
+    if np.min(X) < -1e-7:
+        raise ValueError(
+            f"{name}: prediction contains negative expression values "
+            f"(min={float(np.min(X)):.6g})"
+        )
+
     path = work / f"{name}.h5ad"
     pred.write_h5ad(path)
     kwargs = {}
@@ -97,34 +106,81 @@ def save_and_score(
     return {"candidate": name, **result["metrics"]}
 
 
+def positive_offset(X: np.ndarray) -> np.ndarray:
+    """A deterministic nonnegative gene-wise offset large enough to move the mean."""
+    return 0.25 + 0.5 * np.std(X, axis=0)
+
+
 def t1_mean_structure(samples, work, rng):
     target_path = samples["sample_9.5.h5ad"]
     ref_path = samples["sample_8.5.h5ad"]
     target = ad.read_h5ad(target_path)
-    ref = align_to(ad.read_h5ad(ref_path), target.var_names)
     X = dense(target)
-    R = dense(ref)
 
     mu_t = X.mean(0)
-    mu_r = R.mean(0)
-    a = make_like(target, np.repeat(mu_t[None, :], target.n_obs, axis=0), prefix="t1_mean")
-    b = make_like(target, X - mu_t + mu_r, prefix="t1_structure")
+    offset = positive_offset(X)
+    a = make_like(
+        target,
+        np.repeat(mu_t[None, :], target.n_obs, axis=0),
+        prefix="t1_mean",
+    )
+    # Adding one value per gene changes pseudobulk while leaving every centered
+    # cell residual exactly unchanged, and it stays scorer-valid/nonnegative.
+    b = make_like(target, X + offset[None, :], prefix="t1_structure")
     blend = mean_graft(a, b).adata
 
     rows = [
-        save_and_score(a, name="A_correct_mean_collapsed", task="T1", work=work, target=target_path, reference=ref_path),
-        save_and_score(b, name="B_structure_wrong_mean", task="T1", work=work, target=target_path, reference=ref_path),
-        save_and_score(blend, name="mean_graft", task="T1", work=work, target=target_path, reference=ref_path),
+        save_and_score(
+            a,
+            name="A_correct_mean_collapsed",
+            task="T1",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
+        save_and_score(
+            b,
+            name="B_structure_wrong_mean",
+            task="T1",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
+        save_and_score(
+            blend,
+            name="mean_graft",
+            task="T1",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
     ]
     diagnostics = {
-        "blend_expression_rmse_to_target": float(np.sqrt(np.mean((dense(blend) - X) ** 2))),
-        "blend_max_abs_expression_error": float(np.max(np.abs(dense(blend) - X))),
+        "offset_min": float(np.min(offset)),
+        "offset_max": float(np.max(offset)),
+        "blend_expression_rmse_to_target": float(
+            np.sqrt(np.mean((dense(blend) - X) ** 2))
+        ),
+        "blend_max_abs_expression_error": float(
+            np.max(np.abs(dense(blend) - X))
+        ),
     }
 
     mix_rows = []
     for alpha in (0.0, 0.25, 0.5, 0.75, 1.0):
-        mixed = population_mix(a, b, alpha=alpha, n_out=target.n_obs, seed=0).adata
-        mix_rows.append(save_and_score(mixed, name=f"mixture_alpha_{alpha:g}", task="T1", work=work, target=target_path, reference=ref_path))
+        mixed = population_mix(
+            a, b, alpha=alpha, n_out=target.n_obs, seed=0
+        ).adata
+        mix_rows.append(
+            save_and_score(
+                mixed,
+                name=f"mixture_alpha_{alpha:g}",
+                task="T1",
+                work=work,
+                target=target_path,
+                reference=ref_path,
+            )
+        )
     return rows, mix_rows, diagnostics
 
 
@@ -140,7 +196,8 @@ def t1_quantile(samples, work, rng):
         Xa[:, j] = X[rng.permutation(n), j]
 
     scale = 0.55 + 0.9 * (np.arange(g) + 1) / max(g, 1)
-    shift = 0.15 + 0.25 * np.sin(np.arange(g) * 0.17)
+    # Strictly positive offset keeps zero-valued target entries nonnegative.
+    shift = 0.25 + 0.15 * np.sin(np.arange(g) * 0.17)
     Xb = X * scale[None, :] + shift[None, :]
 
     a = make_like(target, Xa, prefix="t1_marginal")
@@ -148,13 +205,39 @@ def t1_quantile(samples, work, rng):
     blend = quantile_graft(a, b).adata
 
     rows = [
-        save_and_score(a, name="A_correct_marginals_shuffled", task="T1", work=work, target=target_path, reference=ref_path),
-        save_and_score(b, name="B_correct_ranks_wrong_marginals", task="T1", work=work, target=target_path, reference=ref_path),
-        save_and_score(blend, name="quantile_graft", task="T1", work=work, target=target_path, reference=ref_path),
+        save_and_score(
+            a,
+            name="A_correct_marginals_shuffled",
+            task="T1",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
+        save_and_score(
+            b,
+            name="B_correct_ranks_wrong_marginals",
+            task="T1",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
+        save_and_score(
+            blend,
+            name="quantile_graft",
+            task="T1",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
     ]
     diagnostics = {
-        "blend_expression_rmse_to_target": float(np.sqrt(np.mean((dense(blend) - X) ** 2))),
-        "blend_max_abs_expression_error": float(np.max(np.abs(dense(blend) - X))),
+        "distorted_expression_min": float(np.min(Xb)),
+        "blend_expression_rmse_to_target": float(
+            np.sqrt(np.mean((dense(blend) - X) ** 2))
+        ),
+        "blend_max_abs_expression_error": float(
+            np.max(np.abs(dense(blend) - X))
+        ),
     }
     return rows, diagnostics
 
@@ -173,21 +256,63 @@ def t2_spatial(samples, work, rng):
     row_perm = rng.permutation(n)
     gene_scale = np.std(X, axis=0)
     shift = 0.35 + 0.65 * gene_scale
-    b = make_like(target, X[row_perm] + shift[None, :], coords=C[row_perm], prefix="t2_geometry")
+    b = make_like(
+        target,
+        X[row_perm] + shift[None, :],
+        coords=C[row_perm],
+        prefix="t2_geometry",
+    )
 
-    blend_result = spatial_transplant(a, b, seed=0, n_components=min(24, g), assignment="hungarian")
+    blend_result = spatial_transplant(
+        a,
+        b,
+        seed=0,
+        n_components=min(24, g),
+        assignment="hungarian",
+    )
     blend = blend_result.adata
 
     rows = [
-        save_and_score(a, name="A_expression_wrong_locations", task="T2", work=work, target=target_path, reference=ref_path),
-        save_and_score(b, name="B_geometry_shifted_expression", task="T2", work=work, target=target_path, reference=ref_path),
-        save_and_score(blend, name="spatial_transplant", task="T2", work=work, target=target_path, reference=ref_path),
+        save_and_score(
+            a,
+            name="A_expression_wrong_locations",
+            task="T2",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
+        save_and_score(
+            b,
+            name="B_geometry_shifted_expression",
+            task="T2",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
+        save_and_score(
+            blend,
+            name="spatial_transplant",
+            task="T2",
+            work=work,
+            target=target_path,
+            reference=ref_path,
+        ),
     ]
     diagnostics = {
         **blend_result.report,
-        "blend_expression_rmse_to_target": float(np.sqrt(np.mean((dense(blend) - X) ** 2))),
-        "blend_coordinate_rmse_to_target": float(np.sqrt(np.mean((np.asarray(blend.obsm["spatial_3D"]) - C) ** 2))),
-        "blend_max_coordinate_error": float(np.max(np.abs(np.asarray(blend.obsm["spatial_3D"]) - C))),
+        "blend_expression_rmse_to_target": float(
+            np.sqrt(np.mean((dense(blend) - X) ** 2))
+        ),
+        "blend_coordinate_rmse_to_target": float(
+            np.sqrt(
+                np.mean(
+                    (np.asarray(blend.obsm["spatial_3D"]) - C) ** 2
+                )
+            )
+        ),
+        "blend_max_coordinate_error": float(
+            np.max(np.abs(np.asarray(blend.obsm["spatial_3D"]) - C))
+        ),
     }
     return rows, diagnostics
 
@@ -196,25 +321,65 @@ def t3_response_structure(samples, work, rng):
     target_path = samples["sample_mab21l2_ko.h5ad"]
     wt_path = samples["sample_wt.h5ad"]
     target = ad.read_h5ad(target_path)
-    wt = align_to(ad.read_h5ad(wt_path), target.var_names)
     X = dense(target)
-    W = dense(wt)
-    C = np.asarray(target.obsm["spatial_3D"], dtype=np.float64)[:, :3] if "spatial_3D" in target.obsm else None
+    C = (
+        np.asarray(target.obsm["spatial_3D"], dtype=np.float64)[:, :3]
+        if "spatial_3D" in target.obsm
+        else None
+    )
 
     mu_t = X.mean(0)
-    mu_w = W.mean(0)
-    a = make_like(target, np.repeat(mu_t[None, :], target.n_obs, axis=0), coords=C, prefix="t3_response")
-    b = make_like(target, X - mu_t + mu_w, coords=C, prefix="t3_structure")
+    offset = positive_offset(X)
+    a = make_like(
+        target,
+        np.repeat(mu_t[None, :], target.n_obs, axis=0),
+        coords=C,
+        prefix="t3_response",
+    )
+    # Same KO centered structure, deliberately shifted perturbation mean.
+    b = make_like(
+        target,
+        X + offset[None, :],
+        coords=C,
+        prefix="t3_structure",
+    )
     blend = mean_graft(a, b).adata
 
     rows = [
-        save_and_score(a, name="A_correct_mean_response_collapsed", task="T3", work=work, target=target_path, wt=wt_path),
-        save_and_score(b, name="B_structure_zero_mean_response", task="T3", work=work, target=target_path, wt=wt_path),
-        save_and_score(blend, name="mean_graft", task="T3", work=work, target=target_path, wt=wt_path),
+        save_and_score(
+            a,
+            name="A_correct_mean_response_collapsed",
+            task="T3",
+            work=work,
+            target=target_path,
+            wt=wt_path,
+        ),
+        save_and_score(
+            b,
+            name="B_structure_shifted_response",
+            task="T3",
+            work=work,
+            target=target_path,
+            wt=wt_path,
+        ),
+        save_and_score(
+            blend,
+            name="mean_graft",
+            task="T3",
+            work=work,
+            target=target_path,
+            wt=wt_path,
+        ),
     ]
     diagnostics = {
-        "blend_expression_rmse_to_target": float(np.sqrt(np.mean((dense(blend) - X) ** 2))),
-        "blend_max_abs_expression_error": float(np.max(np.abs(dense(blend) - X))),
+        "offset_min": float(np.min(offset)),
+        "offset_max": float(np.max(offset)),
+        "blend_expression_rmse_to_target": float(
+            np.sqrt(np.mean((dense(blend) - X) ** 2))
+        ),
+        "blend_max_abs_expression_error": float(
+            np.max(np.abs(dense(blend) - X))
+        ),
     }
     return rows, diagnostics
 
@@ -231,7 +396,9 @@ def table_for_md(df: pd.DataFrame) -> str:
     show = df.copy()
     for c in show.columns:
         if c != "candidate":
-            show[c] = show[c].map(lambda x: "" if pd.isna(x) else f"{float(x):.5g}")
+            show[c] = show[c].map(
+                lambda x: "" if pd.isna(x) else f"{float(x):.5g}"
+            )
     return show.to_markdown(index=False)
 
 
@@ -242,38 +409,83 @@ def write_outputs(out_dir: Path, results: dict) -> None:
             continue
         numeric_frame(value).to_csv(out_dir / f"{key}.csv", index=False)
 
-    (out_dir / "diagnostics.json").write_text(json.dumps(results["diagnostics"], indent=2) + "\n")
+    (out_dir / "diagnostics.json").write_text(
+        json.dumps(results["diagnostics"], indent=2) + "\n"
+    )
 
     md = [
-        "# Ensemble Lab results", "",
-        f"Scorer pinned to `aristoteleo/veckit@{VECKIT_COMMIT}`.", "",
-        "These are controlled, target-aware experiments on the organizers' public mini examples. They test what a composition operation preserves; they are not hidden-board estimates.", "",
-        "## T1: mean versus population structure", "",
-        "A has the target pseudobulk mean but collapses every cell to that mean. B keeps the target's centered cell cloud but gives it the reference-stage mean. Mean grafting combines those two pieces.", "",
-        table_for_md(numeric_frame(results["t1_mean_structure"])), "",
-        "Diagnostics:", "```json", json.dumps(results["diagnostics"]["t1_mean_structure"], indent=2), "```", "",
-        "### Simple population-mixture sweep", "", table_for_md(numeric_frame(results["t1_mixture_sweep"])), "",
-        "The mixture sweep is included because it behaves differently from a graft: it interpolates between two empirical populations rather than replacing one factor exactly.", "",
-        "## T1: marginals versus rank structure", "",
-        "A preserves every gene's empirical marginal values but independently shuffles each gene across cells. B keeps the target's within-gene cell ranks while applying a positive gene-wise affine distortion. Quantile grafting takes A's values and assigns them according to B's ranks.", "",
-        table_for_md(numeric_frame(results["t1_quantile"])), "",
-        "Diagnostics:", "```json", json.dumps(results["diagnostics"]["t1_quantile"], indent=2), "```", "",
-        "## T2: expression versus spatial assignment", "",
-        "A contains the exact target expression with coordinates permuted across cells. B contains the exact target point cloud and coherent expression-coordinate pairing, but expression is shifted gene by gene and the rows are permuted. Spatial transplant matches the two expression clouds and copies B's matched coordinates onto A's expression cells.", "",
-        table_for_md(numeric_frame(results["t2_spatial"])), "",
-        "Diagnostics:", "```json", json.dumps(results["diagnostics"]["t2_spatial"], indent=2), "```", "",
-        "## T3: perturbation mean versus cell-level structure", "",
-        "A has the target KO pseudobulk mean repeated across cells. B keeps the KO centered cell cloud but moves its mean back to matched WT. Mean grafting restores the KO mean while retaining B's cell-level residual structure.", "",
-        table_for_md(numeric_frame(results["t3_response_structure"])), "",
-        "Diagnostics:", "```json", json.dumps(results["diagnostics"]["t3_response_structure"], indent=2), "```", "",
-        "## Reproduce", "", "```bash", "pip install -r requirements.txt", "python run_lab.py --out-dir results", "```", "",
+        "# Ensemble Lab results",
+        "",
+        f"Scorer pinned to `aristoteleo/veckit@{VECKIT_COMMIT}`.",
+        "",
+        "These are controlled, target-aware experiments on the organizers' public mini examples. They test what a composition operation preserves; they are not hidden-board estimates.",
+        "",
+        "## T1: mean versus population structure",
+        "",
+        "A has the target pseudobulk mean but collapses every cell to that mean. B adds a positive gene-wise offset to the target, changing pseudobulk while leaving the centered cell cloud exactly unchanged. Mean grafting combines A's mean with B's centered population structure.",
+        "",
+        table_for_md(numeric_frame(results["t1_mean_structure"])),
+        "",
+        "Diagnostics:",
+        "```json",
+        json.dumps(results["diagnostics"]["t1_mean_structure"], indent=2),
+        "```",
+        "",
+        "### Simple population-mixture sweep",
+        "",
+        table_for_md(numeric_frame(results["t1_mixture_sweep"])),
+        "",
+        "The mixture sweep interpolates between two empirical populations instead of replacing one factor exactly.",
+        "",
+        "## T1: marginals versus rank structure",
+        "",
+        "A preserves every gene's empirical marginal values but independently shuffles each gene across cells. B keeps the target's within-gene cell ranks while applying a positive gene-wise affine distortion. Quantile grafting takes A's values and assigns them according to B's ranks.",
+        "",
+        table_for_md(numeric_frame(results["t1_quantile"])),
+        "",
+        "Diagnostics:",
+        "```json",
+        json.dumps(results["diagnostics"]["t1_quantile"], indent=2),
+        "```",
+        "",
+        "## T2: expression versus spatial assignment",
+        "",
+        "A contains the exact target expression with coordinates permuted across cells. B contains the exact target point cloud and coherent expression-coordinate pairing, but expression is shifted gene by gene and the rows are permuted. Spatial transplant matches the two expression clouds and copies B's matched coordinates onto A's expression cells.",
+        "",
+        table_for_md(numeric_frame(results["t2_spatial"])),
+        "",
+        "Diagnostics:",
+        "```json",
+        json.dumps(results["diagnostics"]["t2_spatial"], indent=2),
+        "```",
+        "",
+        "## T3: perturbation mean versus cell-level structure",
+        "",
+        "A has the target KO pseudobulk mean repeated across cells. B adds a positive gene-wise offset to the KO population, changing the perturbation mean while leaving the centered KO cell cloud unchanged. Mean grafting restores A's KO mean while retaining B's cell-level structure.",
+        "",
+        table_for_md(numeric_frame(results["t3_response_structure"])),
+        "",
+        "Diagnostics:",
+        "```json",
+        json.dumps(results["diagnostics"]["t3_response_structure"], indent=2),
+        "```",
+        "",
+        "## Reproduce",
+        "",
+        "```bash",
+        "pip install -r requirements.txt",
+        "python run_lab.py --out-dir results",
+        "```",
+        "",
     ]
     Path("RESULTS.md").write_text("\n".join(md), encoding="utf-8")
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--data-dir", type=Path, default=Path(".cache/public_samples"))
+    p.add_argument(
+        "--data-dir", type=Path, default=Path(".cache/public_samples")
+    )
     p.add_argument("--out-dir", type=Path, default=Path("results"))
     args = p.parse_args()
 
