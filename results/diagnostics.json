@@ -1,0 +1,41 @@
+{
+  "t1_mean_structure": {
+    "offset_min": 0.25,
+    "offset_max": 1.163951476220542,
+    "clip_min": 0.0,
+    "blend_expression_rmse_to_target": 1.609732409196329e-08,
+    "blend_max_abs_expression_error": 4.76837158203125e-07,
+    "blend_expression_min": 0.0
+  },
+  "t1_quantile": {
+    "distorted_expression_min": 0.10000000039494497,
+    "blend_expression_rmse_to_target": 0.0,
+    "blend_max_abs_expression_error": 0.0,
+    "blend_expression_min": 0.0
+  },
+  "t2_spatial": {
+    "method": "spatial_transplant",
+    "seed": 0,
+    "n_out": 150,
+    "assignment": "hungarian",
+    "embedding_components": 24,
+    "mean_match_distance": 1.4172493987537914e-07,
+    "p95_match_distance": 3.7885285549897426e-07,
+    "max_match_distance": 9.5367431640625e-07,
+    "subsampled_a": false,
+    "subsampled_b": false,
+    "blend_expression_rmse_to_target": 0.0,
+    "blend_max_abs_expression_error": 0.0,
+    "blend_expression_min": 0.0,
+    "blend_coordinate_rmse_to_target": 5.0952253430226125e-06,
+    "blend_max_coordinate_error": 2.8583225343936647e-05
+  },
+  "t3_response_structure": {
+    "offset_min": 0.25,
+    "offset_max": 1.8822239605895543,
+    "clip_min": 0.0,
+    "blend_expression_rmse_to_target": 3.782007142043219e-08,
+    "blend_max_abs_expression_error": 9.5367431640625e-07,
+    "blend_expression_min": 0.0
+  }
+}
