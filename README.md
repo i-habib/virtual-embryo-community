@@ -34,9 +34,9 @@ vec-blend blend A.h5ad B.h5ad \
   -o grafted.h5ad
 ```
 
-Before optional clipping, the output pseudobulk mean equals A's exactly and B's centered residual matrix is unchanged. For T3 this is also a useful response/structure composition because the pseudobulk perturbation response is determined by that mean relative to WT.
+Before clipping, the output pseudobulk mean equals A's exactly and B's centered residual matrix is unchanged. For T3 this also composes a pseudobulk perturbation response with another prediction's cell-level structure.
 
-A large shift can create negative expression values. The sidecar reports the negative fraction. If the submission representation must stay nonnegative, pass `--clip-min 0`; clipping then gives up the exact-mean guarantee.
+A large shift can create negative expression values. `veckit` rejects negative `prediction.X`, so the CLI refuses to write an unclipped negative mean graft. Re-run with `--clip-min 0` to make the file scorer-valid; clipping gives up the exact-mean guarantee. The Python API still returns the raw graft and reports its negative fraction for analysis.
 
 ### Quantile graft
 
@@ -85,6 +85,7 @@ The tool fails when:
 - expression or spatial arrays contain non-finite values
 - only one input has `spatial_3D` for a population mixture
 - a spatial transplant has no 3-D geometry carrier
+- an unclipped mean graft would contain negative expression values
 
 Gene order can differ; B is reordered to A automatically.
 
@@ -127,6 +128,6 @@ pip install -e ".[dev]"
 pytest -q
 ```
 
-The tests check the preservation guarantees above, including recovery of a permuted spatial geometry when two expression clouds differ only by a gene-wise shift.
+The tests check the preservation guarantees above, actual `.h5ad` write/reopen behavior, rejection of invalid negative mean grafts, and recovery of a permuted spatial geometry when two expression clouds differ only by a gene-wise shift.
 
 Independent community tool for the Virtual Embryo Challenge. The official rules and submission contract remain authoritative.
