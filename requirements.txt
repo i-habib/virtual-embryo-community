@@ -1,4 +1,4 @@
 git+https://github.com/aristoteleo/veckit.git@46d41e63f42a9aab815db20b742feeccd249cb17
-git+https://github.com/i-habib/virtual-embryo-submission-blender.git@ba2988455bdeda910fc44f0f788e2f2c67f78c9b
+git+https://github.com/i-habib/virtual-embryo-submission-blender.git@86f37e550290bbf741b5f8147aae23c4afcee915
 pandas>=2.0
 tabulate>=0.9
