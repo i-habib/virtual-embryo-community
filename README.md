@@ -1,68 +1,126 @@
-# Virtual Embryo Ensemble Lab
+# Virtual Embryo Ensemble Atlas
 
-When is it actually useful to combine two Virtual Embryo predictions?
+When do two imperfect Virtual Embryo predictions actually combine well?
 
-This repo tests population-level ensemble operations against the public `veckit` scorer. The main experiments make **both parent predictions imperfect**, vary how their errors are split, and measure when a blend matches or beats the better parent on the primary metrics.
+This repo studies ensemble behavior at the level of the submitted cell population. It maps where different composition strategies help, where they trade metrics, and where they fail. It also measures properties of the two parent predictions that can be computed **without a target** and asks whether those properties predict ensemble success.
 
-The experiments use the organizers' public mini targets. They are controlled scorer studies, not hidden-board estimates.
+The experiments use the organizers' public mini examples and the pinned public `veckit` scorer. They are controlled studies, not hidden-board estimates.
 
-## Main results
+## Start here
 
-See **[REGIME_RESULTS.md](REGIME_RESULTS.md)** for the full tables and heatmaps.
+- **[ATLAS_RESULTS.md](ATLAS_RESULTS.md)**: target-free parent diagnostics, method × metric transfer matrix, comparisons with simple ensemble baselines, and organizer reference-row pairs.
+- **[REGIME_RESULTS.md](REGIME_RESULTS.md)**: phase diagrams for imperfect complementarity.
+- **[RESULTS.md](RESULTS.md)**: exact preservation checks for the individual operators.
 
-### Mean graft is robust when the errors are genuinely complementary
+## What seems useful so far
 
-The mean-graft grid independently varies error in the mean donor and error in the carrier's cell-level structure.
+### Mean graft is fairly forgiving
 
-Across the 24 imperfect grid points:
+Across the imperfect T1 grid, mean graft preserved the better parent on all four primary metrics at 19/24 nontrivial points and never became worse than both parents on any primary metric.
 
-- 19/24 preserve the better parent on all four primary T1 metrics
-- all 24 preserve it on at least half of the primary metrics
-- all 24 strictly beat both parents on at least one primary metric
-- none are worse than both parents on any primary metric
+Among target-free diagnostics, variance disagreement is the clearest signal in this grid (`Spearman rho = -0.52`). Below the grid median, the graft preserved the better parent on all primary metrics on average. Above it, that average fell to about 0.90. The method still worked surprisingly often even when the two populations had fairly different variance structure.
 
-So the useful regime is much broader than the exact reconstruction control.
+### Quantile graft needs more compatible population structure
 
-### Quantile graft has a clearer failure boundary
+Quantile graft also succeeds at 19/24 imperfect grid points on all four primary metrics, but its failure region is much sharper.
 
-The quantile grid independently worsens the marginal donor and corrupts a fraction of the carrier's within-gene ranks.
+Variance disagreement between the parent predictions has `rho = -0.71` with preservation of the better parent. In the lower-disagreement half of the grid, the graft preserved the better parent on every primary metric on average. In the higher-disagreement half, the average dropped to 0.50.
 
-It preserves the better parent on all four primary metrics at 19/24 imperfect points, but the high-error corner collapses. The heatmap makes that boundary visible instead of implying that rank/marginal grafting is always beneficial.
+That is a useful warning: complementary-looking marginals and ranks are not enough if the two parent populations disagree strongly in their overall spread.
 
-### Spatial transplant works well until matching becomes ambiguous
+### Spatial transplant depends on match confidence
 
-The T2 grid varies expression corruption and matching noise independently.
+Spatial transplant preserves the better parent on all eight primary T2 metrics at 20/24 imperfect points, but matching quality matters.
 
-- 20/24 imperfect points preserve the better parent on all eight primary T2 metrics
-- all 24 preserve at least half
-- 3/24 become worse than both parents on at least one primary metric
+Two diagnostics computed from the parent files alone are informative here:
 
-The assignment comparison is also useful in practice. Hungarian and greedy matching agree at low noise, but greedy begins assigning the wrong geometry at high noise. At matching-noise `0.6`, coordinate RMSE is about `81.7` for greedy versus `5e-6` for Hungarian; at `1.0`, greedy reaches about `133.8` while Hungarian still recovers the known geometry.
+- expression-space assignment ambiguity: `rho = -0.60`
+- mutual nearest-neighbor fraction: `rho = +0.59`
 
-### Simple population mixing is much less predictable
+Below the controlled-grid median ambiguity, every tested point preserved the better parent on all primary metrics and none lost to both parents. Above it, 25% of the tested points lost to both parents on at least one primary metric.
 
-The mixture experiment varies parent complementarity and the mixture fraction. Unlike the factor grafts, whole-cell mixtures usually trade one metric against another rather than preserving the better component from each parent. The raw table is included so entrants can see where a mixture actually helps and where it merely interpolates between two errors.
+The Hungarian/greedy comparison shows the same failure directly. Greedy matching is fine at low noise, then breaks sharply once correspondences become ambiguous.
 
-## Baseline context
+### Whole-cell mixtures are much less predictable
 
-The regime run also scores the public challenge floor baselines with the same pinned scorer:
+Population mixing rarely preserves the best component from both parents. In the current T1 grid it preserves the better parent on `mmd_u` fairly often, but almost never preserves the better parent on `de_direction` or `variogram`.
 
-- T1 `copy_last`
-- T2-heart `copy_last`
-- T3 `wt_identity`
+The target-free diagnostics tested so far do not predict mixture success well. For now, mixture sweeps are better treated as a cheap empirical search than as a reliable factor-combination rule.
 
-These give a reference point for the controlled grids without using leaderboard feedback.
+## Metric transfer matrix
 
-## Exact preservation checks
+`ATLAS_RESULTS.md` reports, for each method and each official primary metric, the fraction of tested regimes where the blend matched or beat the better parent on that metric.
 
-**[RESULTS.md](RESULTS.md)** contains the smaller integration tests used to verify the operators themselves:
+A few examples from the current run:
 
-- mean versus centered population structure
-- gene marginals versus within-gene ranks
-- expression versus spatial assignment
-- direct whole-cell mixtures
+| method | DE direction | MMD | variogram | occupancy Dice | neighborhood MMD |
+|---|---:|---:|---:|---:|---:|
+| mean graft | 1.00 | 0.80 | 1.00 | - | - |
+| quantile graft | 0.80 | 0.80 | 0.80 | - | - |
+| population mixture | 0.00 | 0.89 | 0.00 | - | - |
+| spatial transplant | 1.00 | 1.00 | 1.00 | 0.92 | 1.00 |
 
-Some of those controls deliberately reconstruct the target almost exactly. They are implementation checks. The imperfect-complementarity study above is the evidence for when the operations remain useful away from that ideal case.
+The point is the tradeoff pattern, not a single aggregate score.
+
+## Comparisons that do not use Blender operators
+
+The Atlas includes simple alternatives so the study is not just a test suite for the companion Blender repo:
+
+- rowwise averaging where a controlled pair really has aligned rows
+- half pseudobulk shifting
+- whole-cell population mixing
+- raw-expression Hungarian matching
+- random coordinate transfer
+- same-index coordinate transfer
+
+On the representative imperfect T1 pairs, mean and quantile graft each preserve the better parent on all four primary metrics. Rowwise averaging preserves none. Whole-cell mixing preserves only one of four.
+
+For the T2 pair, several coordinate-transfer rules look acceptable on global metrics, which is itself useful: spatial ensembling needs local-structure metrics and matching diagnostics to distinguish plausible from genuinely coherent assignments.
+
+## Negative results
+
+The repo keeps cases where ensembling makes things worse.
+
+- population mixing can lose to **both** parents on a primary metric
+- quantile graft has a high-disagreement failure region
+- spatial transplant has failures once matching becomes ambiguous
+- greedy spatial assignment can suddenly collapse while Hungarian matching still recovers the known geometry
+- on organizer reference-row pairs, a supposedly complementary-looking pair often gives only partial or zero improvement
+
+These are as important as the clean success cases because they answer when **not** to ensemble.
+
+## Organizer reference-row stress tests
+
+The public mini bundle is too small to reconstruct every published baseline honestly. In particular, `pseudobulk_shift` requires two preceding observed stages, and a non-leaking `shift_transfer` experiment needs a distinct training and evaluation knockout.
+
+The Atlas therefore reconstructs only organizer-defined reference rows supported by the public mini files:
+
+- T1: `copy_last`, `ctrl_one_cell`, `ctrl_scale_ref`, `ctrl_shrink_ref`
+- T2: `ctrl_scale_ref`, `ctrl_squashed_ref`
+- T3: `wt_identity`, `ctrl_scale_wt`
+
+These pairs were defined by the organizers rather than designed around an ensemble operator. Their results are in [`atlas_results/organizer_reference_pairs.csv`](atlas_results/organizer_reference_pairs.csv).
+
+## Target-free complementarity diagnostics
+
+For every controlled parent pair the Atlas computes quantities available before scoring:
+
+- pseudobulk mean disagreement
+- variance disagreement
+- covariance disagreement
+- average marginal Wasserstein distance
+- cell-count mismatch
+- spatial shape disagreement
+- expression-space assignment ambiguity
+- mutual nearest-neighbor fraction
+
+The outcome correlations and median-split summaries are in:
+
+- [`atlas_results/diagnostic_correlations.csv`](atlas_results/diagnostic_correlations.csv)
+- [`atlas_results/diagnostic_bins.csv`](atlas_results/diagnostic_bins.csv)
+- [`atlas_results/parent_diagnostics.csv`](atlas_results/parent_diagnostics.csv)
+
+The current numeric thresholds come from small controlled grids. They are clues for model selection, not universal cutoffs.
 
 ## Reproduce
 
@@ -71,23 +129,26 @@ git clone https://github.com/i-habib/virtual-embryo-ensemble-lab
 cd virtual-embryo-ensemble-lab
 pip install -r requirements.txt
 
-# exact preservation/integration checks
+# exact operator checks
 python run_lab.py --out-dir results
 
-# imperfect-complementarity grids + figures
+# phase diagrams and failure regions
 python regime_map.py --out-dir regime_results
+
+# diagnostics, transfer matrix, comparator and reference-row studies
+python ensemble_atlas.py --regime-dir regime_results --out-dir atlas_results
 ```
 
-Both scripts download the public examples from the pinned scorer revision:
+All studies use:
 
 ```text
 aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17
 ```
 
-The composition code is pinned to a tested revision of [Virtual Embryo Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender).
+GitHub Actions reruns the experiments and commits the tables/figures.
 
-Raw metric tables are committed in [`results/`](results/) and [`regime_results/`](regime_results/). GitHub Actions reruns both studies when their experiment code changes.
+## Validation-data rerun
 
-## Why this is separate from the blender
+The challenge says validation ground truth is released on **20 October 2026**, when ranking moves to the hidden test split. The Atlas analysis is set up so the same transfer matrices and diagnostics can be rerun on those released conditions. That will be the first useful check of whether the controlled-mini decision patterns transfer to realistic validation predictions.
 
-The [Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) is the reusable CLI/library. Ensemble Lab answers the decision question: **which operation should you try, and how much imperfect complementarity can it tolerate before the blend stops helping?**
+The companion [Virtual Embryo Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) provides reusable composition code. This repo is about the empirical question of when ensembling helps.
