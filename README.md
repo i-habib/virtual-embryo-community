@@ -1,126 +1,67 @@
 # Virtual Embryo Ensemble Atlas
 
-When do two imperfect Virtual Embryo predictions actually combine well?
+When does combining two Virtual Embryo predictions help, and when does it make things worse?
 
-This repo studies ensemble behavior at the level of the submitted cell population. It maps where different composition strategies help, where they trade metrics, and where they fail. It also measures properties of the two parent predictions that can be computed **without a target** and asks whether those properties predict ensemble success.
+This repo studies that question with the public `veckit` scorer. It varies different kinds of error in two parent predictions, combines them in several ways, and records which official metrics improve or degrade.
 
-The experiments use the organizers' public mini examples and the pinned public `veckit` scorer. They are controlled studies, not hidden-board estimates.
+The experiments use the organizers' public mini examples. They do not use leaderboard feedback or hidden targets.
 
 ## Start here
 
-- **[ATLAS_RESULTS.md](ATLAS_RESULTS.md)**: target-free parent diagnostics, method × metric transfer matrix, comparisons with simple ensemble baselines, and organizer reference-row pairs.
-- **[REGIME_RESULTS.md](REGIME_RESULTS.md)**: phase diagrams for imperfect complementarity.
-- **[RESULTS.md](RESULTS.md)**: exact preservation checks for the individual operators.
+- **[ATLAS_RESULTS.md](ATLAS_RESULTS.md)** — comparisons across ensemble methods, parent-file diagnostics, and organizer-defined control pairs.
+- **[REGIME_RESULTS.md](REGIME_RESULTS.md)** — 5×5 grids showing where mean graft, quantile graft, and spatial transplant keep helping as both parents get worse.
+- **[RESULTS.md](RESULTS.md)** — small exact checks showing what each operation preserves.
 
-## What seems useful so far
+## What the Atlas tests
 
-### Mean graft is fairly forgiving
+### Where each method works
 
-Across the imperfect T1 grid, mean graft preserved the better parent on all four primary metrics at 19/24 nontrivial points and never became worse than both parents on any primary metric.
+The 5×5 grids vary two errors independently. For example, the mean-graft experiment varies error in the prediction supplying the mean and error in the prediction supplying cell-level structure. The same idea is used for gene marginals versus ranks and expression versus spatial matching.
 
-Among target-free diagnostics, variance disagreement is the clearest signal in this grid (`Spearman rho = -0.52`). Below the grid median, the graft preserved the better parent on all primary metrics on average. Above it, that average fell to about 0.90. The method still worked surprisingly often even when the two populations had fairly different variance structure.
+This exposes both useful regions and failure regions instead of showing only one successful example.
 
-### Quantile graft needs more compatible population structure
+### Which metrics move
 
-Quantile graft also succeeds at 19/24 imperfect grid points on all four primary metrics, but its failure region is much sharper.
+The Atlas records each official metric separately. An ensemble can improve cell-state distribution while hurting DE, or improve spatial assignment while leaving global geometry unchanged. The tables therefore report metric-by-metric behavior rather than reducing everything to one score.
 
-Variance disagreement between the parent predictions has `rho = -0.71` with preservation of the better parent. In the lower-disagreement half of the grid, the graft preserved the better parent on every primary metric on average. In the higher-disagreement half, the average dropped to 0.50.
+### Simple alternatives
 
-That is a useful warning: complementary-looking marginals and ranks are not enough if the two parent populations disagree strongly in their overall spread.
+The main methods are compared with straightforward alternatives:
 
-### Spatial transplant depends on match confidence
-
-Spatial transplant preserves the better parent on all eight primary T2 metrics at 20/24 imperfect points, but matching quality matters.
-
-Two diagnostics computed from the parent files alone are informative here:
-
-- expression-space assignment ambiguity: `rho = -0.60`
-- mutual nearest-neighbor fraction: `rho = +0.59`
-
-Below the controlled-grid median ambiguity, every tested point preserved the better parent on all primary metrics and none lost to both parents. Above it, 25% of the tested points lost to both parents on at least one primary metric.
-
-The Hungarian/greedy comparison shows the same failure directly. Greedy matching is fine at low noise, then breaks sharply once correspondences become ambiguous.
-
-### Whole-cell mixtures are much less predictable
-
-Population mixing rarely preserves the best component from both parents. In the current T1 grid it preserves the better parent on `mmd_u` fairly often, but almost never preserves the better parent on `de_direction` or `variogram`.
-
-The target-free diagnostics tested so far do not predict mixture success well. For now, mixture sweeps are better treated as a cheap empirical search than as a reliable factor-combination rule.
-
-## Metric transfer matrix
-
-`ATLAS_RESULTS.md` reports, for each method and each official primary metric, the fraction of tested regimes where the blend matched or beat the better parent on that metric.
-
-A few examples from the current run:
-
-| method | DE direction | MMD | variogram | occupancy Dice | neighborhood MMD |
-|---|---:|---:|---:|---:|---:|
-| mean graft | 1.00 | 0.80 | 1.00 | - | - |
-| quantile graft | 0.80 | 0.80 | 0.80 | - | - |
-| population mixture | 0.00 | 0.89 | 0.00 | - | - |
-| spatial transplant | 1.00 | 1.00 | 1.00 | 0.92 | 1.00 |
-
-The point is the tradeoff pattern, not a single aggregate score.
-
-## Comparisons that do not use Blender operators
-
-The Atlas includes simple alternatives so the study is not just a test suite for the companion Blender repo:
-
-- rowwise averaging where a controlled pair really has aligned rows
-- half pseudobulk shifting
-- whole-cell population mixing
+- whole-cell mixing
+- rowwise averaging when rows are deliberately aligned
+- moving a prediction halfway toward the other parent's mean
 - raw-expression Hungarian matching
 - random coordinate transfer
 - same-index coordinate transfer
 
-On the representative imperfect T1 pairs, mean and quantile graft each preserve the better parent on all four primary metrics. Rowwise averaging preserves none. Whole-cell mixing preserves only one of four.
+These comparisons run on a fixed 3×3 low/medium/high subset of the controlled grids, giving nine operating points per experiment rather than one selected example.
 
-For the T2 pair, several coordinate-transfer rules look acceptable on global metrics, which is itself useful: spatial ensembling needs local-structure metrics and matching diagnostics to distinguish plausible from genuinely coherent assignments.
+### Organizer-defined controls
 
-## Negative results
+The Atlas also tests every pair among four public organizer-defined rows for each task:
 
-The repo keeps cases where ensembling makes things worse.
+- **T1:** `copy_last`, `ctrl_one_cell`, `ctrl_scale_ref`, `ctrl_shrink_ref`
+- **T2:** `copy_last`, `ctrl_scale_ref`, `ctrl_squashed_ref`, `ctrl_random_cube`
+- **T3:** `wt_identity`, `ctrl_scale_wt`, `ctrl_shrink_wt`, `ctrl_random_dir`
 
-- population mixing can lose to **both** parents on a primary metric
-- quantile graft has a high-disagreement failure region
-- spatial transplant has failures once matching becomes ambiguous
-- greedy spatial assignment can suddenly collapse while Hungarian matching still recovers the known geometry
-- on organizer reference-row pairs, a supposedly complementary-looking pair often gives only partial or zero improvement
+That gives six parent pairs per task. These controls were designed by the organizers to stress the scorer, so they give a useful check outside the error patterns constructed for the ensemble experiments.
 
-These are as important as the clean success cases because they answer when **not** to ensemble.
+The public mini bundle does not contain the two earlier stages needed to reconstruct `pseudobulk_shift` honestly, or a second knockout for a non-leaking `shift_transfer` test. Those are left out.
 
-## Organizer reference-row stress tests
+## Parent-file diagnostics
 
-The public mini bundle is too small to reconstruct every published baseline honestly. In particular, `pseudobulk_shift` requires two preceding observed stages, and a non-leaking `shift_transfer` experiment needs a distinct training and evaluation knockout.
+The repo also measures differences that can be computed from the two predictions alone, before seeing a target:
 
-The Atlas therefore reconstructs only organizer-defined reference rows supported by the public mini files:
-
-- T1: `copy_last`, `ctrl_one_cell`, `ctrl_scale_ref`, `ctrl_shrink_ref`
-- T2: `ctrl_scale_ref`, `ctrl_squashed_ref`
-- T3: `wt_identity`, `ctrl_scale_wt`
-
-These pairs were defined by the organizers rather than designed around an ensemble operator. Their results are in [`atlas_results/organizer_reference_pairs.csv`](atlas_results/organizer_reference_pairs.csv).
-
-## Target-free complementarity diagnostics
-
-For every controlled parent pair the Atlas computes quantities available before scoring:
-
-- pseudobulk mean disagreement
-- variance disagreement
-- covariance disagreement
-- average marginal Wasserstein distance
+- mean disagreement
+- variance and covariance disagreement
+- average per-gene Wasserstein distance
 - cell-count mismatch
-- spatial shape disagreement
-- expression-space assignment ambiguity
-- mutual nearest-neighbor fraction
+- spatial-shape disagreement
+- expression-matching ambiguity
+- mutual nearest-neighbor rate
 
-The outcome correlations and median-split summaries are in:
-
-- [`atlas_results/diagnostic_correlations.csv`](atlas_results/diagnostic_correlations.csv)
-- [`atlas_results/diagnostic_bins.csv`](atlas_results/diagnostic_bins.csv)
-- [`atlas_results/parent_diagnostics.csv`](atlas_results/parent_diagnostics.csv)
-
-The current numeric thresholds come from small controlled grids. They are clues for model selection, not universal cutoffs.
+`ATLAS_RESULTS.md` reports descriptive Spearman correlations between these quantities and ensemble results on the controlled grids. It does **not** report p-values: the 25 grid points reuse the same five A and five B variants, so they are not independent samples. The median splits are also described only as patterns in these experiments, not as universal decision thresholds.
 
 ## Reproduce
 
@@ -132,23 +73,19 @@ pip install -r requirements.txt
 # exact operator checks
 python run_lab.py --out-dir results
 
-# phase diagrams and failure regions
+# 5x5 error grids
 python regime_map.py --out-dir regime_results
 
-# diagnostics, transfer matrix, comparator and reference-row studies
+# method comparisons, parent diagnostics, and organizer controls
 python ensemble_atlas.py --regime-dir regime_results --out-dir atlas_results
 ```
 
-All studies use:
+All studies pin:
 
 ```text
 aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17
 ```
 
-GitHub Actions reruns the experiments and commits the tables/figures.
+GitHub Actions reruns the studies and commits the result tables and figures.
 
-## Validation-data rerun
-
-The challenge says validation ground truth is released on **20 October 2026**, when ranking moves to the hidden test split. The Atlas analysis is set up so the same transfer matrices and diagnostics can be rerun on those released conditions. That will be the first useful check of whether the controlled-mini decision patterns transfer to realistic validation predictions.
-
-The companion [Virtual Embryo Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) provides reusable composition code. This repo is about the empirical question of when ensembling helps.
+The companion [Virtual Embryo Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) is the reusable tool for composing prediction files. This repo is the empirical study of when those kinds of ensembles help.
