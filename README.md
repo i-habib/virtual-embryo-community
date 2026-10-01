@@ -1,10 +1,8 @@
 # Virtual Embryo Submission Blender
 
-Two good Virtual Embryo submissions can fail in different ways. One may get the developmental shift right but collapse the cell population. Another may produce a good T2 point cloud while putting weaker expression on it.
+`vec-blend` combines two compatible Virtual Embryo prediction files when they are good at different parts of the problem. It works on the `.h5ad` predictions themselves and does not use leaderboard scores or hidden-target feedback.
 
-`vec-blend` composes the **prediction files themselves**. It never consumes leaderboard scores or hidden-target feedback.
-
-## Four ways to combine submissions
+## Blend methods
 
 ### Population mixture
 
@@ -12,35 +10,31 @@ Sample complete cells from both submissions.
 
 ```bash
 vec-blend blend A.h5ad B.h5ad \
-  --method mixture --alpha 0.4 \
+  --method mixture --alpha 0.4 --n-out 10000 \
   -o mixed.h5ad
 ```
 
-Expression and coordinates stay paired within every sampled cell. `alpha=0.4` means roughly 40% of the output cells come from A.
-
-This is the most literal ensemble for an unordered population.
+Expression and coordinates stay paired within every sampled cell. Sparse inputs stay sparse.
 
 ### Mean graft
 
-Use A's per-gene mean with B's centered cell-to-cell structure.
+Give B's centered cell population A's per-gene mean:
 
 \[
-X_{\text{out}} = (X_B-\mu_B)+\mu_A
+X_{out}=X_B+(\mu_A-\mu_B).
 \]
 
 ```bash
 vec-blend blend A.h5ad B.h5ad \
-  --method mean-graft \
+  --method mean-graft --clip-min 0 \
   -o grafted.h5ad
 ```
 
-Before clipping, the output pseudobulk mean equals A's exactly and B's centered residual matrix is unchanged. For T3 this also composes a pseudobulk perturbation response with another prediction's cell-level structure.
-
-A large shift can create negative expression values. `veckit` rejects negative `prediction.X`, so the CLI refuses to write an unclipped negative mean graft. Re-run with `--clip-min 0` to make the file scorer-valid; clipping gives up the exact-mean guarantee. The Python API still returns the raw graft and reports its negative fraction for analysis.
+The operation is row-chunked and uses float32. Before clipping, it preserves B's centered residuals and replaces its mean with A's. A large shift can make some values negative, so the CLI refuses scorer-invalid output. `--clip-min 0` floors those values and records the resulting mean error.
 
 ### Quantile graft
 
-Use A's per-gene empirical distributions while preserving B's within-gene cell ranks.
+Use A's empirical distribution for each gene while following B's within-gene cell ranks.
 
 ```bash
 vec-blend blend A.h5ad B.h5ad \
@@ -48,57 +42,57 @@ vec-blend blend A.h5ad B.h5ad \
   -o quantile_graft.h5ad
 ```
 
-With equal cell counts, every output gene has exactly the same multiset of values as A. Which cells receive the high and low values follows B.
+When the cell counts match, each output gene has exactly A's multiset of values. Genes are processed one at a time, including for sparse inputs, so the two full input matrices are not simultaneously densified. The output itself is dense.
 
 ### Spatial transplant
 
-Keep A's expression cells and place them into B's spatial slots by one-to-one matching in centered expression space.
+Keep A's expression rows and assign coordinates from B by one-to-one matching in centered expression space.
 
 ```bash
 vec-blend blend expression_model.h5ad geometry_model.h5ad \
   --method spatial-transplant \
+  --max-match-genes 2048 \
   -o transplanted.h5ad
 ```
 
-The matcher removes each submission's per-gene mean, builds a joint PCA embedding, then assigns A cells to B cells. Small problems use the exact Hungarian assignment. Larger problems switch to a unique greedy nearest-neighbor match.
+The matcher uses the highest pooled-variance genes, capped at 2,048 by default, then runs PCA and a one-to-one assignment. Up to the exact limit it uses Hungarian matching; larger jobs use the unique greedy matcher. A's `obs` metadata is retained while coordinates come from B, so location-derived `obs` fields from A may be stale after a transplant.
 
-The output contains A's expression rows and coordinates copied from the matched B cells.
+## Safety checks
 
-## A fixed mixture sweep
+Every CLI output passes the same final mechanical validation before it is written. It checks finite and nonnegative expression, nonempty dimensions, unique genes, and valid `spatial_3D` arrays when present. `--clip-min` must be nonnegative.
 
-Generate several candidates without writing a loop:
+Gene order may differ between inputs; B is reordered to A. The gene sets themselves must match.
+
+Every output also gets a `.blend.json` sidecar with the blend parameters, package version, input paths, and SHA-256 hashes of both source files.
+
+## Mixture sweeps
 
 ```bash
 vec-blend sweep A.h5ad B.h5ad \
   --alphas 0,0.25,0.5,0.75,1 \
+  --n-out 10000 \
   --out-dir blends/
 ```
 
-Each output gets a `.blend.json` sidecar with the method and parameters used.
+A sweep uses one fixed output cell count. If A and B have different sizes, `--n-out` is required so changing alpha does not also change the number of predicted cells.
 
-## Input checks
+## Tested scale
 
-The tool fails when:
+CI includes a synthetic full-T1-panel stress test. On the hosted Ubuntu runner it completed:
 
-- the two files do not contain the same gene set
-- gene names are duplicated
-- expression or spatial arrays contain non-finite values
-- only one input has `spatial_3D` for a population mixture
-- a spatial transplant has no 3-D geometry carrier
-- an unclipped mean graft would contain negative expression values
+- sparse population mixture: **10,000 cells × 32,285 genes**, 2% density, output remained sparse, **1.86 s**
+- chunked mean graft: **1,000 cells × 32,285 genes**, 2% sparse inputs, **0.26 s**
+- peak process RSS across the combined stress script: **526 MiB**
 
-Gene order can differ; B is reordered to A automatically.
+These numbers are a regression test, not a runtime guarantee. Population mixing can remain sparse. Mean graft and quantile graft currently produce dense float32 outputs, so their output memory still grows as roughly `4 * cells * genes` bytes. Spatial matching only materializes its selected matching genes, while the returned expression matrix preserves A's storage format.
 
-## What each method preserves
+## Inspect files
 
-| Method | Comes from A | Comes from B |
-|---|---|---|
-| population mixture | sampled whole cells | sampled whole cells |
-| mean graft | per-gene mean | centered expression residuals + coordinates |
-| quantile graft | per-gene marginals | within-gene cell ranks + coordinates |
-| spatial transplant | expression cells | matched 3-D coordinates |
+```bash
+vec-blend inspect A.h5ad B.h5ad
+```
 
-These are mechanical guarantees about the generated file. They do not imply a better challenge score.
+`inspect` reports dimensions, spatial availability, sparse/dense storage, expression range, finiteness, and nonnegativity without densifying sparse expression.
 
 ## Install
 
@@ -108,26 +102,13 @@ cd virtual-embryo-submission-blender
 pip install -e .
 ```
 
-Then:
-
-```bash
-vec-blend inspect A.h5ad B.h5ad
-vec-blend --help
-```
-
-## Why there is no “auto-pick the best blend” command
-
-The blender only uses the two submitted prediction files and parameters you provide. It does not accept leaderboard returns or try to infer target properties from score feedback.
-
-That keeps the composition step reusable and auditable. Candidate selection is separate from file construction.
-
-## Tests
+Tests:
 
 ```bash
 pip install -e ".[dev]"
 pytest -q
 ```
 
-The tests check the preservation guarantees above, actual `.h5ad` write/reopen behavior, rejection of invalid negative mean grafts, and recovery of a permuted spatial geometry when two expression clouds differ only by a gene-wise shift.
+The suite checks the preservation claims, sparse handling, final scorer-validity guard, `.h5ad` write/reopen behavior, fixed-size sweeps, provenance hashes, and both Hungarian and greedy spatial matching on known correspondences.
 
-Independent community tool for the Virtual Embryo Challenge. The official rules and submission contract remain authoritative.
+See [Virtual Embryo Ensemble Lab](https://github.com/i-habib/virtual-embryo-ensemble-lab) for controlled scorer experiments and imperfect-complementarity regime maps.
