@@ -42,7 +42,7 @@ vec-blend blend A.h5ad B.h5ad \
   -o quantile_graft.h5ad
 ```
 
-When the cell counts match, each output gene has exactly A's multiset of values. Genes are processed one at a time, including for sparse inputs, so the two full input matrices are not simultaneously densified. The output itself is dense.
+When the cell counts match, each output gene has the same float32 values as A, reordered according to B's ranks. Genes are processed one at a time, including for sparse inputs, so the two full input matrices are not simultaneously densified. The output itself is dense.
 
 ### Spatial transplant
 
