@@ -1,21 +1,65 @@
-method,metric,n,preserve_better_parent_fraction,beat_both_fraction,worse_than_both_fraction,mean_signed_gain_over_better_parent
-mean_graft,de_score,25,1.0,0.0,0.0,0.0
-mean_graft,de_direction,25,1.0,0.0,0.0,0.0
-mean_graft,mmd_u,25,0.8,0.8,0.0,0.11190840000000002
-mean_graft,variogram,25,1.0,1.0,0.0,0.01272512
-quantile_graft,de_score,25,0.8,0.0,0.0,-0.01818
-quantile_graft,de_direction,25,0.8,0.0,0.0,-0.005659999999999998
-quantile_graft,mmd_u,25,0.8,0.8,0.0,0.05828759999999999
-quantile_graft,variogram,25,0.8,0.8,0.0,-0.0027206799999999996
-population_mix,de_score,9,0.2222222222222222,0.1111111111111111,0.2222222222222222,-0.030377777777777767
-population_mix,de_direction,9,0.0,0.0,0.0,-0.17442222222222217
-population_mix,mmd_u,9,0.8888888888888888,0.8888888888888888,0.0,0.03850777777777778
-population_mix,variogram,9,0.0,0.0,0.0,-0.008463333333333331
-spatial_transplant,de_score,25,1.0,0.0,0.0,0.0
-spatial_transplant,de_direction,25,1.0,0.0,0.0,0.0
-spatial_transplant,mmd_u,25,1.0,0.0,0.0,0.0
-spatial_transplant,variogram,25,1.0,0.0,0.0,0.0
-spatial_transplant,d2_shape,25,0.84,0.84,0.12,-0.00011279999999999998
-spatial_transplant,sliced_wasserstein,25,0.92,0.0,0.0,-0.0030768
-spatial_transplant,occupancy_dice,25,0.92,0.0,0.0,-0.029800000000000004
-spatial_transplant,neighborhood_mmd,25,1.0,1.0,0.0,0.1167764
+experiment,method,metric,n_grid_points,preserve_better_parent_fraction,beat_both_fraction,worse_than_both_fraction
+T1 marginals/ranks,half mean shift,de_score,9,0.3333333333333333,0.3333333333333333,0.0
+T1 marginals/ranks,half mean shift,de_direction,9,0.0,0.0,0.0
+T1 marginals/ranks,half mean shift,mmd_u,9,1.0,1.0,0.0
+T1 marginals/ranks,half mean shift,variogram,9,0.0,0.0,0.0
+T1 marginals/ranks,population mix,de_score,9,0.3333333333333333,0.3333333333333333,0.0
+T1 marginals/ranks,population mix,de_direction,9,0.0,0.0,0.0
+T1 marginals/ranks,population mix,mmd_u,9,0.6666666666666666,0.6666666666666666,0.0
+T1 marginals/ranks,population mix,variogram,9,0.0,0.0,0.0
+T1 marginals/ranks,quantile graft,de_score,9,1.0,0.0,0.0
+T1 marginals/ranks,quantile graft,de_direction,9,1.0,0.0,0.0
+T1 marginals/ranks,quantile graft,mmd_u,9,1.0,1.0,0.0
+T1 marginals/ranks,quantile graft,variogram,9,1.0,1.0,0.0
+T1 marginals/ranks,rowwise average,de_score,9,0.3333333333333333,0.3333333333333333,0.0
+T1 marginals/ranks,rowwise average,de_direction,9,0.0,0.0,0.0
+T1 marginals/ranks,rowwise average,mmd_u,9,0.0,0.0,0.1111111111111111
+T1 marginals/ranks,rowwise average,variogram,9,0.0,0.0,0.0
+T1 mean/structure,half mean shift,de_score,9,0.0,0.0,0.0
+T1 mean/structure,half mean shift,de_direction,9,0.0,0.0,0.0
+T1 mean/structure,half mean shift,mmd_u,9,0.4444444444444444,0.4444444444444444,0.0
+T1 mean/structure,half mean shift,variogram,9,0.0,0.0,0.0
+T1 mean/structure,mean graft,de_score,9,1.0,0.0,0.0
+T1 mean/structure,mean graft,de_direction,9,1.0,0.0,0.0
+T1 mean/structure,mean graft,mmd_u,9,1.0,1.0,0.0
+T1 mean/structure,mean graft,variogram,9,1.0,1.0,0.0
+T1 mean/structure,population mix,de_score,9,0.0,0.0,0.0
+T1 mean/structure,population mix,de_direction,9,0.0,0.0,0.0
+T1 mean/structure,population mix,mmd_u,9,0.8888888888888888,0.8888888888888888,0.0
+T1 mean/structure,population mix,variogram,9,0.0,0.0,0.0
+T1 mean/structure,rowwise average,de_score,9,0.0,0.0,0.0
+T1 mean/structure,rowwise average,de_direction,9,0.0,0.0,0.0
+T1 mean/structure,rowwise average,mmd_u,9,0.0,0.0,0.0
+T1 mean/structure,rowwise average,variogram,9,0.0,0.0,0.0
+T2 expression/space,random coordinate transfer,de_score,9,1.0,0.0,0.0
+T2 expression/space,random coordinate transfer,de_direction,9,1.0,0.0,0.0
+T2 expression/space,random coordinate transfer,mmd_u,9,1.0,0.0,0.0
+T2 expression/space,random coordinate transfer,variogram,9,1.0,0.0,0.0
+T2 expression/space,random coordinate transfer,d2_shape,9,0.0,0.0,0.0
+T2 expression/space,random coordinate transfer,sliced_wasserstein,9,1.0,0.0,0.0
+T2 expression/space,random coordinate transfer,occupancy_dice,9,1.0,0.0,0.0
+T2 expression/space,random coordinate transfer,neighborhood_mmd,9,1.0,1.0,0.0
+T2 expression/space,raw-expression Hungarian,de_score,9,1.0,0.0,0.0
+T2 expression/space,raw-expression Hungarian,de_direction,9,1.0,0.0,0.0
+T2 expression/space,raw-expression Hungarian,mmd_u,9,1.0,0.0,0.0
+T2 expression/space,raw-expression Hungarian,variogram,9,1.0,0.0,0.0
+T2 expression/space,raw-expression Hungarian,d2_shape,9,1.0,1.0,0.0
+T2 expression/space,raw-expression Hungarian,sliced_wasserstein,9,1.0,0.0,0.0
+T2 expression/space,raw-expression Hungarian,occupancy_dice,9,1.0,0.0,0.0
+T2 expression/space,raw-expression Hungarian,neighborhood_mmd,9,1.0,1.0,0.0
+T2 expression/space,same-index coordinate transfer,de_score,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,de_direction,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,mmd_u,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,variogram,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,d2_shape,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,sliced_wasserstein,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,occupancy_dice,9,1.0,0.0,0.0
+T2 expression/space,same-index coordinate transfer,neighborhood_mmd,9,1.0,1.0,0.0
+T2 expression/space,spatial transplant,de_score,9,1.0,0.0,0.0
+T2 expression/space,spatial transplant,de_direction,9,1.0,0.0,0.0
+T2 expression/space,spatial transplant,mmd_u,9,1.0,0.0,0.0
+T2 expression/space,spatial transplant,variogram,9,1.0,0.0,0.0
+T2 expression/space,spatial transplant,d2_shape,9,1.0,1.0,0.0
+T2 expression/space,spatial transplant,sliced_wasserstein,9,1.0,0.0,0.0
+T2 expression/space,spatial transplant,occupancy_dice,9,1.0,0.0,0.0
+T2 expression/space,spatial transplant,neighborhood_mmd,9,1.0,1.0,0.0

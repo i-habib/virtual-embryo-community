@@ -1,0 +1,12 @@
+task,method,organizer_pairs_tested,mean_better_parent_preserved_fraction,fraction_with_any_strict_win,fraction_with_any_loss_vs_both
+T1,mean graft,6,0.6666666666666666,0.5,0.3333333333333333
+T1,population mix,6,0.625,0.8333333333333334,0.3333333333333333
+T1,quantile graft,6,0.75,0.0,0.0
+T1,rowwise average,6,0.5833333333333334,0.16666666666666666,0.16666666666666666
+T2,random coordinate transfer,6,0.625,0.5,0.8333333333333334
+T2,raw-expression Hungarian,6,0.7083333333333334,0.0,0.0
+T2,same-index coordinate transfer,6,0.7083333333333334,0.0,0.0
+T2,spatial transplant,6,0.7083333333333334,0.0,0.0
+T3,mean graft,6,0.75,0.16666666666666666,0.5
+T3,population mix,6,0.6666666666666666,0.8333333333333334,0.16666666666666666
+T3,rowwise average,6,0.6666666666666666,0.6666666666666666,0.16666666666666666

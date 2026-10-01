@@ -1,0 +1,15 @@
+method,diagnostic,n_grid_points,spearman_rho
+mean graft,mean_disagreement,25,-0.04858300407718502
+mean graft,variance_disagreement,25,-0.5205321865412681
+mean graft,covariance_disagreement,25,0.0
+mean graft,marginal_wasserstein,25,0.17351072884708935
+quantile graft,mean_disagreement,25,0.35355339059327373
+quantile graft,variance_disagreement,25,-0.7056967961720458
+quantile graft,covariance_disagreement,25,-0.11094003924504581
+quantile graft,marginal_wasserstein,25,0.0
+spatial transplant,mean_disagreement,25,0.0875097588967929
+spatial transplant,variance_disagreement,25,0.24794937231604697
+spatial transplant,covariance_disagreement,25,-0.33161424774334347
+spatial transplant,marginal_wasserstein,25,0.3826288768314945
+spatial transplant,assignment_ambiguity,25,-0.5956997759462244
+spatial transplant,mutual_nn_fraction,25,0.5866006070178982

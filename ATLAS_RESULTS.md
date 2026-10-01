@@ -1,93 +1,77 @@
-# Ensemble Atlas
+# Ensemble Atlas results
 
 Scorer pinned to `aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17`.
 
-This is the behavior study around ensembling, separate from the Blender implementation. The public mini targets are used only to measure outcomes after the ensemble is formed. Parent diagnostics use the two prediction files alone.
+The public mini targets are used to score outcomes. The parent diagnostics below use only the two prediction files.
 
-## Metric transfer matrix
+## Parent differences and ensemble results
 
-Each entry is the fraction of tested regimes where the method matched or beat the better parent on that metric. This makes tradeoffs visible instead of hiding them in one scalar score.
+These Spearman correlations are descriptive. The 25 points in each controlled grid reuse the same five A variants and five B variants, so they are not independent samples and no inferential p-values are reported.
 
-| method             |   d2_shape |   de_direction |   de_score |   mmd_u |   neighborhood_mmd |   occupancy_dice |   sliced_wasserstein |   variogram |
-|:-------------------|-----------:|---------------:|-----------:|--------:|-------------------:|-----------------:|---------------------:|------------:|
-| mean_graft         |     nan    |            1   |      1     |   0.8   |                nan |           nan    |               nan    |         1   |
-| population_mix     |     nan    |            0   |      0.222 |   0.889 |                nan |           nan    |               nan    |         0   |
-| quantile_graft     |     nan    |            0.8 |      0.8   |   0.8   |                nan |           nan    |               nan    |         0.8 |
-| spatial_transplant |       0.84 |            1   |      1     |   1     |                  1 |             0.92 |                 0.92 |         1   |
+| method             | diagnostic            |   n_grid_points |   spearman_rho |
+|:-------------------|:----------------------|----------------:|---------------:|
+| mean graft         | variance_disagreement |              25 |         -0.521 |
+| mean graft         | marginal_wasserstein  |              25 |          0.174 |
+| quantile graft     | variance_disagreement |              25 |         -0.706 |
+| quantile graft     | mean_disagreement     |              25 |          0.354 |
+| spatial transplant | assignment_ambiguity  |              25 |         -0.596 |
+| spatial transplant | mutual_nn_fraction    |              25 |          0.587 |
 
-## Target-free parent diagnostics
+The numeric cutoffs in `diagnostic_halves.csv` are medians of these controlled grids. They show the direction of the relationship in this experiment; they are not universal thresholds.
 
-Diagnostics include mean disagreement, variance/covariance disagreement, marginal Wasserstein distance, cell-count mismatch, and for spatial pairs, expression-matching ambiguity and mutual-nearest-neighbor rate. The table below shows the three strongest Spearman associations per method with preservation of the better parent's primary metrics.
+## Simple methods across a fixed 3×3 grid
 
-| method             | diagnostic              |   n |   spearman_rho |   p_value |
-|:-------------------|:------------------------|----:|---------------:|----------:|
-| mean_graft         | variance_disagreement   |  25 |        -0.5205 |    0.0076 |
-| mean_graft         | marginal_wasserstein    |  25 |         0.1735 |    0.4068 |
-| mean_graft         | mean_disagreement       |  25 |        -0.0486 |    0.8176 |
-| population_mix     | mean_disagreement       |   9 |         0.2205 |    0.5686 |
-| population_mix     | variance_disagreement   |   9 |         0.2205 |    0.5686 |
-| population_mix     | covariance_disagreement |   9 |         0.2205 |    0.5686 |
-| quantile_graft     | variance_disagreement   |  25 |        -0.7057 |    0.0001 |
-| quantile_graft     | mean_disagreement       |  25 |         0.3536 |    0.083  |
-| quantile_graft     | covariance_disagreement |  25 |        -0.1109 |    0.5975 |
-| spatial_transplant | assignment_ambiguity    |  25 |        -0.5957 |    0.0017 |
-| spatial_transplant | mutual_nn_fraction      |  25 |         0.5866 |    0.0021 |
-| spatial_transplant | marginal_wasserstein    |  25 |         0.3826 |    0.0591 |
+Each comparison method is run at all nine combinations of low (0.1), medium (0.3), and high (0.6) error in the existing controlled experiments.
 
-These are exploratory correlations on controlled public-mini grids, not universal thresholds. `diagnostic_bins.csv` gives the median-split success/failure rates used for the provisional decision map.
+|                                                           |   d2_shape |   de_direction |   de_score |   mmd_u |   neighborhood_mmd |   occupancy_dice |   sliced_wasserstein |   variogram |
+|:----------------------------------------------------------|-----------:|---------------:|-----------:|--------:|-------------------:|-----------------:|---------------------:|------------:|
+| ('T1 marginals/ranks', 'half mean shift')                 |        nan |              0 |      0.333 |   1     |                nan |              nan |                  nan |           0 |
+| ('T1 marginals/ranks', 'population mix')                  |        nan |              0 |      0.333 |   0.667 |                nan |              nan |                  nan |           0 |
+| ('T1 marginals/ranks', 'quantile graft')                  |        nan |              1 |      1     |   1     |                nan |              nan |                  nan |           1 |
+| ('T1 marginals/ranks', 'rowwise average')                 |        nan |              0 |      0.333 |   0     |                nan |              nan |                  nan |           0 |
+| ('T1 mean/structure', 'half mean shift')                  |        nan |              0 |      0     |   0.444 |                nan |              nan |                  nan |           0 |
+| ('T1 mean/structure', 'mean graft')                       |        nan |              1 |      1     |   1     |                nan |              nan |                  nan |           1 |
+| ('T1 mean/structure', 'population mix')                   |        nan |              0 |      0     |   0.889 |                nan |              nan |                  nan |           0 |
+| ('T1 mean/structure', 'rowwise average')                  |        nan |              0 |      0     |   0     |                nan |              nan |                  nan |           0 |
+| ('T2 expression/space', 'random coordinate transfer')     |          0 |              1 |      1     |   1     |                  1 |                1 |                    1 |           1 |
+| ('T2 expression/space', 'raw-expression Hungarian')       |          1 |              1 |      1     |   1     |                  1 |                1 |                    1 |           1 |
+| ('T2 expression/space', 'same-index coordinate transfer') |          1 |              1 |      1     |   1     |                  1 |                1 |                    1 |           1 |
+| ('T2 expression/space', 'spatial transplant')             |          1 |              1 |      1     |   1     |                  1 |                1 |                    1 |           1 |
 
-## Simple ensemble baselines
+The table reports the fraction of the nine grid points where a method matched or beat the better parent on each metric.
 
-The Blender operators are compared with obvious alternatives: whole-cell mixing, rowwise averaging where rows are deliberately aligned, a half pseudobulk shift, raw-expression Hungarian matching, random coordinate transfer, and same-index coordinate transfer.
+## Organizer-defined controls
 
-| experiment       | method                         |   primary_best_preserved_fraction |   primary_win_fraction |   primary_losses_vs_both |
-|:-----------------|:-------------------------------|----------------------------------:|-----------------------:|-------------------------:|
-| T1_mean_pair     | mean_graft                     |                             1     |                  0.5   |                        0 |
-| T1_mean_pair     | population_mix_0.5             |                             0.25  |                  0.25  |                        0 |
-| T1_mean_pair     | rowwise_average                |                             0     |                  0     |                        0 |
-| T1_mean_pair     | half_pseudobulk_shift          |                             0     |                  0     |                        0 |
-| T1_quantile_pair | quantile_graft                 |                             1     |                  0.5   |                        0 |
-| T1_quantile_pair | population_mix_0.5             |                             0.25  |                  0.25  |                        0 |
-| T1_quantile_pair | rowwise_average                |                             0     |                  0     |                        0 |
-| T1_quantile_pair | half_pseudobulk_shift          |                             0.25  |                  0.25  |                        0 |
-| T2_spatial_pair  | spatial_transplant             |                             1     |                  0.25  |                        0 |
-| T2_spatial_pair  | raw_expression_hungarian       |                             1     |                  0.25  |                        0 |
-| T2_spatial_pair  | random_coordinate_transfer     |                             0.875 |                  0.125 |                        0 |
-| T2_spatial_pair  | same_index_coordinate_transfer |                             1     |                  0.125 |                        0 |
+All six pairs are tested for each task using four organizer-defined rows that can be reconstructed from the public mini bundle:
 
-## Organizer reference-row pairs
+- T1: `copy_last`, `ctrl_one_cell`, `ctrl_scale_ref`, `ctrl_shrink_ref`
+- T2: `copy_last`, `ctrl_scale_ref`, `ctrl_squashed_ref`, `ctrl_random_cube`
+- T3: `wt_identity`, `ctrl_scale_wt`, `ctrl_shrink_wt`, `ctrl_random_dir`
 
-These are reconstructed from reference-row definitions published by the organizers and the same public mini bundle. They are not competitive model pairs. They are useful because they were not designed as inverse transformations for an ensemble operator.
+| task   | method                         |   organizer_pairs_tested |   mean_better_parent_preserved_fraction |   fraction_with_any_strict_win |   fraction_with_any_loss_vs_both |
+|:-------|:-------------------------------|-------------------------:|----------------------------------------:|-------------------------------:|---------------------------------:|
+| T1     | mean graft                     |                        6 |                                   0.667 |                          0.5   |                            0.333 |
+| T1     | population mix                 |                        6 |                                   0.625 |                          0.833 |                            0.333 |
+| T1     | quantile graft                 |                        6 |                                   0.75  |                          0     |                            0     |
+| T1     | rowwise average                |                        6 |                                   0.583 |                          0.167 |                            0.167 |
+| T2     | random coordinate transfer     |                        6 |                                   0.625 |                          0.5   |                            0.833 |
+| T2     | raw-expression Hungarian       |                        6 |                                   0.708 |                          0     |                            0     |
+| T2     | same-index coordinate transfer |                        6 |                                   0.708 |                          0     |                            0     |
+| T2     | spatial transplant             |                        6 |                                   0.708 |                          0     |                            0     |
+| T3     | mean graft                     |                        6 |                                   0.75  |                          0.167 |                            0.5   |
+| T3     | population mix                 |                        6 |                                   0.667 |                          0.833 |                            0.167 |
+| T3     | rowwise average                |                        6 |                                   0.667 |                          0.667 |                            0.167 |
 
-| task   | parent_A       | parent_B          | method                         |   primary_best_preserved_fraction |   primary_win_fraction |   primary_losses_vs_both |
-|:-------|:---------------|:------------------|:-------------------------------|----------------------------------:|-----------------------:|-------------------------:|
-| T1     | copy_last      | ctrl_one_cell     | mean_graft                     |                             0.5   |                  0     |                        0 |
-| T1     | copy_last      | ctrl_one_cell     | quantile_graft                 |                             0.5   |                  0     |                        0 |
-| T1     | copy_last      | ctrl_one_cell     | population_mix_0.5             |                             0.25  |                  0.25  |                        1 |
-| T1     | copy_last      | ctrl_one_cell     | rowwise_average                |                             0.5   |                  0     |                        0 |
-| T1     | copy_last      | ctrl_scale_ref    | mean_graft                     |                             0.75  |                  0.5   |                        0 |
-| T1     | copy_last      | ctrl_scale_ref    | quantile_graft                 |                             1     |                  0     |                        0 |
-| T1     | copy_last      | ctrl_scale_ref    | population_mix_0.5             |                             0.75  |                  0.5   |                        0 |
-| T1     | copy_last      | ctrl_scale_ref    | rowwise_average                |                             0.5   |                  0     |                        0 |
-| T1     | ctrl_one_cell  | ctrl_scale_ref    | mean_graft                     |                             1     |                  0.75  |                        0 |
-| T1     | ctrl_one_cell  | ctrl_scale_ref    | quantile_graft                 |                             1     |                  0     |                        0 |
-| T1     | ctrl_one_cell  | ctrl_scale_ref    | population_mix_0.5             |                             1     |                  0.75  |                        0 |
-| T1     | ctrl_one_cell  | ctrl_scale_ref    | rowwise_average                |                             0.75  |                  0.25  |                        1 |
-| T2     | ctrl_scale_ref | ctrl_squashed_ref | spatial_transplant             |                             0.625 |                  0     |                        0 |
-| T2     | ctrl_scale_ref | ctrl_squashed_ref | random_coordinate_transfer     |                             0.375 |                  0.125 |                        1 |
-| T2     | ctrl_scale_ref | ctrl_squashed_ref | same_index_coordinate_transfer |                             0.625 |                  0     |                        0 |
-| T3     | wt_identity    | ctrl_scale_wt     | mean_graft                     |                             0.8   |                  0.4   |                        0 |
-| T3     | wt_identity    | ctrl_scale_wt     | population_mix_0.5             |                             0.4   |                  0.2   |                        2 |
-| T3     | wt_identity    | ctrl_scale_wt     | rowwise_average                |                             0.8   |                  0.2   |                        0 |
+These controls were defined by the organizers for scorer stress testing. They were not designed around the ensemble methods here.
 
-The mini bundle does not contain the two preceding stages required to reconstruct the organizer's `pseudobulk_shift` T1/T2 baseline honestly, nor a distinct held-out knockout for a non-leaking `shift_transfer` test. Those baselines are therefore not fabricated here.
+The public mini bundle does not contain the two earlier stages needed to reconstruct `pseudobulk_shift` honestly, or a second knockout for a non-leaking `shift_transfer` test. Those published baselines are left out rather than approximated.
 
-## Reproduce
+## Raw outputs
+
+Every pair, metric, and method is in `atlas_results/`.
 
 ```bash
 pip install -r requirements.txt
 python regime_map.py --out-dir regime_results
 python ensemble_atlas.py --regime-dir regime_results --out-dir atlas_results
 ```
-
-The same analysis is designed to be rerun once validation ground truth is released in the final phase, so the diagnostic rules can be checked outside these controlled mini examples.
