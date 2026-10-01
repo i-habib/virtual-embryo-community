@@ -2,9 +2,9 @@
 
 Scorer pinned to `aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17`.
 
-These use the organizers' public mini targets. The exact cases in `RESULTS.md` remain implementation checks; here the parents are only imperfectly complementary.
+These use the organizers' public mini targets. `RESULTS.md` contains the exact preservation/integration checks. The experiments here deliberately make both parents imperfect.
 
-`primary_win_fraction` is the fraction of task primary metrics on which the blend is strictly better than both parents. T1 uses DE score, DE direction, MMD and variogram. T2 also includes d2 shape, sliced Wasserstein, occupancy Dice and neighborhood MMD.
+The heatmaps report the fraction of primary metrics where the blend matches or beats the better parent. A value of 1.0 means there is no primary-metric tradeoff relative to choosing whichever parent was better metric by metric.
 
 ## Official floor baselines
 
@@ -18,19 +18,19 @@ The challenge defines `copy_last` as the T1/T2 floor and `wt_identity` as the T3
 
 ## Mean graft
 
-Summary: `{"imperfect_grid_points": 15, "points_with_any_primary_win": 15, "points_with_half_or_more_primary_wins": 15, "max_primary_wins": 2}`
+Summary: `{"imperfect_grid_points": 24, "points_preserving_best_on_all_primary_metrics": 19, "points_preserving_best_on_at_least_half": 24, "points_with_any_strict_win_vs_both": 24, "points_worse_than_both_on_any_primary_metric": 0, "min_best_preserved_fraction": 0.75}`
 
 ![Mean graft regime map](regime_results/mean_regime.png)
 
 ## Quantile graft
 
-Summary: `{"imperfect_grid_points": 15, "points_with_any_primary_win": 15, "points_with_half_or_more_primary_wins": 15, "max_primary_wins": 2}`
+Summary: `{"imperfect_grid_points": 24, "points_preserving_best_on_all_primary_metrics": 19, "points_preserving_best_on_at_least_half": 19, "points_with_any_strict_win_vs_both": 19, "points_worse_than_both_on_any_primary_metric": 0, "min_best_preserved_fraction": 0.0}`
 
 ![Quantile graft regime map](regime_results/quantile_regime.png)
 
 ## Spatial transplant
 
-Summary: `{"imperfect_grid_points": 15, "points_with_any_primary_win": 15, "points_with_half_or_more_primary_wins": 0, "max_primary_wins": 2}`
+Summary: `{"imperfect_grid_points": 24, "points_preserving_best_on_all_primary_metrics": 20, "points_preserving_best_on_at_least_half": 24, "points_with_any_strict_win_vs_both": 24, "points_worse_than_both_on_any_primary_metric": 3, "min_best_preserved_fraction": 0.625}`
 
 ![Spatial transplant regime map](regime_results/spatial_regime.png)
 
@@ -46,22 +46,24 @@ Summary: `{"imperfect_grid_points": 15, "points_with_any_primary_win": 15, "poin
 |              0.3 | greedy       |       5.09523e-06 |               3.88354 |                    0 |                1 |           -0.00389 |
 |              0.6 | hungarian    |       5.09523e-06 |               5.53865 |                    0 |                1 |           -0.00389 |
 |              0.6 | greedy       |      81.7486      |               5.91216 |                    0 |                1 |            0.00119 |
+|              1   | hungarian    |       5.09523e-06 |               7.76761 |                    0 |                1 |           -0.00389 |
+|              1   | greedy       |     133.802       |               9.28761 |                    0 |                1 |            0.02416 |
 
 ## Population mixtures
 
-Whole-cell mixtures have no factor-preservation guarantee, so the table varies parent complementarity and alpha directly.
+Whole-cell mixtures have no factor-preservation guarantee. The table varies parent complementarity and alpha directly.
 
-|   complementarity_severity |   alpha |   primary_wins_vs_both |   primary_losses_vs_both |   primary_win_fraction |
-|---------------------------:|--------:|-----------------------:|-------------------------:|-----------------------:|
-|                       0.25 |    0.25 |                      0 |                        1 |                   0    |
-|                       0.25 |    0.5  |                      1 |                        1 |                   0.25 |
-|                       0.25 |    0.75 |                      2 |                        0 |                   0.5  |
-|                       0.5  |    0.25 |                      1 |                        0 |                   0.25 |
-|                       0.5  |    0.5  |                      1 |                        0 |                   0.25 |
-|                       0.5  |    0.75 |                      1 |                        0 |                   0.25 |
-|                       0.75 |    0.25 |                      1 |                        0 |                   0.25 |
-|                       0.75 |    0.5  |                      1 |                        0 |                   0.25 |
-|                       0.75 |    0.75 |                      1 |                        0 |                   0.25 |
+|   complementarity_severity |   alpha |   primary_wins_vs_both |   primary_best_preserved |   primary_worse_than_best |   primary_losses_vs_both |   primary_best_preserved_fraction |
+|---------------------------:|--------:|-----------------------:|-------------------------:|--------------------------:|-------------------------:|----------------------------------:|
+|                       0.25 |    0.25 |                      0 |                        0 |                         4 |                        1 |                              0    |
+|                       0.25 |    0.5  |                      1 |                        1 |                         3 |                        1 |                              0.25 |
+|                       0.25 |    0.75 |                      2 |                        2 |                         2 |                        0 |                              0.5  |
+|                       0.5  |    0.25 |                      1 |                        1 |                         3 |                        0 |                              0.25 |
+|                       0.5  |    0.5  |                      1 |                        1 |                         3 |                        0 |                              0.25 |
+|                       0.5  |    0.75 |                      1 |                        1 |                         3 |                        0 |                              0.25 |
+|                       0.75 |    0.25 |                      1 |                        1 |                         3 |                        0 |                              0.25 |
+|                       0.75 |    0.5  |                      1 |                        1 |                         3 |                        0 |                              0.25 |
+|                       0.75 |    0.75 |                      1 |                        2 |                         2 |                        0 |                              0.5  |
 
 ## Raw outputs
 

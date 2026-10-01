@@ -1,20 +1,26 @@
 {
   "mean_graft": {
-    "imperfect_grid_points": 15,
-    "points_with_any_primary_win": 15,
-    "points_with_half_or_more_primary_wins": 15,
-    "max_primary_wins": 2
+    "imperfect_grid_points": 24,
+    "points_preserving_best_on_all_primary_metrics": 19,
+    "points_preserving_best_on_at_least_half": 24,
+    "points_with_any_strict_win_vs_both": 24,
+    "points_worse_than_both_on_any_primary_metric": 0,
+    "min_best_preserved_fraction": 0.75
   },
   "quantile_graft": {
-    "imperfect_grid_points": 15,
-    "points_with_any_primary_win": 15,
-    "points_with_half_or_more_primary_wins": 15,
-    "max_primary_wins": 2
+    "imperfect_grid_points": 24,
+    "points_preserving_best_on_all_primary_metrics": 19,
+    "points_preserving_best_on_at_least_half": 19,
+    "points_with_any_strict_win_vs_both": 19,
+    "points_worse_than_both_on_any_primary_metric": 0,
+    "min_best_preserved_fraction": 0.0
   },
   "spatial_transplant": {
-    "imperfect_grid_points": 15,
-    "points_with_any_primary_win": 15,
-    "points_with_half_or_more_primary_wins": 0,
-    "max_primary_wins": 2
+    "imperfect_grid_points": 24,
+    "points_preserving_best_on_all_primary_metrics": 20,
+    "points_preserving_best_on_at_least_half": 24,
+    "points_with_any_strict_win_vs_both": 24,
+    "points_worse_than_both_on_any_primary_metric": 3,
+    "min_best_preserved_fraction": 0.625
   }
 }
