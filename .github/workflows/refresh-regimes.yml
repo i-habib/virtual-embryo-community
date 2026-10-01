@@ -1,0 +1,45 @@
+name: Refresh regime maps
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'regime_map.py'
+      - 'requirements.txt'
+      - '.github/workflows/refresh-regimes.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ensemble-regimes-main
+  cancel-in-progress: true
+
+jobs:
+  run:
+    if: ${{ !contains(github.event.head_commit.message || '', '[regime-results]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements.txt
+      - run: python regime_map.py --out-dir regime_results
+      - name: Commit current regime results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add REGIME_RESULTS.md regime_results/
+          if git diff --cached --quiet; then
+            echo "No regime-result changes"
+          else
+            git commit -m "Refresh ensemble regime maps [regime-results] [skip ci]"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
