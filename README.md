@@ -1,62 +1,84 @@
 # Virtual Embryo Ensemble Lab
 
-What does it mean to ensemble two predictions when the output is an **unordered population of cells**, sometimes with a 3-D point cloud attached?
+When is it actually useful to combine two Virtual Embryo predictions?
 
-This repo tests several composition operations against the official public `veckit` scorer. Each experiment creates two predictions that are good at different things, combines them, and measures which properties survive.
+This repo tests population-level ensemble operations against the public `veckit` scorer. The main experiments make **both parent predictions imperfect**, vary how their errors are split, and measure when a blend matches or beats the better parent on the primary metrics.
 
-The examples use the organizers' public mini targets. They are controlled scorer experiments, not hidden-board estimates.
+The experiments use the organizers' public mini targets. They are controlled scorer studies, not hidden-board estimates.
 
-## What the current run shows
+## Main results
 
-The composition methods can recover complementary properties that neither input has on its own.
+See **[REGIME_RESULTS.md](REGIME_RESULTS.md)** for the full tables and heatmaps.
 
-- **T1 mean graft:** one input has the correct pseudobulk mean but a collapsed population; the other has the target centered population structure but a wrong mean. The graft reaches `MMD = -0.00813`, variance ratio `1`, composition JSD `0`, and pseudobulk Pearson `1`.
-- **T1 quantile graft:** one input has the target gene marginals with genes independently shuffled across cells; the other preserves within-gene ranks but distorts the marginals. The graft reconstructs the public target expression matrix exactly in this control.
-- **T2 spatial transplant:** one input has exact target expression attached to the wrong positions; the other has coherent target geometry with shifted expression. The transplant keeps exact target expression while reaching sliced Wasserstein `0`, occupancy Dice `1`, and neighborhood MMD `-0.00793`.
-- **T3 mean graft:** one input has the right KO mean but collapsed cells; the other has the KO centered population structure with a shifted response mean. The graft restores the response while reaching `MMD = -0.00804`, variance ratio `1`, and composition JSD `0`.
+### Mean graft is robust when the errors are genuinely complementary
 
-Full scorer tables and reconstruction diagnostics are in **[RESULTS.md](RESULTS.md)**.
+The mean-graft grid independently varies error in the mean donor and error in the carrier's cell-level structure.
 
-## Experiments
+Across the 24 imperfect grid points:
 
-### Mean / response graft
+- 19/24 preserve the better parent on all four primary T1 metrics
+- all 24 preserve it on at least half of the primary metrics
+- all 24 strictly beat both parents on at least one primary metric
+- none are worse than both parents on any primary metric
 
-One prediction supplies the per-gene mean. The other supplies centered cell-to-cell structure.
+So the useful regime is much broader than the exact reconstruction control.
 
-\[
-X_{\text{blend}}=(X_B-\mu_B)+\mu_A
-\]
+### Quantile graft has a clearer failure boundary
 
-The lab tests this on T1 developmental prediction and T3 perturbation response.
+The quantile grid independently worsens the marginal donor and corrupts a fraction of the carrier's within-gene ranks.
 
-### Quantile graft
+It preserves the better parent on all four primary metrics at 19/24 imperfect points, but the high-error corner collapses. The heatmap makes that boundary visible instead of implying that rank/marginal grafting is always beneficial.
 
-One prediction has the right per-gene marginals with gene-gene structure scrambled. Another has the right within-gene cell ranks with distorted marginals.
+### Spatial transplant works well until matching becomes ambiguous
 
-The graft assigns the first model's observed values according to the second model's ranks. With equal cell counts, it preserves the donor's empirical marginal for every gene exactly.
+The T2 grid varies expression corruption and matching noise independently.
 
-### Spatial transplant
+- 20/24 imperfect points preserve the better parent on all eight primary T2 metrics
+- all 24 preserve at least half
+- 3/24 become worse than both parents on at least one primary metric
 
-For T2, one prediction gets expression right while attaching coordinates to the wrong cells. A second keeps a coherent point-cloud/expression pairing but has shifted expression.
+The assignment comparison is also useful in practice. Hungarian and greedy matching agree at low noise, but greedy begins assigning the wrong geometry at high noise. At matching-noise `0.6`, coordinate RMSE is about `81.7` for greedy versus `5e-6` for Hungarian; at `1.0`, greedy reaches about `133.8` while Hungarian still recovers the known geometry.
 
-The blender matches cells one-to-one in centered expression space, keeps the first prediction's expression rows, and copies matched coordinates from the second.
+### Simple population mixing is much less predictable
 
-### Population mixture
+The mixture experiment varies parent complementarity and the mixture fraction. Unlike the factor grafts, whole-cell mixtures usually trade one metric against another rather than preserving the better component from each parent. The raw table is included so entrants can see where a mixture actually helps and where it merely interpolates between two errors.
 
-The lab also sweeps simple cell-level mixtures between complementary T1 predictions. This is the direct population ensemble: sample complete cells from A and B.
+## Baseline context
 
-## Reproduce everything
+The regime run also scores the public challenge floor baselines with the same pinned scorer:
+
+- T1 `copy_last`
+- T2-heart `copy_last`
+- T3 `wt_identity`
+
+These give a reference point for the controlled grids without using leaderboard feedback.
+
+## Exact preservation checks
+
+**[RESULTS.md](RESULTS.md)** contains the smaller integration tests used to verify the operators themselves:
+
+- mean versus centered population structure
+- gene marginals versus within-gene ranks
+- expression versus spatial assignment
+- direct whole-cell mixtures
+
+Some of those controls deliberately reconstruct the target almost exactly. They are implementation checks. The imperfect-complementarity study above is the evidence for when the operations remain useful away from that ideal case.
+
+## Reproduce
 
 ```bash
 git clone https://github.com/i-habib/virtual-embryo-ensemble-lab
 cd virtual-embryo-ensemble-lab
 pip install -r requirements.txt
+
+# exact preservation/integration checks
 python run_lab.py --out-dir results
+
+# imperfect-complementarity grids + figures
+python regime_map.py --out-dir regime_results
 ```
 
-`run_lab.py` downloads six public `.h5ad` examples from the pinned `veckit` revision, constructs every controlled pair, runs the scorer, and rewrites the result tables.
-
-Pinned scorer:
+Both scripts download the public examples from the pinned scorer revision:
 
 ```text
 aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17
@@ -64,10 +86,8 @@ aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17
 
 The composition code is pinned to a tested revision of [Virtual Embryo Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender).
 
-Raw CSVs and diagnostics are in [`results/`](results/).
+Raw metric tables are committed in [`results/`](results/) and [`regime_results/`](regime_results/). GitHub Actions reruns both studies when their experiment code changes.
 
 ## Why this is separate from the blender
 
-The [Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) is the reusable CLI/library. Ensemble Lab is the executable evidence for what its composition operations preserve under the public VEC metrics.
-
-Independent community resource for the Virtual Embryo Challenge. The official rules and scorer remain authoritative.
+The [Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) is the reusable CLI/library. Ensemble Lab answers the decision question: **which operation should you try, and how much imperfect complementarity can it tolerate before the blend stops helping?**
