@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'ensemble_atlas.py'
+      - 'atlas_study.py'
       - 'requirements.txt'
       - 'regime_results/**'
       - '.github/workflows/refresh-atlas.yml'
