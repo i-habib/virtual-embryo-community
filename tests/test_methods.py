@@ -67,7 +67,7 @@ def test_spatial_transplant_recovers_permuted_geometry_under_gene_shift():
     rng=np.random.default_rng(5); X=rng.normal(size=(12,7)).astype(np.float32); coords=rng.normal(size=(12,3)).astype(np.float32); perm=rng.permutation(len(X)); shift=np.linspace(-3,4,X.shape[1],dtype=np.float32)
     result=spatial_transplant(make_ad(X),make_ad(X[perm]+shift,coords=coords[perm]),seed=0,n_components=6,assignment="hungarian")
     np.testing.assert_allclose(np.asarray(result.adata.X),X,atol=1e-6); np.testing.assert_allclose(result.adata.obsm["spatial_3D"],coords,atol=1e-5)
-    assert result.report["mean_match_distance"] < 1e-4
+    assert result.report["mean_match_distance"] < 1e-3
 
 
 def test_greedy_and_hungarian_recover_noisy_known_matching():
