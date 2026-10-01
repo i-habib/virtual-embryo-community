@@ -1,4 +1,4 @@
 candidate,de_score,de_direction,energy_distance,mmd_u,variogram,pb_rel_err,library_size_ratio,variance_ratio,composition_JSD,pseudobulk_pearson,_de_raw,_de_chance,_de_chance_unif,_n_up,_n_dn
 A_correct_mean_collapsed,0.5152,1.0,25.08162,0.26126,0.018838,0.0,0.751,0.0,0.0131,1.0,0.5152,0.0,0.001,18,15
-B_structure_wrong_mean,0.3636,0.6173,49.21871,0.20065,0.048504,1.063,2.941,1.0,0.2786,0.9851,0.3636,0.0,0.001,18,15
+B_structure_wrong_mean,0.3636,0.6173,49.21874,0.20065,0.048504,1.063,2.941,1.0,0.2786,0.9851,0.3636,0.0,0.001,18,15
 mean_graft,0.5152,1.0,-0.8259,-0.00813,0.0,0.0,1.0,1.0,0.0,1.0,0.5152,0.0,0.001,18,15

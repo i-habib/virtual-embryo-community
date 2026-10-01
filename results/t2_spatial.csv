@@ -1,4 +1,4 @@
 candidate,de_score,de_direction,energy_distance,mmd_u,variogram,d2_shape,sliced_wasserstein,occupancy_dice,scale_log_ratio,count_log_ratio,neighborhood_mmd,pb_rel_err,library_size_ratio,variance_ratio,composition_JSD,pseudobulk_pearson,morans_I_agreement,_de_raw,_de_chance,_n_up,_n_dn,_sw_flip_spread,_dice_voxel_over_nn
-A_expression_wrong_locations,0.52,1.0,-0.51577,-0.00807,0.0,0.00213,0.03846,0.6275,0.0,0.0,0.13485,0.0,1.0,1.0,0.0,1.0,-0.0957,0.7209,0.4186,86,0,0.03912,1.9
-B_geometry_shifted_expression,0.46,0.9934,13.79956,0.14286,0.384148,0.00266,0.0,1.0,0.0,0.0,0.44292,1.4561,6.46,1.0,0.0015,0.9667,1.0,0.686,0.4186,86,0,0.08091,1.9
-spatial_transplant,0.52,1.0,-0.51577,-0.00807,0.0,0.00126,0.0,1.0,0.0,0.0,-0.00793,0.0,1.0,1.0,0.0,1.0,1.0,0.7209,0.4186,86,0,0.08091,1.9
+A_expression_wrong_locations,0.5102,1.0,-0.51578,-0.00807,0.0,0.00213,0.03846,0.6275,0.0,0.0,0.13485,0.0,1.0,1.0,0.0,1.0,-0.0957,0.7209,0.4302,86,0,0.03912,1.9
+B_geometry_shifted_expression,0.449,0.9934,13.79956,0.14286,0.384148,0.00266,0.0,1.0,0.0,0.0,0.44293,1.4561,6.46,1.0,0.0015,0.9667,1.0,0.686,0.4302,86,0,0.08091,1.9
+spatial_transplant,0.5102,1.0,-0.51578,-0.00807,0.0,0.00126,0.0,1.0,0.0,0.0,-0.00793,0.0,1.0,1.0,0.0,1.0,1.0,0.7209,0.4302,86,0,0.08091,1.9

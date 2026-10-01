@@ -20,7 +20,7 @@ Diagnostics:
   "offset_min": 0.25,
   "offset_max": 1.163951476220542,
   "clip_min": 0.0,
-  "blend_expression_rmse_to_target": 1.609732409196329e-08,
+  "blend_expression_rmse_to_target": 2.056108595086253e-08,
   "blend_max_abs_expression_error": 4.76837158203125e-07,
   "blend_expression_min": 0.0
 }
@@ -44,7 +44,7 @@ A preserves every gene's empirical marginal values but independently shuffles ea
 
 | candidate                       |   de_score |   de_direction |   energy_distance |    mmd_u |   variogram |   pb_rel_err |   library_size_ratio |   variance_ratio |   composition_JSD |   pseudobulk_pearson |   _de_raw |   _de_chance |   _de_chance_unif |   _n_up |   _n_dn |
 |:--------------------------------|-----------:|---------------:|------------------:|---------:|------------:|-------------:|---------------------:|-----------------:|------------------:|---------------------:|----------:|-------------:|------------------:|--------:|--------:|
-| A_correct_marginals_shuffled    |     0.5152 |         1      |          -0.36225 |  0.24614 |    0.000167 |       0      |                0.999 |            1     |            0.0132 |               1      |    0.5152 |            0 |             0.001 |      18 |      15 |
+| A_correct_marginals_shuffled    |     0.5152 |         1      |          -0.36227 |  0.24614 |    0.000167 |       0      |                0.999 |            1     |            0.0132 |               1      |    0.5152 |            0 |             0.001 |      18 |      15 |
 | B_correct_ranks_wrong_marginals |     0.1212 |         0.1822 |          36.03    |  0.05396 |    0.083147 |       0.8935 |                2.957 |            1.041 |            0.1292 |               0.9117 |    0.1212 |            0 |             0.001 |      18 |      15 |
 | quantile_graft                  |     0.5152 |         1      |          -0.8259  | -0.00813 |    0        |       0      |                1     |            1     |            0      |               1      |    0.5152 |            0 |             0.001 |      18 |      15 |
 
@@ -64,9 +64,9 @@ A contains exact target expression with coordinates permuted across cells. B con
 
 | candidate                     |   de_score |   de_direction |   energy_distance |    mmd_u |   variogram |   d2_shape |   sliced_wasserstein |   occupancy_dice |   scale_log_ratio |   count_log_ratio |   neighborhood_mmd |   pb_rel_err |   library_size_ratio |   variance_ratio |   composition_JSD |   pseudobulk_pearson |   morans_I_agreement |   _de_raw |   _de_chance |   _n_up |   _n_dn |   _sw_flip_spread |   _dice_voxel_over_nn |
 |:------------------------------|-----------:|---------------:|------------------:|---------:|------------:|-----------:|---------------------:|-----------------:|------------------:|------------------:|-------------------:|-------------:|---------------------:|-----------------:|------------------:|---------------------:|---------------------:|----------:|-------------:|--------:|--------:|------------------:|----------------------:|
-| A_expression_wrong_locations  |       0.52 |         1      |          -0.51577 | -0.00807 |     0       |    0.00213 |              0.03846 |           0.6275 |                 0 |                 0 |            0.13485 |       0      |                 1    |                1 |            0      |               1      |              -0.0957 |    0.7209 |       0.4186 |      86 |       0 |           0.03912 |                   1.9 |
-| B_geometry_shifted_expression |       0.46 |         0.9934 |          13.8     |  0.14286 |     0.38415 |    0.00266 |              0       |           1      |                 0 |                 0 |            0.44292 |       1.4561 |                 6.46 |                1 |            0.0015 |               0.9667 |               1      |    0.686  |       0.4186 |      86 |       0 |           0.08091 |                   1.9 |
-| spatial_transplant            |       0.52 |         1      |          -0.51577 | -0.00807 |     0       |    0.00126 |              0       |           1      |                 0 |                 0 |           -0.00793 |       0      |                 1    |                1 |            0      |               1      |               1      |    0.7209 |       0.4186 |      86 |       0 |           0.08091 |                   1.9 |
+| A_expression_wrong_locations  |     0.5102 |         1      |          -0.51578 | -0.00807 |     0       |    0.00213 |              0.03846 |           0.6275 |                 0 |                 0 |            0.13485 |       0      |                 1    |                1 |            0      |               1      |              -0.0957 |    0.7209 |       0.4302 |      86 |       0 |           0.03912 |                   1.9 |
+| B_geometry_shifted_expression |     0.449  |         0.9934 |          13.8     |  0.14286 |     0.38415 |    0.00266 |              0       |           1      |                 0 |                 0 |            0.44293 |       1.4561 |                 6.46 |                1 |            0.0015 |               0.9667 |               1      |    0.686  |       0.4302 |      86 |       0 |           0.08091 |                   1.9 |
+| spatial_transplant            |     0.5102 |         1      |          -0.51578 | -0.00807 |     0       |    0.00126 |              0       |           1      |                 0 |                 0 |           -0.00793 |       0      |                 1    |                1 |            0      |               1      |               1      |    0.7209 |       0.4302 |      86 |       0 |           0.08091 |                   1.9 |
 
 Diagnostics:
 ```json
@@ -76,11 +76,16 @@ Diagnostics:
   "n_out": 150,
   "assignment": "hungarian",
   "embedding_components": 24,
-  "mean_match_distance": 1.4172493987537914e-07,
-  "p95_match_distance": 3.7885285549897426e-07,
-  "max_match_distance": 9.5367431640625e-07,
+  "match_genes": 500,
+  "max_match_genes": 2048,
+  "mean_match_distance": 16.733196258544922,
+  "p95_match_distance": 16.733200073242188,
+  "max_match_distance": 16.733203887939453,
   "subsampled_a": false,
   "subsampled_b": false,
+  "obs_source": "A",
+  "coordinate_source": "B",
+  "obs_location_metadata_may_be_stale": false,
   "blend_expression_rmse_to_target": 0.0,
   "blend_max_abs_expression_error": 0.0,
   "blend_expression_min": 0.0,
@@ -95,9 +100,9 @@ A has the target KO pseudobulk mean repeated across cells. B adds a positive gen
 
 | candidate                         |   de_score |   de_direction |   severity_slope |   energy_distance |    mmd_u |   variogram |   pb_rel_err |   library_size_ratio |   variance_ratio |   composition_JSD |   pseudobulk_pearson |   _de_raw |   _de_chance |   _n_up |   _n_dn |   _slope_r2 |   d2_shape |   sliced_wasserstein |   occupancy_dice |   scale_log_ratio |   count_log_ratio |   neighborhood_mmd |   _sw_flip_spread |   _dice_voxel_over_nn |
 |:----------------------------------|-----------:|---------------:|-----------------:|------------------:|---------:|------------:|-------------:|---------------------:|-----------------:|------------------:|---------------------:|----------:|-------------:|--------:|--------:|------------:|-----------:|---------------------:|-----------------:|------------------:|------------------:|-------------------:|------------------:|----------------------:|
-| A_correct_mean_response_collapsed |     0.641  |          1     |           0      |          16.416   |  0.27015 |     0.1135  |       0      |                0.131 |                0 |            0.0069 |                1     |    0.6818 |       0.1136 |      35 |       9 |       1     |    0.00273 |                    0 |                1 |                 0 |                 0 |            0.33905 |           0.05966 |                     2 |
+| A_correct_mean_response_collapsed |     0.641  |          1     |           0      |          16.418   |  0.27015 |     0.1135  |       0      |                0.131 |                0 |            0.0069 |                1     |    0.6818 |       0.1136 |      35 |       9 |       1     |    0.00273 |                    0 |                1 |                 0 |                 0 |            0.33905 |           0.05966 |                     2 |
 | B_structure_shifted_response      |     0.4872 |          0.889 |           0.6657 |           8.0459  |  0.09182 |     0.27678 |       0.9867 |                3.979 |                1 |            0.0412 |                0.979 |    0.5455 |       0.1136 |      35 |       9 |       0.084 |    0.00273 |                    0 |                1 |                 0 |                 0 |            0.33358 |           0.05966 |                     2 |
-| mean_graft                        |     0.641  |          1     |           0      |          -0.53214 | -0.00804 |     0       |       0      |                1     |                1 |            0      |                1     |    0.6818 |       0.1136 |      35 |       9 |       1     |    0.00273 |                    0 |                1 |                 0 |                 0 |           -0.00799 |           0.05966 |                     2 |
+| mean_graft                        |     0.641  |          1     |           0      |          -0.53215 | -0.00804 |     0       |       0      |                1     |                1 |            0      |                1     |    0.6818 |       0.1136 |      35 |       9 |       1     |    0.00273 |                    0 |                1 |                 0 |                 0 |           -0.00799 |           0.05966 |                     2 |
 
 Diagnostics:
 ```json
@@ -105,7 +110,7 @@ Diagnostics:
   "offset_min": 0.25,
   "offset_max": 1.8822239605895543,
   "clip_min": 0.0,
-  "blend_expression_rmse_to_target": 3.782007142043219e-08,
+  "blend_expression_rmse_to_target": 6.574683220423031e-08,
   "blend_max_abs_expression_error": 9.5367431640625e-07,
   "blend_expression_min": 0.0
 }
