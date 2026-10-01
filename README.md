@@ -12,6 +12,17 @@ The experiments use the organizers' public mini examples. They do not use leader
 - **[REGIME_RESULTS.md](REGIME_RESULTS.md)** — 5×5 grids showing where mean graft, quantile graft, and spatial transplant keep helping as both parents get worse.
 - **[RESULTS.md](RESULTS.md)** — small exact checks showing what each operation preserves.
 
+## What the expanded run found
+
+The organizer-defined control pairs are much less clean than the constructed phase diagrams, which is useful.
+
+- On the six T1 control pairs, **quantile graft** matched the better parent on 75% of the primary metrics on average and never became worse than both parents on any primary metric.
+- **Mean graft** matched the better parent on about 67% of T1 primary metrics on average, but 2/6 pairs had at least one metric worse than both parents. On T3, that happened on 3/6 pairs.
+- On the six T2 control pairs, **random coordinate transfer** had at least one metric worse than both parents on 5/6 pairs. Spatial transplant, raw-expression Hungarian matching, and same-index transfer did not have a worse-than-both metric in this small control set, and they tied surprisingly often.
+- On the fixed 3×3 T1 grids, mean graft and quantile graft matched or beat the better parent on every primary metric at all nine tested points. Whole-cell mixing often kept the MMD result but consistently lost the better parent's DE-direction and gene-covariation results.
+
+The T2 ties are a useful negative result too: these controlled examples do not show that spatial transplant is uniquely better than simpler coordinate-transfer rules.
+
 ## What the Atlas tests
 
 ### Where each method works
@@ -39,13 +50,13 @@ These comparisons run on a fixed 3×3 low/medium/high subset of the controlled g
 
 ### Organizer-defined controls
 
-The Atlas also tests every pair among four public organizer-defined rows for each task:
+The Atlas tests every pair among four public organizer-defined rows for each task:
 
 - **T1:** `copy_last`, `ctrl_one_cell`, `ctrl_scale_ref`, `ctrl_shrink_ref`
 - **T2:** `copy_last`, `ctrl_scale_ref`, `ctrl_squashed_ref`, `ctrl_random_cube`
 - **T3:** `wt_identity`, `ctrl_scale_wt`, `ctrl_shrink_wt`, `ctrl_random_dir`
 
-That gives six parent pairs per task. These controls were designed by the organizers to stress the scorer, so they give a useful check outside the error patterns constructed for the ensemble experiments.
+That gives six parent pairs per task. These controls were designed by the organizers to stress the scorer, so they give a useful check outside the error patterns constructed for the ensemble experiments. For the randomized controls, this repo follows the published construction and uses a fixed local seed so reruns are deterministic.
 
 The public mini bundle does not contain the two earlier stages needed to reconstruct `pseudobulk_shift` honestly, or a second knockout for a non-leaking `shift_transfer` test. Those are left out.
 
