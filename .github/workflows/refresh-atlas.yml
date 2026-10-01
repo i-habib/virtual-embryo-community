@@ -31,6 +31,17 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements.txt
+      - name: Remove superseded atlas outputs
+        run: >-
+          rm -f
+          atlas_results/diagnostic_bins.csv
+          atlas_results/diagnostic_correlations.csv
+          atlas_results/diagnostic_mean_graft.png
+          atlas_results/diagnostic_population_mix.png
+          atlas_results/diagnostic_quantile_graft.png
+          atlas_results/diagnostic_spatial_transplant.png
+          atlas_results/organizer_reference_pairs.csv
+          atlas_results/simple_comparators.csv
       - run: python ensemble_atlas.py --regime-dir regime_results --out-dir atlas_results
       - name: Commit current atlas results
         run: |
