@@ -21,6 +21,6 @@ jobs:
         run: >-
           python benchmarks/stress_sparse.py
           --cells 10000
-          --mean-cells 1000
+          --mean-cells 10000
           --genes 32285
           --density 0.02
