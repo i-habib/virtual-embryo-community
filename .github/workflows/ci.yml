@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m py_compile run_lab.py regime_map.py ensemble_atlas.py
+      - run: python -m py_compile run_lab.py regime_map.py atlas_study.py ensemble_atlas.py
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements.txt
       - run: python -c "from vec_blender import mean_graft, quantile_graft, spatial_transplant; from veckit import score; print('imports ok')"
