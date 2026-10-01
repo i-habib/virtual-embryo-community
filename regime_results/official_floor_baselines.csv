@@ -1,0 +1,4 @@
+task,baseline,candidate,de_score,de_direction,energy_distance,mmd_u,variogram,pb_rel_err,library_size_ratio,variance_ratio,composition_JSD,pseudobulk_pearson,_de_raw,_de_chance,_de_chance_unif,_n_up,_n_dn,d2_shape,sliced_wasserstein,occupancy_dice,scale_log_ratio,count_log_ratio,neighborhood_mmd,morans_I_agreement,_sw_flip_spread,_dice_voxel_over_nn,severity_slope,_slope_r2
+T1,copy_last,copy_last_T1,0.0,0.0,0.36497,0.07716,0.00187,0.1211,1.0,0.974,0.0266,0.9915,0.0,0.0,0.001,18,15,,,,,,,,,,,
+T2-heart,copy_last,copy_last_T2,0.0,0.0,11.70403,0.29037,0.098139,0.7653,0.017,0.201,0.0282,0.7907,0.0,0.4302,,86,0,0.0269,0.06092,0.5,-0.0742,0.0,0.584,0.6347,0.01126,1.9,,
+T3,wt_identity,wt_identity_T3,0.0,0.0,1.07137,0.04623,0.032556,0.3727,1.0,0.921,0.0202,0.9033,0.0,0.1136,,35,9,0.01918,0.06181,0.5263,0.1045,0.0,0.13391,,0.00852,2.0,-6.9078,0.0
