@@ -1,0 +1,17 @@
+method,diagnostic,threshold_median,bin,n,mean_best_preserved_fraction,mean_strict_win_fraction,failure_rate_any_loss_vs_both
+mean_graft,variance_disagreement,1.3564359370144035,low,13,1.0,0.5,0.0
+mean_graft,variance_disagreement,1.3564359370144035,high,12,0.8958333333333334,0.3958333333333333,0.0
+mean_graft,marginal_wasserstein,1.3109929324151162,low,13,0.9423076923076923,0.4423076923076923,0.0
+mean_graft,marginal_wasserstein,1.3109929324151162,high,12,0.9583333333333334,0.4583333333333333,0.0
+population_mix,mean_disagreement,0.4945644933438584,low,6,0.25,0.25,0.3333333333333333
+population_mix,mean_disagreement,0.4945644933438584,high,3,0.3333333333333333,0.25,0.0
+population_mix,variance_disagreement,0.6520471475871326,low,6,0.25,0.25,0.3333333333333333
+population_mix,variance_disagreement,0.6520471475871326,high,3,0.3333333333333333,0.25,0.0
+quantile_graft,variance_disagreement,0.2050375927524979,low,15,1.0,0.5,0.0
+quantile_graft,variance_disagreement,0.2050375927524979,high,10,0.5,0.25,0.0
+quantile_graft,mean_disagreement,0.450865059691522,low,15,0.6666666666666666,0.3333333333333333,0.0
+quantile_graft,mean_disagreement,0.450865059691522,high,10,1.0,0.5,0.0
+spatial_transplant,assignment_ambiguity,0.7593056848669009,low,13,1.0,0.25,0.0
+spatial_transplant,assignment_ambiguity,0.7593056848669009,high,12,0.9166666666666666,0.20833333333333334,0.25
+spatial_transplant,mutual_nn_fraction,0.8733333333333333,low,13,0.9230769230769231,0.21153846153846154,0.23076923076923078
+spatial_transplant,mutual_nn_fraction,0.8733333333333333,high,12,1.0,0.25,0.0
