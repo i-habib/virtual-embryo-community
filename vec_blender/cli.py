@@ -36,6 +36,7 @@ def _write_result(result, out: Path, a_path: Path, b_path: Path) -> None:
     validate_submission_output(result.adata)
     out.parent.mkdir(parents=True, exist_ok=True)
     result.adata.write_h5ad(out)
+    output_bytes = int(out.stat().st_size)
     manifest = {
         **result.report,
         "vec_blend_version": _package_version(),
@@ -44,6 +45,8 @@ def _write_result(result, out: Path, a_path: Path, b_path: Path) -> None:
         "input_a_sha256": _sha256(a_path),
         "input_b_sha256": _sha256(b_path),
         "output": str(out),
+        "output_bytes": output_bytes,
+        "output_mib": output_bytes / (1024**2),
         "cells": int(result.adata.n_obs),
         "genes": int(result.adata.n_vars),
     }
@@ -122,8 +125,12 @@ def _run_inspect(args) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="vec-blend", description="Compose two Virtual Embryo .h5ad predictions without score feedback.")
+    p = argparse.ArgumentParser(
+        prog="vec-blend",
+        description="Compose two Virtual Embryo .h5ad predictions without score feedback.",
+    )
     sub = p.add_subparsers(dest="command", required=True)
+
     blend = sub.add_parser("blend", help="produce one blended submission")
     blend.add_argument("a", help="submission A")
     blend.add_argument("b", help="submission B")
@@ -132,19 +139,35 @@ def build_parser() -> argparse.ArgumentParser:
     blend.add_argument("--alpha", type=float, default=0.5, help="A fraction for mixture")
     blend.add_argument("--n-out", type=int, default=None)
     blend.add_argument("--seed", type=int, default=0)
-    blend.add_argument("--clip-min", type=float, default=None, help="nonnegative floor for mean-graft expression; usually 0")
-    blend.add_argument("--chunk-rows", type=int, default=512, help="row chunk size for mean graft")
+    blend.add_argument(
+        "--clip-min",
+        type=float,
+        default=None,
+        help="nonnegative floor for mean-graft expression; usually 0",
+    )
+    blend.add_argument(
+        "--chunk-rows", type=int, default=512, help="row chunk size for mean graft"
+    )
     blend.add_argument("--components", type=int, default=24)
-    blend.add_argument("--assignment", choices=("auto", "hungarian", "greedy"), default="auto")
+    blend.add_argument(
+        "--assignment", choices=("auto", "hungarian", "greedy"), default="auto"
+    )
     blend.add_argument("--exact-limit", type=int, default=2500)
-    blend.add_argument("--max-match-genes", type=int, default=2048, help="cap genes materialized for spatial matching; highest pooled variance are used")
+    blend.add_argument(
+        "--max-match-genes",
+        type=int,
+        default=2048,
+        help="cap genes materialized for spatial matching; highest pooled variance are used",
+    )
     blend.set_defaults(func=_run_blend)
 
     sweep = sub.add_parser("sweep", help="generate a fixed-size mixture-alpha family")
     sweep.add_argument("a")
     sweep.add_argument("b")
     sweep.add_argument("--out-dir", required=True)
-    sweep.add_argument("--alphas", default="0,0.25,0.5,0.75,1", help="comma-separated values")
+    sweep.add_argument(
+        "--alphas", default="0,0.25,0.5,0.75,1", help="comma-separated values"
+    )
     sweep.add_argument("--n-out", type=int, default=None)
     sweep.add_argument("--seed", type=int, default=0)
     sweep.set_defaults(func=_run_sweep)
