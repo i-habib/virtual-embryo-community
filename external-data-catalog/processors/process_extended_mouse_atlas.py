@@ -35,10 +35,12 @@ def main():
         if a.raw is None:
             raise ValueError("--use-raw-counts requested but adata.raw is missing")
         a = a.raw.to_adata()
-        a = normalize_total_log1p(a)
 
     genes = load_gene_list(args.gene_list)
     a, gene_report = subset_genes(a, genes)
+    if args.use_raw_counts:
+        # The release normalises over the board's own gene list, so subset first.
+        a = normalize_total_log1p(a)
     a.obs["vec_stage"] = [float(x) for x in parsed[keep]]
     args.out.parent.mkdir(parents=True, exist_ok=True)
     a.write_h5ad(args.out)

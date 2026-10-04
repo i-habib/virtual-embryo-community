@@ -36,10 +36,11 @@ def main():
         wanted = {x.lower() for x in args.tissue}
         mask = a.obs[args.tissue_column].astype(str).str.lower().isin(wanted).to_numpy()
         a = a[mask].copy()
-    if args.normalize:
-        a = normalize_total_log1p(a)
     genes = load_gene_list(args.gene_list)
     a, gene_report = subset_genes(a, genes)
+    if args.normalize:
+        # The release normalises over the board's own gene list, so subset first.
+        a = normalize_total_log1p(a)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     a.write_h5ad(args.out)
     write_provenance(args.out.with_suffix(".provenance.json"), source="Tabula Muris adult mouse atlas",

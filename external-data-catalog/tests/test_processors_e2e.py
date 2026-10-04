@@ -209,3 +209,21 @@ def test_mouse_go_end_to_end(tmp_path):
     result = pd.read_csv(out)
     assert result["gene"].tolist() == ["G1"]
     assert result["evidence"].tolist() == ["IDA"]
+
+
+def test_tabula_muris_normalises_over_the_gene_list(tmp_path):
+    # Board panels are normalised over their own genes, so expm1 row sums
+    # must be 10,000 over the requested genes, not over the whole input.
+    src = tmp_path / "TM_droplet_mat.h5ad"
+    out = tmp_path / "tabula_norm.h5ad"
+    genes = tmp_path / "genes.txt"
+    write_gene_list(genes)
+    tiny_adata().write_h5ad(src)
+
+    run_processor(
+        ROOT / "processors/process_tabula_muris.py",
+        src, "--normalize", "--gene-list", genes, "--out", out,
+    )
+    result = ad.read_h5ad(out)
+    X = result.X.toarray() if sparse.issparse(result.X) else np.asarray(result.X)
+    np.testing.assert_allclose(np.expm1(X).sum(axis=1), 1e4, rtol=1e-5)
