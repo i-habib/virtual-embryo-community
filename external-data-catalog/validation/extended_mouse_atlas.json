@@ -1,0 +1,9 @@
+{
+  "advertised_archive": "ExtendedMouseAtlas.tar.gz",
+  "advertised_size": "25G",
+  "reason": "official downloadable package is a 25 GB tarball; not downloaded by the hosted validator",
+  "release_index": "https://bioinformatics.stemcells.cam.ac.uk/rlh60/Supplemental/ExtendedMouseAtlas/",
+  "source": "Extended Mouse Atlas",
+  "status": "not_real_run_validated",
+  "tested_on": "2026-09-17"
+}

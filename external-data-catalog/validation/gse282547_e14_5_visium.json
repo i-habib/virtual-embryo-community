@@ -1,0 +1,92 @@
+{
+  "candidate_samples_with_required_files": [
+    "GSM8645799"
+  ],
+  "command": "python processors/process_gse282547_visium.py <sample_dir> --stage 14.5 --task t2-heart --out <h5ad>",
+  "family_soft": {
+    "bytes": 4618,
+    "filename": "GSE282547_family.soft.gz",
+    "sha256": "6c00939bbb948cc7cd960250c4f4076f93535284623ce04e00bf0e6e88559397",
+    "url": "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE282nnn/GSE282547/soft/GSE282547_family.soft.gz"
+  },
+  "output_genes": 32285,
+  "output_spots": 456,
+  "processor_exit": 0,
+  "processor_stdout": "wrote /tmp/vec-external-real-cgun5hmq/GSM8645799.E14.5.t2-heart.h5ad: 456 spots, 32285 genes, spatial_2D=yes, spatial_3D=no",
+  "provenance": {
+    "cells": 456,
+    "gene_report": {
+      "kept": 32285,
+      "missing": [],
+      "requested": null
+    },
+    "genes_after_panel": 32285,
+    "genes_before_panel": 32285,
+    "input_dir": "/tmp/vec-external-real-cgun5hmq/gse282547_GSM8645799",
+    "output": "/tmp/vec-external-real-cgun5hmq/GSM8645799.E14.5.t2-heart.h5ad",
+    "rules_snapshot": "2026-09-17",
+    "safety_note": null,
+    "source": "GSE282547 developing-heart Visium",
+    "source_files": {
+      "barcodes": "GSM8645799_E14_5_barcodes.tsv.gz",
+      "features": "GSM8645799_E14_5_features.tsv.gz",
+      "matrix": "GSM8645799_E14_5_matrix.mtx.gz",
+      "positions": "GSM8645799_E14_5_tissue_positions_list.csv.gz"
+    },
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE282547",
+    "spatial_2d_present": true,
+    "spatial_3d_present": false,
+    "spatial_note": "This GEO release is a 2-D tissue section; no z coordinate is invented.",
+    "stage": 14.5,
+    "stage_filter_applied": true,
+    "t3_genotype_audit": "not_applicable",
+    "task": "t2-heart"
+  },
+  "sample_accession": "GSM8645799",
+  "sample_characteristics": [
+    "tissue: heart",
+    "cell type: cardiac cells",
+    "genotype: CD1 wildtype",
+    "treatment: none"
+  ],
+  "sample_source_name": "heart",
+  "sample_title": "e14.5_visium",
+  "source": "GSE282547 developing-heart atlas",
+  "source_files": [
+    {
+      "bytes": 7275116,
+      "filename": "GSM8645799_E14_5_matrix.mtx.gz",
+      "sha256": "d340745bd97721909f31f35f8cdc560030a77de19adccede18d8155b40bc1fc4",
+      "url": "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM8645nnn/GSM8645799/suppl/GSM8645799_E14_5_matrix.mtx.gz"
+    },
+    {
+      "bytes": 290896,
+      "filename": "GSM8645799_E14_5_features.tsv.gz",
+      "sha256": "7f132de5622365e8a6fe60998c0fa9fced8bf950e3429977d6de859f23012163",
+      "url": "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM8645nnn/GSM8645799/suppl/GSM8645799_E14_5_features.tsv.gz"
+    },
+    {
+      "bytes": 2841,
+      "filename": "GSM8645799_E14_5_barcodes.tsv.gz",
+      "sha256": "9c009875bd992441c45e014613dec9eb64ee5a8673d04c4b5e87e33810a20c6c",
+      "url": "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM8645nnn/GSM8645799/suppl/GSM8645799_E14_5_barcodes.tsv.gz"
+    },
+    {
+      "bytes": 61255,
+      "filename": "GSM8645799_E14_5_tissue_positions_list.csv.gz",
+      "sha256": "17fb57302ce48aafcdbb7abba62000b6cbb6896e13368dc11a01d6d1f80ab7e6",
+      "url": "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM8645nnn/GSM8645799/suppl/GSM8645799_E14_5_tissue_positions_list.csv.gz"
+    }
+  ],
+  "spatial_2d_present": true,
+  "spatial_3d_present": false,
+  "status": "real_release_processor_passed",
+  "tested_on": "2026-09-17",
+  "vec_heart_panel": {
+    "genes_found": 500,
+    "genes_missing": 0,
+    "missing_gene_symbols": [],
+    "panel_genes": 500,
+    "source": "veckit@46d41e63f42a9aab815db20b742feeccd249cb17:data/sample_heart_9.5.h5ad"
+  }
+}

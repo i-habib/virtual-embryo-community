@@ -1,0 +1,73 @@
+name: Validate real source releases
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/validate_real_sources.py'
+      - 'scripts/add_vec_panel_overlap.py'
+      - '.github/workflows/validate-real-sources.yml'
+      - 'processors/**'
+      - 'vec_external/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: validate-real-sources-main
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: ${{ !contains(github.event.head_commit.message || '', '[real-source-validation]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install runtime dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Run processors on public releases
+        id: real_validation
+        continue-on-error: true
+        run: python scripts/validate_real_sources.py
+      - name: Record overlap with the pinned public VEC heart panel
+        if: always()
+        run: python scripts/add_vec_panel_overlap.py
+      - name: Show validation manifests
+        if: always()
+        run: |
+          shopt -s nullglob
+          files=(validation/*.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No manifests were produced"
+            exit 1
+          fi
+          for f in "${files[@]}"; do
+            echo "===== $f ====="
+            cat "$f"
+          done
+      - name: Commit observed release evidence
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add validation
+          if git diff --cached --quiet; then
+            echo "No validation changes"
+          else
+            git commit -m "Record real source validation [real-source-validation] [skip ci]"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
+      - name: Fail if any real-source validation failed
+        if: steps.real_validation.outcome != 'success'
+        run: exit 1

@@ -1,0 +1,40 @@
+{
+  "command": "python processors/prepare_mouse_go.py MOUSE-mod.gaf.gz --gene-list <3-gene probe> --out <csv>",
+  "evidence_codes_observed": [
+    "EXP",
+    "IBA",
+    "IDA",
+    "IEA",
+    "IGI",
+    "IMP",
+    "IPI",
+    "ISO",
+    "ISS",
+    "NAS",
+    "TAS"
+  ],
+  "genes_found": [
+    "Ctnnb1",
+    "Gata4",
+    "Mab21l2"
+  ],
+  "output_rows": 1111,
+  "probe_genes": [
+    "Gata4",
+    "Ctnnb1",
+    "Mab21l2"
+  ],
+  "processor_exit": 0,
+  "processor_stdout": "wrote 1111 gene-GO edges covering 3 requested genes",
+  "source": "Mouse Gene Ontology GAF",
+  "source_files": [
+    {
+      "bytes": 10579993,
+      "filename": "MOUSE-mod.gaf.gz",
+      "sha256": "6cbefce3a2efd9862f102a2732e923fde525c8fa59a3e5ce22e8178c3ebb0093",
+      "url": "https://current.geneontology.org/annotations/gaf/MOUSE-mod.gaf.gz"
+    }
+  ],
+  "status": "real_release_processor_passed",
+  "tested_on": "2026-09-17"
+}

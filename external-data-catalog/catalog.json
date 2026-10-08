@@ -1,0 +1,117 @@
+[
+  {
+    "id": "gse247450_merfish",
+    "name": "GSE247450 embryonic endothelial MERFISH",
+    "tier": "validated",
+    "validation_manifest": "validation/gse247450_e9_5_region0.json",
+    "modality": "MERFISH, released 315-gene matrix in the validated E9.5 sample",
+    "stages": "E9.5 WT (two sagittal regions) and E15.5 WT",
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE247450",
+    "data_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE247450",
+    "license_note": "GEO itself places no restrictions on use/distribution of deposited molecular data, but NCBI notes that submitters may retain third-party rights. Cite the study and accession; do not infer a dataset licence from the article licence.",
+    "best_for": ["same-modality expression priors", "endothelial/vascular programs", "2D spatial organization"],
+    "task_status": {
+      "t1": {"status": "allowed-by-current-stage-rule", "note": "E9.5 is released training time and E15.5 is after the protected extrapolation window."},
+      "t2-embryo": {"status": "allowed-by-current-stage-rule", "note": "Neither stage is inside the embryo interpolation window."},
+      "t2-heart": {"status": "allowed-by-current-stage-rule", "note": "E9.5 is allowed and E15.5 is after E13.5."},
+      "t3": {"status": "wt-only", "note": "The listed MERFISH samples are WT; genotype legality still needs separate review for any additional source."}
+    },
+    "processor": "processors/process_gse247450.py"
+  },
+  {
+    "id": "gse282547_developing_heart",
+    "name": "GSE282547 developing mouse-heart spatial atlas",
+    "tier": "validated",
+    "validation_manifest": "validation/gse282547_e14_5_visium.json",
+    "modality": "10x Visium and Curio Slide-seq spatial transcriptomics",
+    "stages": "embryonic and neonatal heart series; use only stages allowed by the current VEC rules",
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE282547",
+    "data_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE282547",
+    "license_note": "GEO itself places no restrictions on use/distribution of deposited molecular data, subject to possible submitter rights. The associated 2026 article is CC BY-NC-ND 4.0, which is an article licence, not a blanket licence for every deposited data file.",
+    "best_for": ["later heart-development priors", "cardiac spatial programs", "post-E13.5 extrapolation priors"],
+    "task_status": {
+      "t1": {"status": "filter-required", "note": "Do not use measured data after E9.5 through E13.5 inclusive; stages after E13.5 are allowed if disclosed."},
+      "t2-embryo": {"status": "stage-audit-required", "note": "Apply the current VEC stage rules to every sample; this atlas is heart-focused rather than whole embryo."},
+      "t2-heart": {"status": "filter-required", "note": "E10.5 and E12.5 are held out and the extrapolation window through E13.5 is protected. E14.5+ is outside that window and may be used if disclosed."},
+      "t3": {"status": "wt-only", "note": "Use WT samples only unless a perturbation/genotype has been separately audited."}
+    },
+    "processor": "processors/process_gse282547_visium.py"
+  },
+  {
+    "id": "mouse_go",
+    "name": "Mouse Gene Ontology annotations",
+    "tier": "validated",
+    "validation_manifest": "validation/mouse_go.json",
+    "modality": "curated gene-function annotations, not measured embryo expression",
+    "stages": "not stage-specific",
+    "source_url": "https://geneontology.org/docs/download-go-annotations/",
+    "data_url": "https://current.geneontology.org/annotations/gaf/MOUSE-mod.gaf.gz",
+    "license_note": "Gene Ontology data products are CC BY 4.0. Attribute the Gene Ontology Consortium and record the exact release/date used.",
+    "best_for": ["T3 perturbation-gene features", "gene embeddings", "functional priors"],
+    "task_status": {
+      "t1": {"status": "non-measured-prior", "note": "Functional annotations are not a measurement of a held-out embryo stage."},
+      "t2-embryo": {"status": "non-measured-prior", "note": "Functional annotations are not a measurement of a held-out embryo stage."},
+      "t2-heart": {"status": "non-measured-prior", "note": "Functional annotations are not a measurement of a held-out embryo stage."},
+      "t3": {"status": "useful-non-measured-prior", "note": "Potentially useful for perturbation identity; disclose the exact GO release."}
+    },
+    "processor": "processors/prepare_mouse_go.py"
+  },
+  {
+    "id": "extended_mouse_atlas",
+    "name": "Extended Mouse Atlas (E6.5–E9.5 scRNA-seq)",
+    "tier": "candidate-large-release",
+    "validation_manifest": "validation/extended_mouse_atlas.json",
+    "modality": "single-cell RNA-seq, whole embryo",
+    "stages": "E6.5–E9.5, 13 time points",
+    "size_note": "430,339 cells; official downloadable package is a 25 GB archive",
+    "source_url": "https://marionilab.github.io/ExtendedMouseAtlas/",
+    "data_url": "https://bioinformatics.stemcells.cam.ac.uk/rlh60/Supplemental/ExtendedMouseAtlas/",
+    "license_note": "The project page provides the data but does not state a dataset-specific redistribution licence. Link to the upstream release and cite the paper; do not redistribute the atlas from this repo without clearer terms.",
+    "best_for": ["T1 developmental dynamics", "cell-state trajectories", "expression pretraining"],
+    "task_status": {
+      "t1": {"status": "allowed-by-current-stage-rule", "note": "All atlas stages are at or before the released E9.5 endpoint."},
+      "t2-embryo": {"status": "filter-required", "note": "Remove cells strictly between E7.25 and E8.0."},
+      "t2-heart": {"status": "filter-required", "note": "Remove cells strictly between E8.25 and E8.75, including E8.5."},
+      "t3": {"status": "wt-atlas-only", "note": "The main atlas is WT; genotype safety is not established by stage filtering alone."}
+    },
+    "processor": "processors/process_extended_mouse_atlas.py"
+  },
+  {
+    "id": "sc3d_gse197353",
+    "name": "sc3D / Slide-seq whole mouse embryo maps",
+    "tier": "candidate-large-release",
+    "validation_manifest": "validation/sc3d_e9_0.json",
+    "modality": "spatial transcriptomics / Slide-seq with 3D reconstructions",
+    "stages": "whole E8.5 and E9.0; partial E9.5",
+    "source_url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197353",
+    "data_url": "https://figshare.com/articles/dataset/E9_0_Embryo_h5ad/21695879/1",
+    "license_note": "The molecular data are public through GEO, whose reuse disclaimer applies. The convenient E9.0 Figshare h5ad is a separate hosted object; check that record's terms before redistributing it.",
+    "best_for": ["T2 spatial priors", "3D shape", "spatial gene organization"],
+    "task_status": {
+      "t1": {"status": "allowed-by-current-stage-rule", "note": "E8.5–E9.5 is before the protected extrapolation interval."},
+      "t2-embryo": {"status": "allowed-by-current-stage-rule", "note": "These stages are after the protected (E7.25, E8.0) interpolation interval."},
+      "t2-heart": {"status": "mixed", "note": "E8.5 is held out/protected; E9.0 and exact E9.5 are outside that interpolation window."},
+      "t3": {"status": "genotype-audit-required", "note": "The study includes mutant experiments. Use WT files only unless each perturbation is separately reviewed."}
+    },
+    "processor": "processors/process_sc3d.py"
+  },
+  {
+    "id": "tabula_muris",
+    "name": "Tabula Muris adult mouse atlas",
+    "tier": "demoted",
+    "validation_manifest": "validation/tabula_muris.json",
+    "modality": "single-cell RNA-seq across adult mouse tissues",
+    "stages": "adult",
+    "source_url": "https://github.com/czbiohub-sf/tabula-muris-vignettes/blob/master/data/README.md",
+    "data_url": "https://registry.opendata.aws/tabula-muris/",
+    "license_note": "Public atlas, but this catalog did not establish a clean current processed-file download/licensing path. Treat it as a historical candidate rather than a recommended source here.",
+    "best_for": ["broad adult tissue priors, if independently obtained and audited"],
+    "task_status": {
+      "t1": {"status": "demoted", "note": "Legality by stage is not the problem; task relevance and reproducible access are."},
+      "t2-embryo": {"status": "demoted", "note": "Developmentally distant and not validated here."},
+      "t2-heart": {"status": "demoted", "note": "Prefer the developing-heart atlas above."},
+      "t3": {"status": "demoted", "note": "No specific advantage over better-audited priors in this catalog."}
+    },
+    "processor": "processors/process_tabula_muris.py"
+  }
+]

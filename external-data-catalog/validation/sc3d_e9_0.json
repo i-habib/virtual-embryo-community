@@ -1,0 +1,15 @@
+{
+  "figshare_file": {
+    "computed_md5": "43ddcc3b53d8f702d1b4ca61bb63f3b0",
+    "download_url": "https://ndownloader.figshare.com/files/38481269",
+    "id": 38481269,
+    "is_link_only": false,
+    "mimetype": "undefined",
+    "name": "_E9.0_registered.smoothed.h5ad",
+    "size": 12187200243,
+    "supplied_md5": "43ddcc3b53d8f702d1b4ca61bb63f3b0"
+  },
+  "source": "sc3D E9.0 Figshare",
+  "status": "not_run_release_too_large_for_hosted_validator",
+  "tested_on": "2026-09-17"
+}

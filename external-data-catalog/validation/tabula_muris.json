@@ -1,0 +1,17 @@
+{
+  "observed_access_attempts": [
+    {
+      "result": "HTTP/S3 403",
+      "route": "legacy bucket czbiohub-tabula-muris"
+    },
+    {
+      "result": "HeadObject 403 Forbidden",
+      "route": "Open Data Registry bucket czb-tabula-muris"
+    }
+  ],
+  "reason": "developmentally distant, and advertised processed-object download was not reproducible from the hosted validator",
+  "recommendation": "Prefer the allowed E14.5+ developing-heart atlas for task-relevant later-stage priors.",
+  "source": "Tabula Muris",
+  "status": "demoted_after_access_failure",
+  "tested_on": "2026-09-17"
+}
