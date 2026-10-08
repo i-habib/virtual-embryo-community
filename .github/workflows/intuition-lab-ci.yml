@@ -1,4 +1,4 @@
-name: CI
+name: 'intuition-lab: CI'
 
 on:
   push:

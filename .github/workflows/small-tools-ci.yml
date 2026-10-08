@@ -1,0 +1,54 @@
+name: 'small tools: CI'
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ml-guide/**'
+      - 'data-safety/**'
+      - 'metric-lens/**'
+      - 'count-recovery/**'
+      - 'panel-normalise/**'
+      - '.github/workflows/small-tools-ci.yml'
+  pull_request:
+    paths:
+      - 'ml-guide/**'
+      - 'data-safety/**'
+      - 'metric-lens/**'
+      - 'count-recovery/**'
+      - 'panel-normalise/**'
+      - '.github/workflows/small-tools-ci.yml'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pytest numpy pandas scipy h5py anndata
+      - name: Data Safety tests
+        run: python -m unittest discover -s data-safety/tests -v
+      - name: Metric Lens tests
+        run: python -m pytest -q metric-lens/test_metric_lens.py
+      - name: ML Guide notebook structure and Python syntax
+        run: |
+          python - <<'PY'
+          import ast, json
+          from pathlib import Path
+          notebooks = sorted(Path('ml-guide').rglob('*.ipynb'))
+          assert notebooks, 'no notebooks found'
+          for path in notebooks:
+              nb = json.loads(path.read_text(encoding='utf-8'))
+              assert nb.get('nbformat') == 4, path
+              for i, cell in enumerate(nb.get('cells', [])):
+                  if cell.get('cell_type') != 'code':
+                      continue
+                  src = ''.join(cell.get('source', []))
+                  filtered = '\n'.join(l for l in src.splitlines() if not l.lstrip().startswith(('!', '%')))
+                  if filtered.strip():
+                      ast.parse(filtered)
+              print('ok', path)
+          PY

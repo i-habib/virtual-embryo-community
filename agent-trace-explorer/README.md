@@ -29,7 +29,7 @@ The output is a single HTML file with no server and no external JavaScript.
 
 The canonical format from:
 
-https://github.com/i-habib/virtual-embryo-agent-harness-lab
+../agent-harness-lab/
 
 ### Claude Code stream JSON
 
@@ -48,8 +48,8 @@ The parser looks for `ts` / `timestamp`, `event` / `type`, `text` / `message` / 
 ## Build a report
 
 ```bash
-git clone https://github.com/i-habib/agent-trace-explorer
-cd agent-trace-explorer
+git clone https://github.com/i-habib/virtual-embryo-community
+cd virtual-embryo-community/agent-trace-explorer
 pip install -e .
 ```
 

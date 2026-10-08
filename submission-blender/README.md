@@ -101,8 +101,8 @@ vec-blend inspect A.h5ad B.h5ad
 ## Install
 
 ```bash
-git clone https://github.com/i-habib/virtual-embryo-submission-blender
-cd virtual-embryo-submission-blender
+git clone https://github.com/i-habib/virtual-embryo-community
+cd virtual-embryo-community/submission-blender
 pip install -e .
 ```
 
@@ -115,4 +115,4 @@ pytest -q
 
 The suite checks the preservation claims, sparse handling, final output guard, `.h5ad` write/reopen behavior, fixed-size sweeps, provenance hashes, and both Hungarian and greedy spatial matching on known correspondences.
 
-See [Virtual Embryo Ensemble Lab](https://github.com/i-habib/virtual-embryo-ensemble-lab) for controlled scorer experiments and imperfect-complementarity regime maps.
+See [Virtual Embryo Ensemble Lab](../ensemble-lab/) for controlled scorer experiments and imperfect-complementarity regime maps.

@@ -29,4 +29,4 @@ The source registry is there for a more mundane reason: external-data disclosure
 Two larger pieces now have their own repositories:
 
 - [Intuition Lab](https://github.com/i-habib/virtual-embryo-community/tree/main/intuition-lab)
-- [External Data Catalog](https://github.com/i-habib/external-data-catalog)
+- [External Data Catalog](../external-data-catalog/)

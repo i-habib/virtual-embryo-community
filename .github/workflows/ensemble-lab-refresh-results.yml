@@ -1,12 +1,12 @@
-name: Refresh ensemble results
+name: 'ensemble-lab: Refresh ensemble results'
 
 on:
   push:
     branches: [main]
     paths:
-      - 'run_lab.py'
-      - 'requirements.txt'
-      - '.github/workflows/refresh-results.yml'
+      - 'ensemble-lab/run_lab.py'
+      - 'ensemble-lab/requirements.txt'
+      - '.github/workflows/ensemble-lab-refresh-results.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,6 +15,10 @@ permissions:
 concurrency:
   group: ensemble-results-main
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ensemble-lab
 
 jobs:
   run:

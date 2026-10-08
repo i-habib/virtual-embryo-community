@@ -4,7 +4,7 @@ The easiest way I found to understand the Virtual Embryo metrics was to stop rea
 
 Each notebook takes a public target, keeps some properties fixed, damages one other property, and runs the official scorer. The examples are deliberately target-aware. They are debugging experiments, **not hidden-board estimates**.
 
-If the single-cell objects themselves are still unfamiliar, the separate [ML guide](https://github.com/i-habib/community-projects/tree/main/ml-guide) is a better place to start.
+If the single-cell objects themselves are still unfamiliar, the separate [ML guide](../ml-guide/) is a better place to start.
 
 ## Task 1: right mean, wrong population
 

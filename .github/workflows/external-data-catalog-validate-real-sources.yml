@@ -1,14 +1,14 @@
-name: Validate real source releases
+name: 'external-data-catalog: Validate real source releases'
 
 on:
   push:
     branches: [main]
     paths:
-      - 'scripts/validate_real_sources.py'
-      - 'scripts/add_vec_panel_overlap.py'
-      - '.github/workflows/validate-real-sources.yml'
-      - 'processors/**'
-      - 'vec_external/**'
+      - 'external-data-catalog/scripts/validate_real_sources.py'
+      - 'external-data-catalog/scripts/add_vec_panel_overlap.py'
+      - '.github/workflows/external-data-catalog-validate-real-sources.yml'
+      - 'external-data-catalog/processors/**'
+      - 'external-data-catalog/vec_external/**'
   workflow_dispatch:
 
 permissions:
@@ -17,6 +17,10 @@ permissions:
 concurrency:
   group: validate-real-sources-main
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: external-data-catalog
 
 jobs:
   validate:

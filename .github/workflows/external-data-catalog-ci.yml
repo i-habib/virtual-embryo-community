@@ -1,9 +1,19 @@
-name: CI
+name: 'external-data-catalog: CI'
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'external-data-catalog/**'
+      - '.github/workflows/external-data-catalog-ci.yml'
   pull_request:
+    paths:
+      - 'external-data-catalog/**'
+      - '.github/workflows/external-data-catalog-ci.yml'
+
+defaults:
+  run:
+    working-directory: external-data-catalog
 
 jobs:
   tests:

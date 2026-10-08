@@ -1,12 +1,12 @@
-name: Refresh regime maps
+name: 'ensemble-lab: Refresh regime maps'
 
 on:
   push:
     branches: [main]
     paths:
-      - 'regime_map.py'
-      - 'requirements.txt'
-      - '.github/workflows/refresh-regimes.yml'
+      - 'ensemble-lab/regime_map.py'
+      - 'ensemble-lab/requirements.txt'
+      - '.github/workflows/ensemble-lab-refresh-regimes.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,6 +15,10 @@ permissions:
 concurrency:
   group: ensemble-regimes-main
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ensemble-lab
 
 jobs:
   run:

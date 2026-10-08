@@ -27,8 +27,8 @@ These are workflow probes, not a model benchmark. The graders are public and det
 Install:
 
 ```bash
-git clone https://github.com/i-habib/virtual-embryo-agent-harness-lab
-cd virtual-embryo-agent-harness-lab
+git clone https://github.com/i-habib/virtual-embryo-community
+cd virtual-embryo-community/agent-harness-lab
 pip install -e .
 ```
 

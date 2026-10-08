@@ -1,14 +1,14 @@
-name: Refresh ensemble atlas
+name: 'ensemble-lab: Refresh ensemble atlas'
 
 on:
   push:
     branches: [main]
     paths:
-      - 'ensemble_atlas.py'
-      - 'atlas_study.py'
-      - 'requirements.txt'
-      - 'regime_results/**'
-      - '.github/workflows/refresh-atlas.yml'
+      - 'ensemble-lab/ensemble_atlas.py'
+      - 'ensemble-lab/atlas_study.py'
+      - 'ensemble-lab/requirements.txt'
+      - 'ensemble-lab/regime_results/**'
+      - '.github/workflows/ensemble-lab-refresh-atlas.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,6 +17,10 @@ permissions:
 concurrency:
   group: ensemble-atlas-main
   cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ensemble-lab
 
 jobs:
   run:

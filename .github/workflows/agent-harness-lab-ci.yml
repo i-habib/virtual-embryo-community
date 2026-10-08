@@ -1,9 +1,19 @@
-name: CI
+name: 'agent-harness-lab: CI'
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'agent-harness-lab/**'
+      - '.github/workflows/agent-harness-lab-ci.yml'
   pull_request:
+    paths:
+      - 'agent-harness-lab/**'
+      - '.github/workflows/agent-harness-lab-ci.yml'
+
+defaults:
+  run:
+    working-directory: agent-harness-lab
 
 jobs:
   test:

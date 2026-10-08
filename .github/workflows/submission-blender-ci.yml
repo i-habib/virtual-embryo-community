@@ -1,9 +1,19 @@
-name: CI
+name: 'submission-blender: CI'
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'submission-blender/**'
+      - '.github/workflows/submission-blender-ci.yml'
   pull_request:
+    paths:
+      - 'submission-blender/**'
+      - '.github/workflows/submission-blender-ci.yml'
+
+defaults:
+  run:
+    working-directory: submission-blender
 
 jobs:
   test:

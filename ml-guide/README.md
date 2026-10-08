@@ -4,7 +4,7 @@ If you know ordinary ML but not single-cell biology, the challenge has a slightl
 
 This guide is for that gap.
 
-[![Open the data tour in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/i-habib/community-projects/blob/main/ml-guide/notebooks/virtual_embryo_data_tour.ipynb)
+[![Open the data tour in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/i-habib/virtual-embryo-community/blob/main/ml-guide/notebooks/virtual_embryo_data_tour.ipynb)
 
 The central idea is that a developmental stage is a **population of cells**, not one supervised target vector and not a set of cells paired one-to-one with an earlier stage. From there, the guide works through what Task 1 is really predicting, what 3-D position adds in Task 2, and why Task 3 is easier to reason about as a perturbation response away from matched WT.
 

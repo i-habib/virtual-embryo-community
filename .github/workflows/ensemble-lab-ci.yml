@@ -1,9 +1,19 @@
-name: CI
+name: 'ensemble-lab: CI'
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'ensemble-lab/**'
+      - '.github/workflows/ensemble-lab-ci.yml'
   pull_request:
+    paths:
+      - 'ensemble-lab/**'
+      - '.github/workflows/ensemble-lab-ci.yml'
+
+defaults:
+  run:
+    working-directory: ensemble-lab
 
 jobs:
   smoke:

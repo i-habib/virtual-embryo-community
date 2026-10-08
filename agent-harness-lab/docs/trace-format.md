@@ -54,4 +54,4 @@ Records may additionally carry a `task_id` and event-specific fields.
 {"event":"run_end","tasks_passed":9,"tasks_total":9}
 ```
 
-The format is intentionally simple JSONL so other viewers can consume it. [Agent Trace Explorer](https://github.com/i-habib/agent-trace-explorer) supports it directly.
+The format is intentionally simple JSONL so other viewers can consume it. [Agent Trace Explorer](../../agent-trace-explorer/) supports it directly.

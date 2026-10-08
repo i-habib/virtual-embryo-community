@@ -1,9 +1,19 @@
-name: CI
+name: 'agent-trace-explorer: CI'
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'agent-trace-explorer/**'
+      - '.github/workflows/agent-trace-explorer-ci.yml'
   pull_request:
+    paths:
+      - 'agent-trace-explorer/**'
+      - '.github/workflows/agent-trace-explorer-ci.yml'
+
+defaults:
+  run:
+    working-directory: agent-trace-explorer
 
 jobs:
   test:

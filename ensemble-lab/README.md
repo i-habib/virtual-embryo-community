@@ -77,8 +77,8 @@ The repo also measures differences that can be computed from the two predictions
 ## Reproduce
 
 ```bash
-git clone https://github.com/i-habib/virtual-embryo-ensemble-lab
-cd virtual-embryo-ensemble-lab
+git clone https://github.com/i-habib/virtual-embryo-community
+cd virtual-embryo-community/ensemble-lab
 pip install -r requirements.txt
 
 # exact operator checks
@@ -99,4 +99,4 @@ aristoteleo/veckit@46d41e63f42a9aab815db20b742feeccd249cb17
 
 GitHub Actions reruns the studies and commits the result tables and figures.
 
-The companion [Virtual Embryo Submission Blender](https://github.com/i-habib/virtual-embryo-submission-blender) is the reusable tool for composing prediction files. This repo is the empirical study of when those kinds of ensembles help.
+The companion [Virtual Embryo Submission Blender](../submission-blender/) is the reusable tool for composing prediction files. This repo is the empirical study of when those kinds of ensembles help.
