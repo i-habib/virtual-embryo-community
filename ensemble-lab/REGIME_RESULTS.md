@@ -46,7 +46,7 @@ Summary: `{"imperfect_grid_points": 24, "points_preserving_best_on_all_primary_m
 |              0.3 | greedy       |       5.09523e-06 |               3.88354 |                    0 |                1 |           -0.00389 |
 |              0.6 | hungarian    |       5.09523e-06 |               5.53865 |                    0 |                1 |           -0.00389 |
 |              0.6 | greedy       |      81.7486      |               5.91216 |                    0 |                1 |            0.00119 |
-|              1   | hungarian    |       5.09523e-06 |               7.76761 |                    0 |                1 |           -0.00389 |
+|              1   | hungarian    |       5.09523e-06 |               7.7676  |                    0 |                1 |           -0.00389 |
 |              1   | greedy       |     133.802       |               9.28761 |                    0 |                1 |            0.02416 |
 
 ## Population mixtures
