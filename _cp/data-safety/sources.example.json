@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Example developmental atlas",
+    "url": "https://example.org/dataset",
+    "version": "release-2026-01 / DOI-or-commit-here",
+    "license": "CC BY 4.0",
+    "tasks": ["T1"],
+    "stages_or_conditions": "E8.0, E9.5, E14.0",
+    "used_for": "pretraining the expression encoder",
+    "filters": "No protected stages included; verified against the 2026-09-16 rules snapshot.",
+    "notes": "Replace this example with the exact source actually used."
+  }
+]

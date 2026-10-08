@@ -1,0 +1,10 @@
+{
+  "meta": {"task": "T3", "note": "synthetic example values, not a leaderboard result"},
+  "metrics": {
+    "de_score": 0.18,
+    "de_direction": 0.10,
+    "severity_slope": -0.65,
+    "mmd_u": 0.018,
+    "variogram": 0.011
+  }
+}
