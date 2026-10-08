@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-trace-explorer"
+version = "0.1.0"
+description = "Turn agent JSONL traces into a readable static timeline and comparison report"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+trace-explorer = "agent_trace_explorer.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["agent_trace_explorer*"]

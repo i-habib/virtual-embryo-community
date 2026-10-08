@@ -1,0 +1,11 @@
+{"ts": "2026-10-01T00:00:00Z", "event": "run_start", "benchmark_version": "0.1.0", "tasks": ["inspect_h5ad", "repair_gene_order"]}
+{"ts": "2026-10-01T00:00:01Z", "event": "task_start", "task_id": "inspect_h5ad", "title": "Inspect an unfamiliar AnnData file"}
+{"ts": "2026-10-01T00:00:02Z", "event": "agent_stdout", "task_id": "inspect_h5ad", "text": "reading input.h5ad"}
+{"ts": "2026-10-01T00:00:03Z", "event": "artifact", "task_id": "inspect_h5ad", "path": "answer.json", "size_bytes": 78, "sha256": "demo"}
+{"ts": "2026-10-01T00:00:03Z", "event": "grade", "task_id": "inspect_h5ad", "passed": true, "checks": ["n_cells=37", "storage='sparse'"]}
+{"ts": "2026-10-01T00:00:03Z", "event": "task_end", "task_id": "inspect_h5ad", "passed": true, "returncode": 0, "duration_seconds": 2.1, "peak_rss_mb": 118.4}
+{"ts": "2026-10-01T00:00:04Z", "event": "task_start", "task_id": "repair_gene_order", "title": "Repair gene order"}
+{"ts": "2026-10-01T00:00:06Z", "event": "artifact", "task_id": "repair_gene_order", "path": "fixed.h5ad", "size_bytes": 5100, "sha256": "demo2"}
+{"ts": "2026-10-01T00:00:06Z", "event": "grade", "task_id": "repair_gene_order", "passed": true, "checks": ["gene_order=ok", "values_preserved=True"]}
+{"ts": "2026-10-01T00:00:06Z", "event": "task_end", "task_id": "repair_gene_order", "passed": true, "returncode": 0, "duration_seconds": 2.0, "peak_rss_mb": 124.0}
+{"ts": "2026-10-01T00:00:06Z", "event": "run_end", "tasks_passed": 2, "tasks_total": 2}

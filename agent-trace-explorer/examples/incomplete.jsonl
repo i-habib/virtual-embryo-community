@@ -1,0 +1,9 @@
+{"ts": "2026-10-01T01:00:00Z", "event": "run_start", "benchmark_version": "0.1.0", "tasks": ["inspect_h5ad", "repair_gene_order"]}
+{"ts": "2026-10-01T01:00:01Z", "event": "task_start", "task_id": "inspect_h5ad", "title": "Inspect an unfamiliar AnnData file"}
+{"ts": "2026-10-01T01:00:02Z", "event": "grade", "task_id": "inspect_h5ad", "passed": true, "checks": ["n_cells=37"]}
+{"ts": "2026-10-01T01:00:02Z", "event": "task_end", "task_id": "inspect_h5ad", "passed": true, "returncode": 0, "duration_seconds": 1.1, "peak_rss_mb": 94.2}
+{"ts": "2026-10-01T01:00:03Z", "event": "task_start", "task_id": "repair_gene_order", "title": "Repair gene order"}
+{"ts": "2026-10-01T01:00:04Z", "event": "agent_stderr", "task_id": "repair_gene_order", "text": "KeyError: gene names not found"}
+{"ts": "2026-10-01T01:00:04Z", "event": "grade", "task_id": "repair_gene_order", "passed": false, "checks": ["missing fixed.h5ad"]}
+{"ts": "2026-10-01T01:00:04Z", "event": "task_end", "task_id": "repair_gene_order", "passed": false, "returncode": 1, "duration_seconds": 1.0, "peak_rss_mb": 99.0}
+{"ts": "2026-10-01T01:00:04Z", "event": "run_end", "tasks_passed": 1, "tasks_total": 2}
