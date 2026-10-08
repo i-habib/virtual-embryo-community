@@ -10,7 +10,6 @@ Independent tools, experiments and guides for the [Virtual Embryo Challenge](htt
 
 ## Data
 
-- [count-recovery](count-recovery/): recovers the exact integer UMI counts behind the log-normalised Task 1 RNA files, for count-based models such as scVI or pseudobulk DE.
 - [panel-normalise](panel-normalise/): puts external raw counts on the release's normalisation (CP10k over the board panel, then log1p), with MGI alias and Ensembl rescue of gene names. [NORMALISATION.md](panel-normalise/NORMALISATION.md) documents how each released file was normalised.
 - [external-data-catalog](external-data-catalog/): public external datasets with preprocessing adapters and records of real-release validation.
 - [data-safety](data-safety/): checks the mechanically checkable external-data rules and renders a source disclosure.
