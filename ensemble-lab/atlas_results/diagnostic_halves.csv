@@ -1,0 +1,7 @@
+method,diagnostic,grid_median,group,n_grid_points,mean_better_parent_preserved_fraction,mean_strict_win_fraction,fraction_with_any_loss_vs_both
+mean graft,variance_disagreement,1.3564359370144035,lower half,13,1.0,0.5,0.0
+mean graft,variance_disagreement,1.3564359370144035,upper half,12,0.8958333333333334,0.3958333333333333,0.0
+quantile graft,variance_disagreement,0.2050375927524979,lower half,15,1.0,0.5,0.0
+quantile graft,variance_disagreement,0.2050375927524979,upper half,10,0.5,0.25,0.0
+spatial transplant,assignment_ambiguity,0.7593056848669009,lower half,13,1.0,0.25,0.0
+spatial transplant,assignment_ambiguity,0.7593056848669009,upper half,12,0.9166666666666666,0.20833333333333334,0.25
