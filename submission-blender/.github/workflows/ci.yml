@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+      - run: vec-blend --help
+      - name: Full-panel sparse stress test
+        run: >-
+          python benchmarks/stress_sparse.py
+          --cells 10000
+          --mean-cells 10000
+          --genes 32285
+          --density 0.02
