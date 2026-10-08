@@ -27,7 +27,7 @@
   "output_cells": 1077,
   "output_genes": 315,
   "processor_exit": 0,
-  "processor_stdout": "wrote /tmp/vec-external-real-cgun5hmq/gse247450_out/GSM7890128_E9.5_region_0.t2-heart.h5ad (1077 cells, 315 genes, spatial_3D=None)",
+  "processor_stdout": "wrote /tmp/vec-external-real-27qy3pth/gse247450_out/GSM7890128_E9.5_region_0.t2-heart.h5ad (1077 cells, 315 genes, spatial_3D=None)",
   "provenance": {
     "cells": 1077,
     "gene_report": {
@@ -35,8 +35,8 @@
       "missing": [],
       "requested": null
     },
-    "matrix": "/tmp/vec-external-real-cgun5hmq/gse247450/GSM7890128_E9.5_region_0_cell_by_gene.csv.gz",
-    "metadata": "/tmp/vec-external-real-cgun5hmq/gse247450/GSM7890128_E9.5_region_0_cell_metadata.csv.gz",
+    "matrix": "/tmp/vec-external-real-27qy3pth/gse247450/GSM7890128_E9.5_region_0_cell_by_gene.csv.gz",
+    "metadata": "/tmp/vec-external-real-27qy3pth/gse247450/GSM7890128_E9.5_region_0_cell_metadata.csv.gz",
     "observed_metadata_columns": [
       "fov",
       "volume",
@@ -61,7 +61,7 @@
       "PolyT_raw",
       "PolyT_high_pass"
     ],
-    "output": "/tmp/vec-external-real-cgun5hmq/gse247450_out/GSM7890128_E9.5_region_0.t2-heart.h5ad",
+    "output": "/tmp/vec-external-real-27qy3pth/gse247450_out/GSM7890128_E9.5_region_0.t2-heart.h5ad",
     "rules_snapshot": "2026-09-16",
     "safety_note": null,
     "source": "GSE247450 MERFISH endothelial atlas",
@@ -97,7 +97,7 @@
   ],
   "spatial_3d_present": false,
   "status": "real_release_processor_passed",
-  "tested_on": "2026-09-17",
+  "tested_on": "2026-10-08",
   "vec_heart_panel": {
     "genes_found": 68,
     "genes_missing": 432,

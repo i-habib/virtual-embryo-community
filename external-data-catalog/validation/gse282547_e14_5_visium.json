@@ -12,7 +12,7 @@
   "output_genes": 32285,
   "output_spots": 456,
   "processor_exit": 0,
-  "processor_stdout": "wrote /tmp/vec-external-real-cgun5hmq/GSM8645799.E14.5.t2-heart.h5ad: 456 spots, 32285 genes, spatial_2D=yes, spatial_3D=no",
+  "processor_stdout": "wrote /tmp/vec-external-real-27qy3pth/GSM8645799.E14.5.t2-heart.h5ad: 456 spots, 32285 genes, spatial_2D=yes, spatial_3D=no",
   "provenance": {
     "cells": 456,
     "gene_report": {
@@ -22,8 +22,8 @@
     },
     "genes_after_panel": 32285,
     "genes_before_panel": 32285,
-    "input_dir": "/tmp/vec-external-real-cgun5hmq/gse282547_GSM8645799",
-    "output": "/tmp/vec-external-real-cgun5hmq/GSM8645799.E14.5.t2-heart.h5ad",
+    "input_dir": "/tmp/vec-external-real-27qy3pth/gse282547_GSM8645799",
+    "output": "/tmp/vec-external-real-27qy3pth/GSM8645799.E14.5.t2-heart.h5ad",
     "rules_snapshot": "2026-09-17",
     "safety_note": null,
     "source": "GSE282547 developing-heart Visium",
@@ -81,7 +81,7 @@
   "spatial_2d_present": true,
   "spatial_3d_present": false,
   "status": "real_release_processor_passed",
-  "tested_on": "2026-09-17",
+  "tested_on": "2026-10-08",
   "vec_heart_panel": {
     "genes_found": 500,
     "genes_missing": 0,
