@@ -9,7 +9,7 @@ It does two things:
 
 It is **not** an eligibility oracle. Somite/Theiler staging, “comparable stage,” another allele of a held-out gene, and phenocopying perturbations require biological judgment. Those cases return `ASK_ORGANIZERS`.
 
-Rules snapshot: **2026-09-16**. Re-read the [official rules](https://virtualembryo.ai/challenge/rules) before submitting.
+Rules Section 10, restatement effective 2026-08-26, checked 2026-10-08. Re-read the [official rules](https://virtualembryo.ai/challenge/rules) before submitting.
 
 ## Examples
 
@@ -19,6 +19,9 @@ python check_external_data.py --task t2-heart --stage 8.4
 
 # A broad atlas crossing both legal and protected stages
 python check_external_data.py --task t2-heart --range 8.0 9.0
+
+# A heart stage after E9.5, the last heart stage released; referred to the organizers
+python check_external_data.py --task t2-heart --stage 10.0
 
 # Exact held-out Task 3 condition
 python check_external_data.py --task t3 --gene gata4 --stage 8.75 --allele same
@@ -31,16 +34,17 @@ The possible outputs are deliberately plain:
 
 - `EXCLUDED` — the supplied case lies inside an explicit protected window or exact held-out condition.
 - `FILTER_REQUIRED` — the resource spans both permitted and protected material.
-- `CLEAR_BY_STAGE_RULE` / `CLEAR_BY_NAMED_GENOTYPE_RULE` — that one mechanical check did not exclude it. This is not blanket approval.
+- `CLEAR_BY_STAGE_RULE` / `CLEAR_BY_NAMED_GENOTYPE_RULE` — that one mechanical check did not exclude it. This is not blanket approval. Every CLEAR result restates that "Every external source must be disclosed with the submission."
 - `ASK_ORGANIZERS` — the rule cannot be resolved responsibly from the supplied metadata.
 
 ## Stage logic encoded
 
-As of the rules snapshot:
+As of Section 10 of the rules:
 
-- **T1:** `(E9.5, E13.5]` is protected for external extrapolation data.
+- **T1:** `(E9.5, E13.5]` is protected. Section 10 states: "External data is excluded from after E9.5 up to and including E13.5." Data after E13.5 is usable only with its source and stages stated explicitly.
 - **T2 heart interpolation:** `(E8.25, E8.75)` is protected.
-- **T2 heart extrapolation:** `(E9.5, E13.5]` is protected.
+- **T2 heart held-out stages:** E8.5, E10.5 and E12.5 are named as held out in Section 10, so E10.5 and E12.5 return `EXCLUDED`.
+- **T2 heart after E9.5:** Section 10 states the E9.5 to E13.5 window without naming a task, and the general rule says "everything from the midpoint onwards is treated as held out" for extrapolation targets. The script does not apply the window to heart, so heart stages after E9.5 return `ASK_ORGANIZERS`. E9.5 itself is permitted.
 - **T2 embryo interpolation:** `(E7.25, E8.0)` is protected.
 - **T3:** Gata4 and β-catenin knockouts at E8.75 are held out. Related alleles/comparable stages and phenocopies are not guessed by the script.
 

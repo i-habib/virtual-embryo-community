@@ -6,19 +6,34 @@ The useful mental model is simpler: **generate a future population of cells**. T
 
 That framing explains most of the evaluation and rules out several bad modeling ideas immediately.
 
+## Stages and splits
+
+| Task | Train | Validation | Hidden test |
+|---|---|---|---|
+| T1, single-cell RNA (32,285 genes) | E8.5, E9.5 | E10.5 | E12.5 |
+| T2 heart (MERFISH panel, 500 genes) | E8.25, E8.75, E9.5 | E8.5 (interpolation), E10.5 (extrapolation) | E12.5 (extrapolation) |
+| T2 embryo (MERFISH panel, 500 genes; 498 on the validation board) | E6.75, E7.25, E8.0 | E7.5 | E7.75 |
+| T3, knockouts (MERFISH panel, 500 genes) | Mab21l2 KO at E9.5 | Gata4 KO at E8.75 | beta-catenin KO at E8.75 |
+
+Task 3 also releases wild-type references at E8.75 and E9.5. Each board's ordered gene list is downloadable from the [data page](https://virtualembryo.ai/challenge/data). From 20 October 2026, when the test phase starts, validation answers are released as training data. Source: [data page](https://virtualembryo.ai/challenge/data) and [challenge page](https://virtualembryo.ai/challenge).
+
 ## What is one example?
 
 For Task 1, one measured cell is a gene-expression vector
 
 \[
-x_i \in \mathbb{R}^{G}.
+x_i \in \mathbb{R}^{G},
 \]
+
+where \(G = 32{,}285\) is the number of genes in the whole transcriptome.
 
 Put the cells from a stage together and you get
 
 \[
-X_t \in \mathbb{R}^{n_t \times G}.
+X_t \in \mathbb{R}^{n_t \times G}
 \]
+
+with the same \(G = 32{,}285\) for Task 1.
 
 A row is a cell. A column is a gene. An entry is the released expression value for that gene in that cell.
 
@@ -59,6 +74,8 @@ This is why soft population matching, changing mixture proportions, and distribu
 ### Gene expression
 
 A gene can be more or less active in a cell. The released matrix contains processed measurements of that activity. Do not silently treat those values as raw molecule counts. In particular, arithmetic on log-normalized values is a modeling convenience rather than a literal transcript-count operation.
+
+The released values are natural-log log1p of counts per 10,000 (CP10k): each value is \(\ln(1 + 10^4 \cdot \text{count}/\text{total})\), where the total is that cell's summed counts over the gene set used by the task. For Task 1 that set is all 32,285 genes. For Tasks 2 and 3 it is only the panel genes. The measured evidence for this choice is in [NORMALISATION.md](../panel-normalise/NORMALISATION.md). To get integer counts back from Task 1 files, see [count-recovery](../count-recovery/).
 
 ### Cell state and cell type
 
@@ -134,8 +151,10 @@ Task 2 gives each cell a coordinate
 \[
 (x_i,c_i),
 \qquad
-x_i\in\mathbb R^{G},\; c_i\in\mathbb R^3.
+x_i\in\mathbb R^{G},\; c_i\in\mathbb R^3,
 \]
+
+where \(G = 500\) is the size of the MERFISH gene panel used in Tasks 2 and 3 (498 genes on the embryo validation board).
 
 I think of this as a point cloud with biological features attached to the points.
 
@@ -143,9 +162,9 @@ Two failures matter immediately. The global tissue shape can be wrong even when 
 
 There is also a coordinate-frame trap. Embryos are not supplied in one globally registered xyz frame, so naive absolute-coordinate regression can optimize an arbitrary orientation. Translation and proper rotation should be treated as frame choices when reasoning about the public shape metrics.
 
-The current public scorer has an additional implementation issue here. In controlled tests, some **proper rigid rotations of the exact same point cloud** receive a sliced-Wasserstein and occupancy-Dice penalty. A 72-angle sweep plus 50 random SO(3) rotations traced the failure to arbitrary SVD signs during PCA canonicalization: opposite-handed canonical frames are exactly the cases that fail because the downstream alignment only searches determinant-+1 sign flips. The full reproducer is in the [Task 2 Intuition Lab](https://github.com/i-habib/virtual-embryo-community/tree/main/intuition-lab) and the finding is filed upstream as [`veckit#7`](https://github.com/aristoteleo/veckit/issues/7).
+The public scorer had an implementation issue here, now fixed. In controlled tests, some **proper rigid rotations of the exact same point cloud** received a sliced-Wasserstein and occupancy-Dice penalty. A 72-angle sweep plus 50 random SO(3) rotations traced the failure to arbitrary SVD signs during PCA canonicalization: opposite-handed canonical frames failed because the downstream alignment only searches determinant-+1 sign flips. The reproducer is in the [Task 2 Intuition Lab](https://github.com/i-habib/virtual-embryo-community/tree/main/intuition-lab). The bug was reported as [`veckit#7`](https://github.com/aristoteleo/veckit/issues/7) and fixed upstream by [PR #9](https://github.com/aristoteleo/veckit/pull/9), merged 2026-10-02. Older pinned veckit commits, such as 46d41e6 used by the Intuition Lab notebooks, predate the fix and can still show the penalty.
 
-That scorer pathology is separate from the documented fact that the distance-based `d2_shape` term is reflection-blind.
+Separately, a mirrored embryo can score the same as the original. This is the laterality issue the challenge FAQ describes.
 
 The most useful modeling control is simpler: hold the point cloud fixed and randomly reassign expression rows to coordinates. Shape is unchanged, while local biological organization is destroyed. If your method fails that distinction, better geometry alone will not fix it.
 
@@ -241,6 +260,6 @@ Use the challenge site for anything contractual:
 - [Rules](https://virtualembryo.ai/challenge/rules)
 - [Public local scorer and mini examples](https://github.com/aristoteleo/veckit)
 
-For submission plumbing, [`vec-community-kit`](https://github.com/xxx12e/vec-community-kit) already covers validation, simple baselines, pseudo-validation, first-submission setup, and Agent-track evidence. This guide focuses on what the prediction object means and what capabilities a model needs.
+For submission plumbing, the [`vec-community-kit`](https://github.com/xxx12e/vec-community-kit) community kit covers validation, simple baselines, pseudo-validation, first-submission setup, and evidence packaging for the Agent track. The Agent track is the challenge track for methods produced by coding agents or LLM-driven evolutionary systems. This guide focuses on what the prediction object means and what capabilities a model needs.
 
-Written against the public challenge materials available on 2026-09-17. If a rule or metric changes, the official site wins.
+Written against the public challenge materials available on 2026-10-08. If a rule or metric changes, the official site wins.

@@ -5,7 +5,7 @@ This script only automates cases that the published rules make mechanically clea
 Anything involving somite/Theiler conversion, "comparable stage", another allele of a
 held-out gene, or a phenocopy should be escalated to the organizers.
 
-Rules snapshot: 2026-09-16
+Rules Section 10, restatement effective 2026-08-26, checked 2026-10-08
 Official source: https://virtualembryo.ai/challenge/rules
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ from dataclasses import dataclass, asdict
 from typing import Optional
 
 RULES_URL = "https://virtualembryo.ai/challenge/rules"
-RULES_SNAPSHOT = "2026-09-16"
+RULES_SNAPSHOT = "Rules Section 10, restatement effective 2026-08-26, checked 2026-10-08"
 
 TASK_ALIASES = {
     "t1": "t1", "task1": "t1",
@@ -62,16 +62,39 @@ class StageWindow:
         return self.contains(lo) and self.contains(hi)
 
 PROTECTED_WINDOWS = {
-    # External extrapolation data is excluded after E9.5 through E13.5 inclusive.
+    # Section 10: "External data is excluded from after E9.5 up to and including E13.5."
+    # The page states this window for the extrapolation targets without naming a task;
+    # the Task 1 extrapolation window is the one attached to a task here.
     "t1": (StageWindow(9.5, 13.5, False, True),),
-    # Heart has the interpolation window plus the same extrapolation window.
-    "t2-heart": (
-        StageWindow(8.25, 8.75, False, False),
-        StageWindow(9.5, 13.5, False, True),
-    ),
+    # Heart interpolation window only. Section 10 gives no heart-specific extrapolation window.
+    "t2-heart": (StageWindow(8.25, 8.75, False, False),),
     # Embryo interpolation is strictly between the released bracketing stages.
     "t2-embryo": (StageWindow(7.25, 8.0, False, False),),
 }
+
+# Held-out stages Section 10 names explicitly: "The held-out stages and genotypes are:
+# E10.5 and E12.5 for Task 1; E7.5 and E7.75 in the embryo setting and E8.5, E10.5 and
+# E12.5 in the heart setting for Task 2".
+HELDOUT_STAGES = {
+    "t1": (10.5, 12.5),
+    "t2-heart": (8.5, 10.5, 12.5),
+    "t2-embryo": (7.5, 7.75),
+}
+
+# Last stage released for a task whose later stages are not covered by an explicit window.
+# Heart data after E9.5 is referred to the organizers rather than classified here.
+LAST_RELEASED_STAGE = {
+    "t2-heart": 9.5,
+}
+
+DISCLOSURE_RULE = (
+    'Section 10 says: "Every external source must be disclosed with the submission."'
+)
+AFTER_E135_RULE = (
+    "Data after E13.5 is usable only with its source and stages stated explicitly. "
+    'Section 10 says: "Anything after E13.5 may be used, provided the source and its stages '
+    'are stated explicitly with the submission."'
+)
 
 @dataclass
 class Verdict:
@@ -81,6 +104,13 @@ class Verdict:
     task: str
     rules_snapshot: str = RULES_SNAPSHOT
     rules_url: str = RULES_URL
+
+def clear_action(base: str, top_stage: float) -> str:
+    """Append the disclosure condition to a CLEAR verdict's action text."""
+    parts = [base, DISCLOSURE_RULE]
+    if top_stage > 13.5:
+        parts.append(AFTER_E135_RULE)
+    return " ".join(parts)
 
 def canonical_task(task: str) -> str:
     key = task.strip().lower()
@@ -110,10 +140,41 @@ def check_stage(task: str, stage: float) -> Verdict:
             "Do not use measured data from this stage for this task.",
             task,
         )
+    if stage in HELDOUT_STAGES.get(task, ()):
+        return Verdict(
+            "EXCLUDED",
+            f"E{stage:g} is a held-out stage for {task}. Section 10 says: "
+            '"No measured data from a held-out stage or genotype may be used, by any route."',
+            "Do not use measured data from this stage for this task, directly or through a pretrained model or public dataset.",
+            task,
+        )
+    if task in LAST_RELEASED_STAGE and stage > LAST_RELEASED_STAGE[task]:
+        return beyond_last_released(task, f"E{stage:g}")
     return Verdict(
         "CLEAR_BY_STAGE_RULE",
         f"E{stage:g} is not inside a mechanically explicit protected stage window for {task}.",
-        "Still check licence, provenance, hidden genotype/condition content, and the current official rules before use.",
+        clear_action(
+            "Still check licence, provenance, hidden genotype/condition content, and the current official rules before use.",
+            stage,
+        ),
+        task,
+    )
+
+def beyond_last_released(task: str, span: str) -> Verdict:
+    """Stages after the last released stage of a task, when no task-specific window applies.
+
+    `span` is the stage label or range being judged, e.g. "E10" or "E9-E10".
+    """
+    last = LAST_RELEASED_STAGE[task]
+    return Verdict(
+        "ASK_ORGANIZERS",
+        f"{span} reaches past E{last:g}, the last stage released for {task}. Section 10 says: "
+        '"Where a held-out stage lies beyond the last released one, as the extrapolation targets do, '
+        'everything from the midpoint onwards is treated as held out." It also states: '
+        '"External data is excluded from after E9.5 up to and including E13.5." That window is '
+        "written for the extrapolation targets without naming a task, so this helper does not apply it to "
+        f"{task}.",
+        "Ask the organizers before using data from this stage, and quote both passages in the question.",
         task,
     )
 
@@ -139,14 +200,6 @@ def interval_relation(task: str, lo: float, hi: float) -> Verdict:
         return check_stage(task, lo)
 
     windows = PROTECTED_WINDOWS[task]
-    touched = [w for w in windows if w.intersects_closed_range(lo, hi)]
-    if not touched:
-        return Verdict(
-            "CLEAR_BY_STAGE_RULE",
-            f"The supplied range E{lo:g}–E{hi:g} does not intersect a mechanically explicit protected stage window for {task}.",
-            "Still inspect all conditions/genotypes, licences, and the latest official rules.",
-            task,
-        )
 
     # A continuous resource range is fully protected only if one protected interval contains
     # the whole thing. Otherwise it contains both permitted and protected stages and must be
@@ -158,6 +211,18 @@ def interval_relation(task: str, lo: float, hi: float) -> Verdict:
             "EXCLUDED",
             f"The supplied range E{lo:g}–E{hi:g} lies entirely inside a protected external-data window for {task}.",
             "Do not use the measured data for this task.",
+            task,
+        )
+
+    if task in LAST_RELEASED_STAGE and hi > LAST_RELEASED_STAGE[task]:
+        return beyond_last_released(task, f"E{lo:g}–E{hi:g}")
+
+    touched = [w for w in windows if w.intersects_closed_range(lo, hi)]
+    if not touched:
+        return Verdict(
+            "CLEAR_BY_STAGE_RULE",
+            f"The supplied range E{lo:g}–E{hi:g} does not intersect a mechanically explicit protected stage window for {task}.",
+            clear_action("Still inspect all conditions/genotypes, licences, and the latest official rules.", hi),
             task,
         )
 
@@ -195,7 +260,8 @@ def check_t3_gene(gene: str, stage: Optional[float], allele: str, phenocopy: boo
     return Verdict(
         "CLEAR_BY_NAMED_GENOTYPE_RULE",
         f"{gene} is not one of the two named held-out Task 3 genes.",
-        "Still inspect whether the perturbation phenocopies a held-out condition and check the current rules.",
+        "Still inspect whether the perturbation phenocopies a held-out condition and check the current rules. "
+        + DISCLOSURE_RULE,
         task,
     )
 

@@ -46,6 +46,55 @@ class RulesTests(unittest.TestCase):
         self.assertEqual(c.interval_relation("t2-heart", 8.75, 9.5).status, "CLEAR_BY_STAGE_RULE")
         self.assertEqual(c.interval_relation("t1", 13.5001, 14.0).status, "CLEAR_BY_STAGE_RULE")
 
+    def test_t2_heart_after_last_released_stage_asks_organizers(self):
+        # Section 10 states an E9.5-E13.5 window without naming a task, so the heart
+        # stages after E9.5 are referred to the organizers rather than classified here.
+        self.assertEqual(c.check_stage("t2-heart", 9.5).status, "CLEAR_BY_STAGE_RULE")
+        self.assertEqual(c.check_stage("t2-heart", 10.0).status, "ASK_ORGANIZERS")
+        self.assertEqual(c.check_stage("t2-heart", 11.0).status, "ASK_ORGANIZERS")
+        self.assertEqual(c.check_stage("t2-heart", 14.0).status, "ASK_ORGANIZERS")
+
+    def test_t2_heart_held_out_late_stages_are_excluded(self):
+        # Section 10 names E10.5 and E12.5 as held out in the heart setting, and says
+        # "No measured data from a held-out stage or genotype may be used, by any route."
+        self.assertEqual(c.check_stage("t2-heart", 10.5).status, "EXCLUDED")
+        self.assertEqual(c.check_stage("t2-heart", 12.5).status, "EXCLUDED")
+        self.assertEqual(c.check_stage("t2-heart", 8.5).status, "EXCLUDED")
+
+    def test_t2_heart_ranges_past_last_released_stage_ask_organizers(self):
+        self.assertEqual(c.interval_relation("t2-heart", 9.5, 10.0).status, "ASK_ORGANIZERS")
+        self.assertEqual(c.interval_relation("t2-heart", 9.0, 10.0).status, "ASK_ORGANIZERS")
+        self.assertEqual(c.interval_relation("t2-heart", 8.0, 9.5).status, "FILTER_REQUIRED")
+
+    def test_no_invented_heart_extrapolation_window(self):
+        windows = c.PROTECTED_WINDOWS["t2-heart"]
+        self.assertFalse(any(w.contains(11.0) for w in windows))
+        self.assertFalse(any(w.contains(9.6) for w in windows))
+
+    def test_clear_verdicts_state_disclosure_condition(self):
+        disclosure = "Every external source must be disclosed with the submission."
+        clear_cases = [
+            c.check_stage("t1", 9.5),
+            c.check_stage("t2-embryo", 8.5),
+            c.interval_relation("t2-heart", 8.75, 9.5),
+            c.check_t3_gene("mab21l2", 9.5, "same", False),
+        ]
+        for v in clear_cases:
+            self.assertTrue(v.status.startswith("CLEAR"), v.status)
+            self.assertIn(disclosure, v.action)
+
+    def test_clear_after_e135_states_explicit_source_condition(self):
+        condition = "Anything after E13.5 may be used, provided the source and its stages are stated explicitly with the submission."
+        self.assertIn(condition, c.check_stage("t1", 14.0).action)
+        self.assertIn(condition, c.interval_relation("t1", 13.5001, 14.0).action)
+        self.assertNotIn(condition, c.check_stage("t1", 9.5).action)
+
+    def test_rules_label(self):
+        self.assertEqual(
+            c.RULES_SNAPSHOT,
+            "Rules Section 10, restatement effective 2026-08-26, checked 2026-10-08",
+        )
+
     def test_t3_exact_and_ambiguous(self):
         self.assertEqual(c.check_t3_gene("gata4", 8.75, "same", False).status, "EXCLUDED")
         self.assertEqual(c.check_t3_gene("ctnnb1", 9.0, "other", False).status, "ASK_ORGANIZERS")

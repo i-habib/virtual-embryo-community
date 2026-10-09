@@ -16,7 +16,7 @@ For expression data, one cell is a vector
 x \in \mathbb{R}^{G},
 \]
 
-where each coordinate is the log-normalized expression of one gene.
+where each coordinate is the log-normalized expression of one gene. G is 32,285 for T1 (whole transcriptome) and 500 for T2 and T3 (MERFISH panel; 498 on the embryo validation board). Values are natural-log log1p of counts per 10,000, normalised over all genes for T1 and over the panel genes for T2 and T3 ([details](../panel-normalise/NORMALISATION.md)).
 
 A stage is therefore a set or empirical distribution of cells
 
