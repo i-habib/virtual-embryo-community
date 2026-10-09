@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import shlex
+import signal
 import subprocess
 import threading
 import time
@@ -14,7 +15,7 @@ import psutil
 
 from . import __version__
 from .tasks import TASK_BY_ID, TASKS
-from .util import json_dump, sha256_file
+from .util import json_dump, redact_argv, redact_text, sha256_file
 
 
 def _ts() -> str:
@@ -43,6 +44,30 @@ def _command_argv(template: str, *, prompt: str, prompt_file: Path, workspace: P
         "{task_id}": task_id,
     }
     return [values.get(arg, arg) for arg in argv]
+
+
+def _kill_process_tree(pid: int) -> None:
+    """Kill the agent's process group (POSIX), or its descendants where process groups are unavailable.
+
+    The agent runs as a session/group leader (start_new_session=True), so its group id is its pid.
+    This also reaps children the agent left behind, after timeout, normal exit, or interrupt.
+    """
+    if os.name == "posix":
+        try:
+            os.killpg(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        return
+    try:
+        root = psutil.Process(pid)
+        victims = root.children(recursive=True) + [root]
+    except psutil.Error:
+        return
+    for p in victims:
+        try:
+            p.kill()
+        except psutil.Error:
+            pass
 
 
 def _monitor_rss(pid: int, stop: threading.Event, state: dict) -> None:
@@ -107,7 +132,8 @@ def run_benchmark(
     task_root.mkdir(exist_ok=True)
     trace = TraceWriter(out_dir / "trace.jsonl")
     selected = [TASK_BY_ID[t] for t in task_ids]
-    trace.emit("run_start", benchmark_version=__version__, command_template=command, tasks=[t.id for t in selected])
+    # Secrets in the command are masked in the trace only; the command itself runs unchanged.
+    trace.emit("run_start", benchmark_version=__version__, command_template=redact_text(command), tasks=[t.id for t in selected])
 
     results = []
     for task in selected:
@@ -137,7 +163,7 @@ def run_benchmark(
             workspace=workspace.resolve(),
             task_id=task.id,
         )
-        trace.emit("task_start", task_id=task.id, title=task.title, argv=argv)
+        trace.emit("task_start", task_id=task.id, title=task.title, argv=redact_argv(argv))
         started = time.monotonic()
         timed_out = False
         proc = subprocess.Popen(
@@ -148,6 +174,7 @@ def run_benchmark(
             stderr=subprocess.PIPE,
             text=True,
             bufsize=1,
+            start_new_session=True,  # own process group, so the whole tree can be killed
         )
         rss_stop = threading.Event()
         rss_state = {}
@@ -159,25 +186,33 @@ def run_benchmark(
         for th in threads:
             th.start()
         try:
-            returncode = proc.wait(timeout=timeout_seconds)
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            proc.kill()
-            returncode = proc.wait()
+            try:
+                returncode = proc.wait(timeout=timeout_seconds)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                _kill_process_tree(proc.pid)
+                returncode = proc.wait()
+        finally:
+            # Also runs on normal exit and on interrupt: no agent child may outlive its task.
+            _kill_process_tree(proc.pid)
         rss_stop.set()
         for th in threads:
             th.join(timeout=2)
 
         duration = time.monotonic() - started
         grade = task.grade(workspace)
+        trace.emit("agent_exit", task_id=task.id, returncode=int(returncode), timed_out=timed_out)
         for art in _artifact_rows(workspace, before_files):
             trace.emit("artifact", task_id=task.id, **art)
         trace.emit("grade", task_id=task.id, **grade)
+        # A task passes only if the grader accepts the output and the agent exited cleanly in time.
+        passed = bool(grade["passed"]) and int(returncode) == 0 and not timed_out
         peak_mb = rss_state.get("peak_rss_bytes", 0) / (1024 * 1024)
         row = {
             "task_id": task.id,
             "title": task.title,
-            "passed": bool(grade["passed"]),
+            "passed": passed,
+            "grader_passed": bool(grade["passed"]),
             "returncode": int(returncode),
             "timed_out": timed_out,
             "duration_seconds": round(duration, 4),

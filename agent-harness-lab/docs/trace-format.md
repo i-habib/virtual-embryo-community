@@ -18,11 +18,15 @@ Records may additionally carry a `task_id` and event-specific fields.
 {"event":"run_start","benchmark_version":"0.1.0","command_template":"...","tasks":["inspect_h5ad"]}
 ```
 
+`command_template` is the command as given, with secret-looking values replaced by `<redacted>`. See the README section "Secrets in the trace".
+
 `task_start`
 
 ```json
 {"event":"task_start","task_id":"inspect_h5ad","title":"...","argv":["..."]}
 ```
+
+`argv` is the command after placeholder substitution, redacted the same way.
 
 `agent_stdout` / `agent_stderr`
 
@@ -36,7 +40,17 @@ Records may additionally carry a `task_id` and event-specific fields.
 {"event":"artifact","task_id":"inspect_h5ad","path":"answer.json","size_bytes":80,"sha256":"..."}
 ```
 
+`agent_exit`
+
+Written once the agent process has stopped, immediately before the `grade` event.
+
+```json
+{"event":"agent_exit","task_id":"inspect_h5ad","returncode":0,"timed_out":false}
+```
+
 `grade`
+
+This is the grader's own verdict. It does not account for the agent's exit status.
 
 ```json
 {"event":"grade","task_id":"inspect_h5ad","passed":true,"checks":["..."]}
@@ -44,8 +58,10 @@ Records may additionally carry a `task_id` and event-specific fields.
 
 `task_end`
 
+`passed` is true only if `grader_passed` is true, `returncode` is 0, and `timed_out` is false.
+
 ```json
-{"event":"task_end","task_id":"inspect_h5ad","passed":true,"returncode":0,"timed_out":false,"duration_seconds":1.2,"peak_rss_mb":120.4,"checks":["..."]}
+{"event":"task_end","task_id":"inspect_h5ad","passed":true,"grader_passed":true,"returncode":0,"timed_out":false,"duration_seconds":1.2,"peak_rss_mb":120.4,"checks":["..."]}
 ```
 
 `run_end`
