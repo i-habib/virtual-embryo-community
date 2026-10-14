@@ -22,7 +22,7 @@ Prepared 14 October 2026 from the official pages as the server returned them tha
 
 ### Now to 19 October (preparation)
 
-- [ ] Follow the rules watch: https://github.com/xxx12e/vec-community-kit/tree/main/rules-watch (community tool; the organisers' pages stay authoritative).
+- [ ] Follow the rules watch: https://github.com/xxx12e/vec-community-kit/tree/main/vec_rules_watch (community tool; the organisers' pages stay authoritative).
 - [ ] Pin the scorer version with [../scorer-versions/](../scorer-versions/). Official text does not name the scorer version the leaderboard runs. The scorer-versions README states that "the version the leaderboard itself runs is not published."
 - [ ] Set up the external-source disclosure process with [../data-safety/](../data-safety/). Rules section 10: "Every external source must be disclosed with the submission."
 
