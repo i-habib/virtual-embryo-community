@@ -1,25 +1,35 @@
 #!/usr/bin/env python3
 """VEC Metric Lens
 
-Explain Virtual Embryo Challenge validation-board scores from a raw `veckit`
-metrics JSON. Uses only the public validation anchors and weights published by
-the organizers. It never touches hidden data and is not a score predictor for
-hidden test boards.
+Explain a Virtual Embryo Challenge validation score from a raw `veckit`
+metrics JSON. It uses the organizers' published floors, ceilings and weights,
+reports how many points each metric contributes, and how many points each
+metric could still add. It never reads hidden data and does not predict
+hidden test scores.
 
 Usage:
     python vec_metric_lens.py --board T3:gata4 result.json
     python vec_metric_lens.py --board T2:heart:val_interp result.json --markdown report.md
+    python vec_metric_lens.py --board T1:val result.json \
+        --index https://virtualembryo.ai/challenge/panels/index.json
 """
 from __future__ import annotations
 
 import argparse
 import json
 import math
+import sys
+import urllib.request
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict, List, Optional
+
+BUILTIN_ANCHOR_SOURCE = "built-in table, transcribed 2026-09-16"
+INDEX_TIMEOUT_S = 20
 
 # Public validation anchors from virtualembryo.ai/challenge/evaluation, read 2026-09-16.
+# Checked value by value against virtualembryo.ai/challenge/panels/index.json on 2026-10-14.
+# Weights and directions exist only here; the index supplies floors and ceilings.
 # Direction meanings:
 #   higher: larger raw value is better
 #   lower: smaller raw value is better
@@ -81,13 +91,26 @@ BOARDS: Dict[str, Dict[str, Any]] = {
 }
 
 
+def _is_number(x: Any) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(float(x))
+
+
 def _scored_value(x: float, direction: str) -> float:
     return abs(x) if direction == "abs_lower" else x
 
 
-def metric_skill(raw: float | None, spec: Dict[str, Any]) -> float:
-    """Published hyperbolic skill: floor=0.5, ceiling=1, missing=0."""
-    if raw is None or not isinstance(raw, (int, float)) or not math.isfinite(float(raw)):
+def check_anchors(spec: Dict[str, Any], label: str) -> None:
+    """Raise ValueError unless the ceiling is better than the floor under the metric's direction."""
+    floor = _scored_value(float(spec["floor"]), spec["direction"])
+    ceil = _scored_value(float(spec["ceiling"]), spec["direction"])
+    ceiling_is_better = ceil > floor if spec["direction"] == "higher" else ceil < floor
+    if not ceiling_is_better:
+        raise ValueError(f"{label}: the ceiling must be better than the floor")
+
+
+def metric_skill(raw: Any, spec: Dict[str, Any]) -> float:
+    """Published hyperbolic skill: floor=0.5, ceiling=1, clipped at 1, missing or non-finite=0."""
+    if not _is_number(raw):
         return 0.0
     direction = spec["direction"]
     m = _scored_value(float(raw), direction)
@@ -101,7 +124,7 @@ def metric_skill(raw: float | None, spec: Dict[str, Any]) -> float:
         d = m - ceil
         d_floor = floor - ceil
 
-    # If a metric beats the empirical half-vs-half ceiling, public rules clip skill to 1.
+    # A metric at or beyond the empirical ceiling gets full skill.
     if d <= 0:
         return 1.0
     if d_floor <= 0:
@@ -109,8 +132,52 @@ def metric_skill(raw: float | None, spec: Dict[str, Any]) -> float:
     return min(d_floor / (d_floor + d), 1.0)
 
 
-def board_score(metrics: Dict[str, Any], board: str) -> Dict[str, Any]:
-    spec = BOARDS[board]["metrics"]
+def read_index(source: str) -> Dict[str, Any]:
+    """Read a board contract such as panels/index.json from a local path or an http(s) URL."""
+    if source.startswith(("http://", "https://")):
+        # Some hosts reject the default urllib user agent, so send an explicit one.
+        req = urllib.request.Request(source, headers={"User-Agent": "vec-metric-lens/0.2", "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=INDEX_TIMEOUT_S) as resp:
+            payload = resp.read()
+    else:
+        payload = Path(source).read_bytes()
+    obj = json.loads(payload.decode("utf-8"))
+    if not isinstance(obj, dict):
+        raise ValueError("index must be a JSON object keyed by board")
+    return obj
+
+
+def anchored_board(index: Dict[str, Any], board: str, boards: Dict[str, Any] = BOARDS) -> Dict[str, Any]:
+    """Return one board from `boards` with its floors and ceilings taken from `index`.
+
+    Weights, directions and labels are kept from `boards`. Every metric of the
+    board must have anchors in the index. A gap is an error, not a silent
+    fallback to the built-in values.
+    """
+    if board not in boards:
+        raise ValueError(
+            f"no weights or directions for {board!r} in this file, so it cannot be scored. "
+            f"Add the board to BOARDS. Known boards: {', '.join(sorted(boards))}"
+        )
+    entry = index.get(board)
+    if not isinstance(entry, dict) or not isinstance(entry.get("anchors"), dict):
+        raise ValueError(f"index has no anchors for board {board!r}")
+    anchors = entry["anchors"]
+    out = deepcopy(boards[board])
+    for name, mspec in out["metrics"].items():
+        a = anchors.get(name)
+        if not isinstance(a, dict):
+            raise ValueError(f"index has no anchors for {board!r} metric {name!r}")
+        for key in ("floor", "ceiling"):
+            if not _is_number(a.get(key)):
+                raise ValueError(f"{board!r} {name!r} {key} must be a finite number, got {a.get(key)!r}")
+            mspec[key] = float(a[key])
+        check_anchors(mspec, f"{board!r} {name!r}")
+    return out
+
+
+def board_score(metrics: Dict[str, Any], board: str, boards: Dict[str, Any] = BOARDS) -> Dict[str, Any]:
+    spec = boards[board]["metrics"]
     rows = []
     total = 0.0
     for name, mspec in spec.items():
@@ -130,49 +197,84 @@ def board_score(metrics: Dict[str, Any], board: str) -> Dict[str, Any]:
     return {"board": board, "score": total, "rows": rows}
 
 
-def _raw_at_fraction_to_ceiling(raw: float | None, spec: Dict[str, Any], frac: float) -> float:
-    if raw is None or not isinstance(raw, (int, float)) or not math.isfinite(float(raw)):
-        # For a missing metric, use the empirical ceiling as the counterfactual.
-        return float(spec["ceiling"])
+def _raw_at_fraction_to_ceiling(raw: Any, spec: Dict[str, Any], frac: float) -> float:
+    ceiling = float(spec["ceiling"])
+    if not _is_number(raw):
+        # A missing or non-finite metric is counted at its ceiling, so its gain is its full point value.
+        return ceiling
     x = float(raw)
-    if spec["direction"] != "abs_lower":
-        return x + frac * (float(spec["ceiling"]) - x)
-    cur_abs = abs(x)
-    ceil_abs = abs(float(spec["ceiling"]))
-    new_abs = cur_abs + frac * (ceil_abs - cur_abs)
-    sign = -1.0 if x < 0 else (1.0 if x > 0 else (-1.0 if float(spec["ceiling"]) < 0 else 1.0))
-    return sign * new_abs
+    direction = spec["direction"]
+    sx = _scored_value(x, direction)
+    sc = _scored_value(ceiling, direction)
+    at_or_past_ceiling = sx >= sc if direction == "higher" else sx <= sc
+    if at_or_past_ceiling:
+        # Already at full skill: keep the raw value rather than moving it back toward the ceiling.
+        return x
+    new_scored = sx + frac * (sc - sx)
+    if direction == "abs_lower":
+        # sx > sc >= 0 here, so x is nonzero and carries its sign.
+        return math.copysign(new_scored, x)
+    return new_scored
 
 
-def counterfactuals(metrics: Dict[str, Any], board: str, frac: float = 1.0):
-    base = board_score(metrics, board)["score"]
+def counterfactuals(metrics: Dict[str, Any], board: str, frac: float = 1.0,
+                    boards: Dict[str, Any] = BOARDS) -> List[Dict[str, Any]]:
+    base = board_score(metrics, board, boards)["score"]
     out = []
-    for name, mspec in BOARDS[board]["metrics"].items():
-        alt = deepcopy(metrics)
+    for name, mspec in boards[board]["metrics"].items():
+        alt = dict(metrics)
         alt[name] = _raw_at_fraction_to_ceiling(metrics.get(name), mspec, frac)
-        s = board_score(alt, board)["score"]
-        out.append({"metric": name, "new_raw": alt[name], "new_score": s, "gain": s - base})
+        s = board_score(alt, board, boards)["score"]
+        out.append({
+            "metric": name,
+            "current_raw": metrics.get(name),
+            "new_raw": alt[name],
+            "new_score": s,
+            "gain": s - base,
+        })
     return sorted(out, key=lambda r: r["gain"], reverse=True)
 
 
 def load_metrics(path: Path) -> Dict[str, Any]:
     obj = json.loads(path.read_text())
-    if "metrics" in obj and isinstance(obj["metrics"], dict):
+    if isinstance(obj, dict) and isinstance(obj.get("metrics"), dict):
         return obj["metrics"]
     if isinstance(obj, dict):
         return obj
     raise ValueError("Expected a JSON object or a veckit result with a top-level 'metrics' object")
 
 
-def render_markdown(metrics: Dict[str, Any], board: str) -> str:
-    result = board_score(metrics, board)
-    gains = counterfactuals(metrics, board, frac=1.0)
+def _fmt_raw(raw: Any) -> str:
+    if raw is None:
+        return "missing"
+    if _is_number(raw):
+        return f"{float(raw):.6g}"
+    return str(raw)
+
+
+def _json_safe(obj: Any) -> Any:
+    """Replace NaN and infinity with null so the JSON output is strict JSON."""
+    if isinstance(obj, float) and not math.isfinite(obj):
+        return None
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_safe(v) for v in obj]
+    return obj
+
+
+def render_markdown(metrics: Dict[str, Any], board: str, boards: Dict[str, Any] = BOARDS,
+                    anchor_source: str = BUILTIN_ANCHOR_SOURCE) -> str:
+    result = board_score(metrics, board, boards)
+    gains = counterfactuals(metrics, board, 1.0, boards)
     lines = [
-        f"# VEC Metric Lens — `{board}`",
+        f"# VEC Metric Lens: `{board}`",
         "",
         f"**Reconstructed public validation score: {result['score']:.2f} / 100**",
         "",
-        "> Uses the organizers' published validation anchors and task weights. This is an explanation of a known local/validation metric vector, not a predictor of the hidden test score.",
+        f"Anchors: {anchor_source}. Weights and directions: built into `vec_metric_lens.py`.",
+        "",
+        "> This explains a known validation metric vector. It is not a predictor of the hidden test score.",
         "",
         "## Score breakdown",
         "",
@@ -180,41 +282,73 @@ def render_markdown(metrics: Dict[str, Any], board: str) -> str:
         "|---|---:|---:|---:|---:|---:|",
     ]
     for r in result["rows"]:
-        raw = "missing" if r["raw"] is None else f"{r['raw']:.6g}" if isinstance(r["raw"], (int, float)) else str(r["raw"])
-        lines.append(f"| {r['metric']} — {r['label']} | {raw} | {r['skill']:.3f} | {100*r['weight']:.1f}% | {r['points']:.2f} | {r['max_points']-r['points']:.2f} |")
-    lines += ["", "## If one metric were fixed", "", "For each row below, every metric is held fixed except one. That one metric is moved to its published validation ceiling:", "", "| Rank | Metric | Score after fix | Gain |", "|---:|---|---:|---:|"]
+        lines.append(
+            f"| {r['metric']} ({r['label']}) | {_fmt_raw(r['raw'])} | {r['skill']:.3f} | "
+            f"{100 * r['weight']:.1f}% | {r['points']:.2f} | {r['max_points'] - r['points']:.2f} |"
+        )
+    lines += [
+        "",
+        "## If one metric were fixed",
+        "",
+        "For each row below, every other metric is held fixed. That one metric is moved to its published validation ceiling.",
+        "",
+        "| Rank | Metric | Score after fix | Gain |",
+        "|---:|---|---:|---:|",
+    ]
     for i, g in enumerate(gains, 1):
         lines.append(f"| {i} | {g['metric']} | {g['new_score']:.2f} | +{g['gain']:.2f} |")
     lines += [
         "",
         "## A few cautions",
         "",
-        "- A floor-like model is around 50 because each metric's floor maps to skill 0.5.",
-        "- The ceiling is an empirical split-half estimate, not a theoretical maximum; beating it clips that metric's skill to 1.",
-        "- `scale_log_ratio` and `severity_slope` are scored by absolute value before the lower-is-better transform.",
-        "- Missing/NaN scored metrics count as skill 0 under the published rules.",
-        "- Improving a public-validation bottleneck can still fail to transfer to the hidden test target.",
+        "- A model at every floor scores 50, and a model at every ceiling scores 100.",
+        "- Ceilings are empirical split-half estimates, not theoretical maxima. A metric beyond its ceiling gets skill 1.",
+        "- `scale_log_ratio` and `severity_slope` are scored on absolute value, because zero is best.",
+        "- A missing or NaN metric gets skill 0. In the fixed-metric table it is counted at its ceiling.",
+        "- Gains on this board do not guarantee gains on the hidden test target.",
     ]
     return "\n".join(lines) + "\n"
 
 
-def main():
-    ap = argparse.ArgumentParser()
+def main(argv: Optional[List[str]] = None) -> None:
+    ap = argparse.ArgumentParser(description="Explain a VEC validation score from a veckit metrics JSON.")
     ap.add_argument("input", type=Path, help="veckit result JSON or a bare metrics JSON object")
-    ap.add_argument("--board", required=True, choices=sorted(BOARDS))
+    ap.add_argument("--board", required=True, help="board key, for example T3:gata4")
+    ap.add_argument(
+        "--index",
+        help="take floors and ceilings from index.json, as a local path or an http(s) URL. "
+             "Weights and directions still come from this file.",
+    )
     ap.add_argument("--markdown", type=Path, help="write a Markdown report")
     ap.add_argument("--json", dest="json_out", type=Path, help="write machine-readable analysis JSON")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
+
+    boards: Dict[str, Any] = BOARDS
+    anchor_source = BUILTIN_ANCHOR_SOURCE
+    if args.index:
+        try:
+            index = read_index(args.index)
+            boards = {args.board: anchored_board(index, args.board)}
+        except (OSError, ValueError) as exc:
+            ap.error(f"--index: {exc}")
+        anchor_source = f"index {args.index}"
+        unweighted = sorted(set(index) - set(BOARDS))
+        if unweighted:
+            print(f"note: index lists boards this file has no weights for: {', '.join(unweighted)}",
+                  file=sys.stderr)
+    elif args.board not in BOARDS:
+        ap.error(f"unknown board {args.board!r}; choose one of: {', '.join(sorted(BOARDS))}")
 
     metrics = load_metrics(args.input)
-    result = board_score(metrics, args.board)
-    result["counterfactual_ceiling"] = counterfactuals(metrics, args.board, 1.0)
-    text = render_markdown(metrics, args.board)
+    result = board_score(metrics, args.board, boards)
+    result["anchor_source"] = anchor_source
+    result["counterfactual_ceiling"] = counterfactuals(metrics, args.board, 1.0, boards)
+    text = render_markdown(metrics, args.board, boards, anchor_source)
     print(text)
     if args.markdown:
         args.markdown.write_text(text)
     if args.json_out:
-        args.json_out.write_text(json.dumps(result, indent=2) + "\n")
+        args.json_out.write_text(json.dumps(_json_safe(result), indent=2, allow_nan=False) + "\n")
 
 
 if __name__ == "__main__":
