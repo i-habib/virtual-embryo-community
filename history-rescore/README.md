@@ -1,3 +1,4 @@
+[中文](README.zh.md)
 # history-rescore
 
 Rescores every file a team has submitted, locally, once the validation answers are released.

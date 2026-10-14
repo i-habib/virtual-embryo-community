@@ -1,3 +1,4 @@
+[中文](README.zh.md)
 # Panel normalisation for Virtual Embryo data
 
 `vec_normalise.py` maps mouse gene names in a raw count matrix onto a challenge gene panel and writes natural-log CP10k computed over the panel genes only, so the values match the challenge release.

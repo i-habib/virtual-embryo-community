@@ -1,3 +1,4 @@
+[中文](README.zh.md)
 # Recover integer counts from the T1 RNA files
 
 Many single-cell tools expect integer UMI counts. scVI and scANVI fit a negative-binomial likelihood to counts, scanpy's `seurat_v3` method selects highly variable genes from counts, pseudobulk differential expression with DESeq2 or edgeR works on summed counts, and Poisson resampling starts from counts. The T1 release (the E8.5 and E9.5 RNA files) stores only normalized log values in `.X` and has no counts layer. This tool inverts the normalization for each cell and checks that the result is made of integers.

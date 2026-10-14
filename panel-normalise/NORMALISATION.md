@@ -1,3 +1,4 @@
+[中文](NORMALISATION.zh.md)
 # Released data normalisation
 
 Every released expression matrix stores natural-log `log1p` of counts per 10,000 (CP10k). What differs between tasks is the denominator, the set of genes a cell's total is taken over:

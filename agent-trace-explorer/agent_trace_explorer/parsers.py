@@ -22,10 +22,13 @@ def _read_jsonl(path: Path) -> list[dict]:
     return rows
 
 
+VEC_EVENTS = {"run_start", "task_start", "agent_exit", "artifact", "grade", "task_end", "run_end"}
+
+
 def detect_format(rows: list[dict]) -> str:
     if not rows:
         return "generic"
-    if any("event" in r and r.get("event") in {"run_start", "task_start", "grade", "task_end", "run_end"} for r in rows):
+    if any("event" in r and r.get("event") in VEC_EVENTS for r in rows):
         return "vec-bench"
     if any(r.get("type") in {"assistant", "user", "result", "system"} and "message" in r for r in rows):
         return "claude"
@@ -43,13 +46,33 @@ def _as_text(value: Any) -> str | None:
         return str(value)
 
 
+def _vec_text(row: dict) -> str | None:
+    """One readable line (or a few) for a Harness Lab record; the full record stays in `data`."""
+    if row.get("text") is not None:
+        return _as_text(row["text"])
+    kind = row.get("event")
+    if kind == "grade":
+        head = "PASS" if row.get("passed") else "FAIL"
+        checks = row.get("checks") or []
+        return "\n".join([head, *map(_as_text, checks)])
+    if kind == "agent_exit":
+        timed = "yes" if row.get("timed_out") else "no"
+        return f"return code {row.get('returncode')}, timed out: {timed}"
+    if kind == "task_end":
+        verdict = "PASS" if row.get("passed") else "FAIL"
+        grader = "passed" if row.get("grader_passed") else "failed"
+        timed = "yes" if row.get("timed_out") else "no"
+        return (f"{verdict} (grader {grader}; return code {row.get('returncode')}, timed out: {timed}; "
+                f"{row.get('duration_seconds')} s; peak RSS {row.get('peak_rss_mb')} MiB)")
+    if kind == "artifact":
+        return f"{row.get('path')} ({row.get('size_bytes')} bytes)\nsha256 {row.get('sha256')}"
+    return None
+
+
 def parse_vec(rows: list[dict], source: str) -> Trace:
     events = []
     for i, row in enumerate(rows):
-        text = row.get("text")
-        if row.get("event") == "grade" and text is None:
-            text = "PASS" if row.get("passed") else "FAIL"
-        events.append(Event(i, row.get("ts"), str(row.get("event", "event")), row.get("task_id"), _as_text(text), dict(row)))
+        events.append(Event(i, row.get("ts"), str(row.get("event", "event")), row.get("task_id"), _vec_text(row), dict(row)))
     return Trace(source, "vec-bench", events)
 
 

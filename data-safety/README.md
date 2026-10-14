@@ -1,3 +1,4 @@
+[中文](README.zh.md)
 # Virtual Embryo data-safety kit
 
 A small, conservative helper for external-data eligibility. The question it tries to answer is narrow: **does this source cross one of the challenge rules that can be checked mechanically?**

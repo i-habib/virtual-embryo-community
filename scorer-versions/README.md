@@ -1,3 +1,4 @@
+[中文](README.zh.md)
 # Which veckit scorer am I running?
 
 Several versions of the `veckit` scorer are in circulation for the Virtual Embryo Challenge, and they are not the same code. Two people scoring the same file can get different numbers, and nothing in the output says which version produced them. This folder identifies the versions by hashing their code, measures what the differences do to the metrics, and gives a one-command check of your own install.

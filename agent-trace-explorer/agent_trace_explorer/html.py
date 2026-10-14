@@ -36,11 +36,45 @@ th { color:#bbb; }
 """
 
 
+def _task_table(summary: dict[str, Any]) -> str:
+    details = summary["task_details"]
+    if not details:
+        return ""
+    grades = summary["task_grades"]
+
+    def yes_no(value: Any) -> str:
+        return "—" if value is None else ("yes" if value else "no")
+
+    def cell(value: Any) -> str:
+        return "—" if value is None else html.escape(str(value))
+
+    rows = []
+    for task_id in sorted(details):
+        d = details[task_id]
+        if task_id in grades:
+            verdict = '<span class="pass">PASS</span>' if grades[task_id] else '<span class="fail">FAIL</span>'
+        else:
+            verdict = "—"
+        grader = "—" if d["grader_passed"] is None else ("passed" if d["grader_passed"] else "failed")
+        rows.append(
+            f"<tr><th>{html.escape(task_id)}</th><td>{verdict}</td><td>{grader}</td>"
+            f"<td>{cell(d['returncode'])}</td><td>{yes_no(d['timed_out'])}</td>"
+            f"<td>{cell(d['duration_seconds'])}</td><td>{cell(d['peak_rss_mb'])}</td><td>{cell(d['artifacts'])}</td></tr>"
+        )
+    return (
+        "<h2>Tasks</h2><table><thead><tr><th>Task</th><th>Verdict</th><th>Grader</th>"
+        "<th>Return code</th><th>Timed out</th><th>Duration (s)</th><th>Peak RSS (MiB)</th><th>Artifacts</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table>"
+        '<p class="muted">Verdict is PASS only when the grader passed, the agent exited with code 0, and it did not time out.</p>'
+    )
+
+
 def render_trace(trace: Trace, output: str | Path) -> None:
     summary = summarize(trace)
     payload = [{"index": e.index, "ts": e.ts, "event": e.event, "task_id": e.task_id, "text": e.text, "data": e.data} for e in trace.events]
-    cards = [("Events", summary["events"]), ("Tasks", f"{summary['tasks_passed']}/{summary['tasks_total']}" if summary["tasks_total"] is not None else "—"), ("Tool calls", summary["tool_calls"]), ("stderr lines", summary["stderr_lines"]), ("Artifacts", summary["artifacts"]), ("Peak RSS", f"{summary['peak_rss_mb_max']} MiB" if summary["peak_rss_mb_max"] is not None else "—")]
+    cards = [("Events", summary["events"]), ("Tasks", f"{summary['tasks_passed']}/{summary['tasks_total']}" if summary["tasks_total"] is not None else "—"), ("Tool calls", summary["tool_calls"]), ("stderr lines", summary["stderr_lines"]), ("Artifacts", summary["artifacts"]), ("Task time", f"{summary['duration_seconds_total']} s" if summary["duration_seconds_total"] is not None else "—"), ("Peak RSS", f"{summary['peak_rss_mb_max']} MiB" if summary["peak_rss_mb_max"] is not None else "—")]
     cards_html = "".join(f'<div class="card">{html.escape(k)}<b>{html.escape(str(v))}</b></div>' for k,v in cards)
+    task_html = _task_table(summary)
     doc = f'''<!doctype html>
 <meta charset="utf-8">
 <title>Agent Trace Explorer</title>
@@ -49,6 +83,7 @@ def render_trace(trace: Trace, output: str | Path) -> None:
 <h1>Agent Trace Explorer</h1>
 <div class="muted">{html.escape(trace.source)} · parser: {html.escape(trace.format)}</div>
 <div class="cards">{cards_html}</div>
+{task_html}
 <div class="controls"><input id="search" placeholder="filter text"><select id="task"><option value="">all tasks</option></select><select id="type"><option value="">all event types</option></select></div>
 <div id="events"></div>
 </main>
@@ -58,7 +93,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({{'&':'&amp;','<':'&l
 const taskSel=document.querySelector('#task'), typeSel=document.querySelector('#type'), search=document.querySelector('#search');
 [...new Set(events.map(e=>e.task_id).filter(Boolean))].sort().forEach(x=>taskSel.insertAdjacentHTML('beforeend',`<option>${{esc(x)}}</option>`));
 [...new Set(events.map(e=>e.event))].sort().forEach(x=>typeSel.insertAdjacentHTML('beforeend',`<option>${{esc(x)}}</option>`));
-function draw(){{ const q=search.value.toLowerCase(), task=taskSel.value, typ=typeSel.value; const rows=events.filter(e=>(!task||e.task_id===task)&&(!typ||e.event===typ)&&(!q||JSON.stringify(e).toLowerCase().includes(q))); document.querySelector('#events').innerHTML=rows.map(e=>{{ const cls=(e.event==='grade'&&e.data.passed===true)?'pass':((e.event==='grade'&&e.data.passed===false)||e.event.includes('stderr')?'fail':''); const body=e.text ?? ((e.event==='grade')?JSON.stringify(e.data.checks??[]):''); return `<div class="event"><div class="muted">${{esc(e.ts??'')}}</div><div>${{esc(e.task_id??'')}}</div><div class="type ${{cls}}">${{esc(e.event)}}</div><pre>${{esc(body)}}</pre></div>`; }}).join(''); }}
+function draw(){{ const q=search.value.toLowerCase(), task=taskSel.value, typ=typeSel.value; const rows=events.filter(e=>(!task||e.task_id===task)&&(!typ||e.event===typ)&&(!q||JSON.stringify(e).toLowerCase().includes(q))); document.querySelector('#events').innerHTML=rows.map(e=>{{ const verdict=(e.event==='grade'||e.event==='task_end')?e.data.passed:undefined; const cls=(verdict===true)?'pass':((verdict===false)||e.event.includes('stderr')||(e.event==='agent_exit'&&(e.data.returncode!==0||e.data.timed_out===true))?'fail':''); const body=e.text ?? ((e.event==='grade')?JSON.stringify(e.data.checks??[]):''); return `<div class="event"><div class="muted">${{esc(e.ts??'')}}</div><div>${{esc(e.task_id??'')}}</div><div class="type ${{cls}}">${{esc(e.event)}}</div><pre>${{esc(body)}}</pre></div>`; }}).join(''); }}
 [search,taskSel,typeSel].forEach(x=>x.addEventListener('input',draw)); draw();
 </script>
 '''
