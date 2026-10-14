@@ -1,0 +1,361 @@
+{
+  "generated_utc": "2026-10-14T20:07:18Z",
+  "module_files": [
+    "T1/__init__.py",
+    "T1/metrics.py",
+    "T1/metrics_v2.py",
+    "T2/__init__.py",
+    "T2/metrics.py",
+    "T2/metrics_v2.py",
+    "T3/__init__.py",
+    "T3/metrics.py",
+    "T3/metrics_v2.py",
+    "common/__init__.py",
+    "common/core_metrics.py",
+    "common/shape_metrics.py",
+    "score_h5ad.py",
+    "veckit.py"
+  ],
+  "variants": {
+    "pypi-0.1.0": {
+      "origin": "PyPI wheel veckit 0.1.0",
+      "date": "2026-08-10",
+      "note": "First PyPI release; scoring files identical to 0.1.1.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "identical_scoring_modules_to": [
+        "git-46d41e6",
+        "pr4",
+        "pr5",
+        "pypi-0.1.1"
+      ]
+    },
+    "pypi-0.1.1": {
+      "origin": "PyPI wheel veckit 0.1.1",
+      "date": "2026-08-10",
+      "note": "PyPI release; scoring files identical to git 46d41e6.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "identical_scoring_modules_to": [
+        "git-46d41e6",
+        "pr4",
+        "pr5",
+        "pypi-0.1.0"
+      ]
+    },
+    "pypi-0.1.2": {
+      "origin": "PyPI wheel veckit 0.1.2",
+      "date": "2026-08-25",
+      "note": "PyPI release; scoring files identical to unmerged PR #6 branch.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": true,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "79265bee1042a68ae801da9c8455707ca1dd98b619c26fa644e4f4b561c7b81f",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "72330822adbc1b00a939ba1d9e286fff0d85800c6304ec8bce372852318d7365",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "827a7aa42630c7eaeb718f7612e357c8b24342caaef29ed3cde41dc80bcd8b3f",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "8233b6f67f045ed20d422b05f3a38388f67466280a2d53285b23d3e337597f8f",
+        "common/shape_metrics.py": "4d835a69489587ab7724f19120ad723c91accd60e0364a7b7a51cc8ff894ec4a",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "identical_scoring_modules_to": [
+        "pr6"
+      ]
+    },
+    "git-46d41e6": {
+      "origin": "github aristoteleo/veckit commit 46d41e6 (on main)",
+      "date": "2026-08-10",
+      "note": "Last main commit before the issue #7 fix; scoring files identical to 0.1.1.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "commit_date": "2026-08-10",
+      "merge_base_with_main": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "scoring_files_changed_since_merge_base": [],
+      "identical_scoring_modules_to": [
+        "pr4",
+        "pr5",
+        "pypi-0.1.0",
+        "pypi-0.1.1"
+      ]
+    },
+    "git-main-cc3859a": {
+      "origin": "github aristoteleo/veckit main, merge of PR #9",
+      "date": "2026-10-02",
+      "note": "Main after the issue #7 fix; the scorer whose metrics match the board's documented set.",
+      "issue7_fix": true,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "d5750df276d99541602cbf01680992955bf01edd951e1d96908987b69fb6e92f",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "cc3859ab2a2305efc4544815d3f44f660efa77d4",
+      "commit_date": "2026-10-02",
+      "merge_base_with_main": "cc3859ab2a2305efc4544815d3f44f660efa77d4",
+      "scoring_files_changed_since_merge_base": [],
+      "identical_scoring_modules_to": []
+    },
+    "pr2": {
+      "origin": "unmerged PR #2 (6ixGODD:main)",
+      "date": "2026-08-20",
+      "note": "Memory-safe / interruptible scoring; changes T1, common and score_h5ad.py.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "779895c8c39e69c076573c872b5e02ca5b2c5b03d417d9588a0de671bbada96f",
+        "T1/metrics_v2.py": "92f2353aee1b56b2f842bdece80e513bebcd3f875175c18d645fc7feb5d4cb55",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "129447c394c6e83d0fdb765043a82b71fccbedd5c128d74ad334038878d48529",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "751e2666c935d198778aff7955cd573fd2fb201e14a4db791baebf48aa37a11d",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "25760744c6c3c6934fb9e0988703ed34d5b00051",
+      "commit_date": "2026-08-20",
+      "merge_base_with_main": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "scoring_files_changed_since_merge_base": [
+        "T1/metrics.py",
+        "T1/metrics_v2.py",
+        "common/core_metrics.py",
+        "score_h5ad.py"
+      ],
+      "identical_scoring_modules_to": []
+    },
+    "pr4": {
+      "origin": "unmerged PR #4",
+      "date": "2026-08-22",
+      "note": "Adds T2 conformance checks; scoring files unchanged from 0.1.1.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "dce181b0ca4281e5924ae7ed9845e24e68198c5e",
+      "commit_date": "2026-08-22",
+      "merge_base_with_main": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "scoring_files_changed_since_merge_base": [],
+      "identical_scoring_modules_to": [
+        "git-46d41e6",
+        "pr5",
+        "pypi-0.1.0",
+        "pypi-0.1.1"
+      ]
+    },
+    "pr5": {
+      "origin": "unmerged PR #5",
+      "date": "2026-08-22",
+      "note": "Adds adversarial control walkthrough; scoring files unchanged from 0.1.1.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "9ad65bd0f80153810e7490c496735627008bafd3",
+      "commit_date": "2026-08-22",
+      "merge_base_with_main": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "scoring_files_changed_since_merge_base": [],
+      "identical_scoring_modules_to": [
+        "git-46d41e6",
+        "pr4",
+        "pypi-0.1.0",
+        "pypi-0.1.1"
+      ]
+    },
+    "pr6": {
+      "origin": "unmerged PR #6 (branch feat/metric-hardening-0.2.0)",
+      "date": "2026-08-24",
+      "note": "PSS/TSR scoring change, version 0.2.0; scoring files identical to PyPI 0.1.2.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": true,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "79265bee1042a68ae801da9c8455707ca1dd98b619c26fa644e4f4b561c7b81f",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "72330822adbc1b00a939ba1d9e286fff0d85800c6304ec8bce372852318d7365",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "827a7aa42630c7eaeb718f7612e357c8b24342caaef29ed3cde41dc80bcd8b3f",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "8233b6f67f045ed20d422b05f3a38388f67466280a2d53285b23d3e337597f8f",
+        "common/shape_metrics.py": "4d835a69489587ab7724f19120ad723c91accd60e0364a7b7a51cc8ff894ec4a",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "22a4055362f094b59c5323f253fdf44ba5a98ff6",
+      "commit_date": "2026-08-24",
+      "merge_base_with_main": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "scoring_files_changed_since_merge_base": [
+        "T1/metrics_v2.py",
+        "T2/metrics_v2.py",
+        "T3/metrics_v2.py",
+        "common/core_metrics.py",
+        "common/shape_metrics.py"
+      ],
+      "identical_scoring_modules_to": [
+        "pypi-0.1.2"
+      ]
+    },
+    "pr8": {
+      "origin": "unmerged PR #8 (perf/mmd-distance-cache)",
+      "date": "2026-09-25",
+      "note": "Reduces MMD allocations; changes common/core_metrics.py only.",
+      "issue7_fix": false,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "2c8aeb720aa44661d0d05bfd6d389093b8d879601a41ac7280a1da506a64bd13",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "bf826b2c90b82244486b5e366ef6eaa35626608f2678d69512fde96ce705b319",
+        "common/shape_metrics.py": "bd80ef2705f9be93fe1538e77445d4eb217d4b955c6cd38c69b26b0671be91c0",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "17d461f48d256cf4ae872f133e7190234d0d6e5f",
+      "commit_date": "2026-09-25",
+      "merge_base_with_main": "46d41e63f42a9aab815db20b742feeccd249cb17",
+      "scoring_files_changed_since_merge_base": [
+        "common/core_metrics.py"
+      ],
+      "identical_scoring_modules_to": []
+    },
+    "pr11": {
+      "origin": "unmerged PR #11 (fix/morans-exclude-self)",
+      "date": "2026-10-06",
+      "note": "Excludes self-neighbours from Moran profiles; changes T2/metrics.py; includes issue #7 fix.",
+      "issue7_fix": true,
+      "mentions_severity_ratio_or_scale_ratio": false,
+      "module_sha256": {
+        "T1/__init__.py": "e4fd7d8b631c0d6ac761c08e0891aa9318822b9152627c1224987ce627339689",
+        "T1/metrics.py": "c6252f964e782b4bb20f8b66352eb43ee244de402dafea5d3a0864ad5ed2fab8",
+        "T1/metrics_v2.py": "8d49a59cb853da0763e48236a07f2b141e485437314e69812f27bf8aa53ba313",
+        "T2/__init__.py": "8e09c15e4a206457e6c385a2eac0e35e688a23031a35155d5a2e24c6df40a908",
+        "T2/metrics.py": "92d41431fa0522deb5733a89236811d382fb899a399792cbe4abd20aa87c9a06",
+        "T2/metrics_v2.py": "5d06e68f6d6848f64eb7b798ea42ca31d8c1f9a61084c174a4f50eaf88bdd878",
+        "T3/__init__.py": "8c2b643df37d8e7c4d9013915a3a60235341fb87a789c52ef0efa71e502b6679",
+        "T3/metrics.py": "b338d3ff6e977f093922ec5de2dd05c07faa472b29d44d901ce9a7cb432d1376",
+        "T3/metrics_v2.py": "ebc0882a1c1d3a83f05b577ef0084e5fb2e9075faad065304d094df1727f67a2",
+        "common/__init__.py": "10587826cd419dcaad46b4742ee35e12a1f6b34589e08b411c9cd7c5b35a6b4c",
+        "common/core_metrics.py": "3be7099a0c9a7ad5b609f86078871ed8290ed0bd8916b0cb3e14fb9831909f31",
+        "common/shape_metrics.py": "d5750df276d99541602cbf01680992955bf01edd951e1d96908987b69fb6e92f",
+        "score_h5ad.py": "52034554f03aec10193cb09baa2c78a1de04218ef678f327eb63acc58fa28add",
+        "veckit.py": "b991dc27e1b169b732721f4d79ff183c29879f6c4fee9ceb7e897a63172b4108"
+      },
+      "head_sha": "a0a5583650a504d86342f911653451cbd77ca489",
+      "commit_date": "2026-10-06",
+      "merge_base_with_main": "cc3859ab2a2305efc4544815d3f44f660efa77d4",
+      "scoring_files_changed_since_merge_base": [
+        "T2/metrics.py"
+      ],
+      "identical_scoring_modules_to": []
+    }
+  }
+}

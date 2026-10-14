@@ -6,6 +6,7 @@ Independent tools, experiments and guides for the [Virtual Embryo Challenge](htt
 
 - [ml-guide](ml-guide/): what the data and prediction targets mean, for people who know ML but not single-cell biology. Includes a Colab data tour.
 - [intuition-lab](intuition-lab/): notebooks that break one property of a prediction at a time and show which scorer terms move. The Task 2 controls found the rotation/handedness issue filed upstream as [`veckit#7`](https://github.com/aristoteleo/veckit/issues/7).
+- [scorer-versions](scorer-versions/): which `veckit` you are running. `pip install veckit` gives the unmerged PR #6 code without the rotation fix; this maps every published version and open PR by code hash and measures what each changes.
 - [metric-lens](metric-lens/): turns a `veckit` metric vector into weighted score contributions and shows how many points each metric could still add.
 
 ## Data

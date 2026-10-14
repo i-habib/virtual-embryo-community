@@ -9,6 +9,7 @@ on:
       - 'metric-lens/**'
       - 'count-recovery/**'
       - 'panel-normalise/**'
+      - 'scorer-versions/**'
       - '.github/workflows/small-tools-ci.yml'
   pull_request:
     paths:
@@ -17,6 +18,7 @@ on:
       - 'metric-lens/**'
       - 'count-recovery/**'
       - 'panel-normalise/**'
+      - 'scorer-versions/**'
       - '.github/workflows/small-tools-ci.yml'
 
 jobs:
@@ -37,6 +39,8 @@ jobs:
         run: python -m pytest -q count-recovery
       - name: Panel Normalise tests
         run: python -m pytest -q panel-normalise
+      - name: Scorer Versions tests
+        run: python -m pytest -q scorer-versions/test_which_veckit.py
       - name: ML Guide notebook structure and Python syntax
         run: |
           python - <<'PY'
