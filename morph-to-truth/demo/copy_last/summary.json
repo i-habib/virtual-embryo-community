@@ -1,0 +1,203 @@
+{
+  "pred_file": "E8.75",
+  "truth_file": "E9.5",
+  "cells_requested": 3000,
+  "seed": 0,
+  "rescale_requested": false,
+  "n_cells": 3000,
+  "pred_cells_in_file": 24826,
+  "truth_cells_in_file": 53742,
+  "lam": 0.5,
+  "expr_pcs": 20,
+  "alignment": {
+    "winner": "identity",
+    "flip": null,
+    "chamfer_unaligned_um": 50.173,
+    "chamfer_best_candidate_um": 50.173,
+    "chamfer_after_icp_um": 50.14,
+    "candidates": {
+      "identity": {
+        "pre_icp": 50.173,
+        "after_icp": 50.14
+      },
+      "pca(1, 1, 1)": {
+        "pre_icp": 50.386,
+        "after_icp": 50.374
+      },
+      "pca(1, -1, -1)": {
+        "pre_icp": 50.923,
+        "after_icp": 50.923
+      },
+      "pca(-1, 1, -1)": {
+        "pre_icp": 50.867,
+        "after_icp": 50.828
+      },
+      "pca(-1, -1, 1)": {
+        "pre_icp": 51.136,
+        "after_icp": 51.101
+      }
+    },
+    "icp_iters_max": 30,
+    "icp_tol_rel": 0.001
+  },
+  "rescale_factor": 1.0,
+  "pos_scale_um": 361.8648,
+  "expr_scale": 23.9017,
+  "median_displacement_um": 106.647,
+  "p90_displacement_um": 248.719,
+  "vocabulary": {
+    "pred_label_count": 33,
+    "truth_label_count": 22,
+    "shared_label_count": 5,
+    "shared_labels": [
+      "NCC",
+      "Peri",
+      "V-CM",
+      "aPHM",
+      "pPHM"
+    ],
+    "only_in_pred": [
+      "Allantois",
+      "Caudal Epiblast",
+      "D-FG",
+      "EXE-Endoderm",
+      "Endo",
+      "ExEM-1",
+      "ExEM-2",
+      "Forebrain",
+      "Gut Endoderm",
+      "HEM-Endoth",
+      "Hindgut",
+      "IFT-CM",
+      "Intra-Endoth-1",
+      "Intra-Endoth-2",
+      "JCF",
+      "LPM",
+      "Lateral FG",
+      "Neural Tube",
+      "PAM-1",
+      "PAM-2",
+      "PAM-3",
+      "PAM-4",
+      "SOM",
+      "Unknown",
+      "V-CSE",
+      "a-FG",
+      "d-CSE",
+      "pSE"
+    ],
+    "only_in_truth": [
+      "A-CM",
+      "BEC",
+      "Branch Arch",
+      "Chamber-Endo",
+      "Cush-EndoMT-Endo",
+      "DMP",
+      "Dorsal-PAM",
+      "Foregut",
+      "Great Artery Endoth",
+      "Hepatocytes",
+      "Lateral-PAM",
+      "OFT-CM",
+      "Proepi",
+      "SE",
+      "ST",
+      "SV-CM",
+      "early-VEC"
+    ]
+  },
+  "mismatch_rate": 0.3032,
+  "mismatch_status": "computed over matched pairs whose two labels are both in the shared vocabulary",
+  "mismatch_pairs_compared": 409,
+  "label_difference_rate_all_pairs": 0.905,
+  "per_type": {
+    "A-CM": {
+      "n_true": 287,
+      "median_um": 45.818
+    },
+    "BEC": {
+      "n_true": 120,
+      "median_um": 119.894
+    },
+    "Branch Arch": {
+      "n_true": 68,
+      "median_um": 116.019
+    },
+    "Chamber-Endo": {
+      "n_true": 165,
+      "median_um": 112.038
+    },
+    "Cush-EndoMT-Endo": {
+      "n_true": 46,
+      "median_um": 103.323
+    },
+    "DMP": {
+      "n_true": 55,
+      "median_um": 42.856
+    },
+    "Dorsal-PAM": {
+      "n_true": 211,
+      "median_um": 207.026
+    },
+    "Foregut": {
+      "n_true": 149,
+      "median_um": 83.273
+    },
+    "Great Artery Endoth": {
+      "n_true": 52,
+      "median_um": 121.279
+    },
+    "Hepatocytes": {
+      "n_true": 33,
+      "median_um": 83.695
+    },
+    "Lateral-PAM": {
+      "n_true": 154,
+      "median_um": 122.087
+    },
+    "NCC": {
+      "n_true": 147,
+      "median_um": 118.462
+    },
+    "OFT-CM": {
+      "n_true": 125,
+      "median_um": 79.023
+    },
+    "Peri": {
+      "n_true": 255,
+      "median_um": 101.588
+    },
+    "Proepi": {
+      "n_true": 76,
+      "median_um": 59.806
+    },
+    "SE": {
+      "n_true": 149,
+      "median_um": 145.361
+    },
+    "ST": {
+      "n_true": 85,
+      "median_um": 83.819
+    },
+    "SV-CM": {
+      "n_true": 164,
+      "median_um": 44.037
+    },
+    "V-CM": {
+      "n_true": 354,
+      "median_um": 196.142
+    },
+    "aPHM": {
+      "n_true": 118,
+      "median_um": 68.433
+    },
+    "early-VEC": {
+      "n_true": 84,
+      "median_um": 130.454
+    },
+    "pPHM": {
+      "n_true": 103,
+      "median_um": 108.793
+    }
+  }
+}

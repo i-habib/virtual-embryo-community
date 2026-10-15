@@ -1,0 +1,177 @@
+{
+  "pred_file": "E9.5_corrupt30",
+  "truth_file": "E9.5",
+  "cells_requested": 3000,
+  "seed": 0,
+  "rescale_requested": false,
+  "n_cells": 3000,
+  "pred_cells_in_file": 53742,
+  "truth_cells_in_file": 53742,
+  "lam": 0.5,
+  "expr_pcs": 20,
+  "alignment": {
+    "winner": "pca",
+    "flip": [
+      1,
+      1,
+      1
+    ],
+    "chamfer_unaligned_um": 10.067,
+    "chamfer_best_candidate_um": 10.067,
+    "chamfer_after_icp_um": 7.11,
+    "candidates": {
+      "identity": {
+        "pre_icp": 10.067,
+        "after_icp": 7.139
+      },
+      "pca(1, 1, 1)": {
+        "pre_icp": 14.15,
+        "after_icp": 7.11
+      },
+      "pca(1, -1, -1)": {
+        "pre_icp": 37.277,
+        "after_icp": 36.978
+      },
+      "pca(-1, 1, -1)": {
+        "pre_icp": 44.177,
+        "after_icp": 37.616
+      },
+      "pca(-1, -1, 1)": {
+        "pre_icp": 38.558,
+        "after_icp": 37.314
+      }
+    },
+    "icp_iters_max": 30,
+    "icp_tol_rel": 0.001
+  },
+  "rescale_factor": 1.0,
+  "pos_scale_um": 421.1344,
+  "expr_scale": 23.7261,
+  "median_displacement_um": 0.562,
+  "p90_displacement_um": 81.701,
+  "vocabulary": {
+    "pred_label_count": 22,
+    "truth_label_count": 22,
+    "shared_label_count": 22,
+    "shared_labels": [
+      "A-CM",
+      "BEC",
+      "Branch Arch",
+      "Chamber-Endo",
+      "Cush-EndoMT-Endo",
+      "DMP",
+      "Dorsal-PAM",
+      "Foregut",
+      "Great Artery Endoth",
+      "Hepatocytes",
+      "Lateral-PAM",
+      "NCC",
+      "OFT-CM",
+      "Peri",
+      "Proepi",
+      "SE",
+      "ST",
+      "SV-CM",
+      "V-CM",
+      "aPHM",
+      "early-VEC",
+      "pPHM"
+    ],
+    "only_in_pred": [],
+    "only_in_truth": []
+  },
+  "mismatch_rate": 0.236,
+  "mismatch_status": "computed over matched pairs whose two labels are both in the shared vocabulary",
+  "mismatch_pairs_compared": 3000,
+  "label_difference_rate_all_pairs": 0.236,
+  "per_type": {
+    "A-CM": {
+      "n_true": 287,
+      "median_um": 0.311
+    },
+    "BEC": {
+      "n_true": 120,
+      "median_um": 0.639
+    },
+    "Branch Arch": {
+      "n_true": 68,
+      "median_um": 0.699
+    },
+    "Chamber-Endo": {
+      "n_true": 165,
+      "median_um": 0.529
+    },
+    "Cush-EndoMT-Endo": {
+      "n_true": 46,
+      "median_um": 0.361
+    },
+    "DMP": {
+      "n_true": 55,
+      "median_um": 0.337
+    },
+    "Dorsal-PAM": {
+      "n_true": 211,
+      "median_um": 0.705
+    },
+    "Foregut": {
+      "n_true": 149,
+      "median_um": 0.601
+    },
+    "Great Artery Endoth": {
+      "n_true": 52,
+      "median_um": 0.667
+    },
+    "Hepatocytes": {
+      "n_true": 33,
+      "median_um": 0.311
+    },
+    "Lateral-PAM": {
+      "n_true": 154,
+      "median_um": 0.557
+    },
+    "NCC": {
+      "n_true": 147,
+      "median_um": 0.697
+    },
+    "OFT-CM": {
+      "n_true": 125,
+      "median_um": 0.511
+    },
+    "Peri": {
+      "n_true": 255,
+      "median_um": 0.589
+    },
+    "Proepi": {
+      "n_true": 76,
+      "median_um": 0.33
+    },
+    "SE": {
+      "n_true": 149,
+      "median_um": 0.68
+    },
+    "ST": {
+      "n_true": 85,
+      "median_um": 0.379
+    },
+    "SV-CM": {
+      "n_true": 164,
+      "median_um": 0.26
+    },
+    "V-CM": {
+      "n_true": 354,
+      "median_um": 0.58
+    },
+    "aPHM": {
+      "n_true": 118,
+      "median_um": 0.574
+    },
+    "early-VEC": {
+      "n_true": 84,
+      "median_um": 0.556
+    },
+    "pPHM": {
+      "n_true": 103,
+      "median_um": 0.447
+    }
+  }
+}
