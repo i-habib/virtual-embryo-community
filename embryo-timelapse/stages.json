@@ -1,0 +1,26 @@
+{
+  "source": "Stage roles and held-out targets: https://virtualembryo.ai/challenge/data (Task 2 tables) and https://virtualembryo.ai/challenge/panels/index.json. Files are read from the local release; see README.md.",
+  "stages": [
+    {"stage": "E6.75", "kind": "released", "setting": "embryo", "location": "stage_cache", "file": "E6.75.h5ad"},
+    {"stage": "E7.25", "kind": "released", "setting": "embryo", "location": "stage_cache", "file": "E7.25.h5ad"},
+    {"stage": "E7.5", "kind": "validation", "setting": "embryo", "board": "T2:embryo:val_interp",
+     "label": "T2 embryo interpolation",
+     "subtitle": "Answers withheld. Bracketed by released stages E7.25 and E8.0."},
+    {"stage": "E7.75", "kind": "test", "setting": "embryo",
+     "label": "T2 embryo interpolation",
+     "subtitle": "Hidden test target. Bracketed by released stages E7.25 and E8.0."},
+    {"stage": "E8.0", "kind": "released", "setting": "embryo", "location": "stage_cache", "file": "E8.0.h5ad"},
+    {"stage": "E8.25", "kind": "released", "setting": "heart", "location": "stage_cache", "file": "E8.25_late.h5ad"},
+    {"stage": "E8.5", "kind": "validation", "setting": "heart", "board": "T2:heart:val_interp",
+     "label": "T2 heart interpolation",
+     "subtitle": "Answers withheld. Bracketed by released stages E8.25 and E8.75."},
+    {"stage": "E8.75", "kind": "released", "setting": "heart", "location": "data", "file": "E8.75.h5ad"},
+    {"stage": "E9.5", "kind": "released", "setting": "heart", "location": "data", "file": "E9.5.h5ad"},
+    {"stage": "E10.5", "kind": "validation", "setting": "heart", "board": "T2:heart:val_extrap",
+     "label": "T2 heart extrapolation",
+     "subtitle": "Answers withheld. Released heart stages end at E9.5."},
+    {"stage": "E12.5", "kind": "test", "setting": "heart",
+     "label": "T2 heart extrapolation",
+     "subtitle": "Hidden test target. Past the last released heart stage, E9.5."}
+  ]
+}
