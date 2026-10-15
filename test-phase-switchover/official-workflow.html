@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test-phase switchover: official workflow</title>
+<meta name="description" content="How a Virtual Embryo Challenge team moves from validation submissions to the two official test submissions per board.">
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff; --text: #1c1f23; --muted: #5b6370; --line: #d5dae1;
+  --surface: #f5f7f9; --accent: #0f6b5c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --text: #e9ecef; --muted: #a3acb8; --line: #3a4049;
+    --surface: #1d2126; --accent: #5fd0b8;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --text: #e9ecef; --muted: #a3acb8; --line: #3a4049;
+  --surface: #1d2126; --accent: #5fd0b8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px; line-height: 1.6;
+}
+main { max-width: 880px; margin: 0 auto; padding: 32px 16px 56px; }
+h1 { font-size: 28px; line-height: 1.25; margin: 0 0 12px; }
+h2 { font-size: 20px; line-height: 1.3; margin: 52px 0 14px; }
+p { margin: 0 0 14px; max-width: 68ch; }
+ul { padding-left: 20px; margin: 0 0 14px; max-width: 68ch; }
+li { margin-bottom: 6px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+.lede { color: var(--muted); }
+.small { color: var(--muted); font-size: 15px; }
+.flag { font-style: italic; }
+.tag {
+  display: inline-block; font-size: 14px; padding: 0 6px; margin-left: 4px;
+  border: 1px dashed var(--muted); border-radius: 4px; color: var(--muted);
+  white-space: nowrap;
+}
+
+/* timeline */
+.timeline {
+  list-style: none; padding: 0; margin: 24px 0 8px; position: relative;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px;
+}
+.timeline::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 2px;
+  background: var(--line);
+}
+.timeline li { position: relative; padding-top: 30px; margin: 0; max-width: none; }
+.timeline li::before {
+  content: ""; position: absolute; left: 0; top: 0; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--accent);
+}
+.timeline .date { display: block; font-weight: 600; color: var(--accent); font-size: 16px; }
+.timeline .when { display: block; font-weight: 600; margin-bottom: 4px; }
+.timeline .body { display: block; font-size: 15px; }
+.timeline .src { display: block; font-size: 13px; color: var(--muted); margin-top: 6px; }
+@media (max-width: 719px) {
+  .timeline { display: block; margin-top: 16px; }
+  .timeline::before { top: 0; bottom: 0; left: 6px; right: auto; width: 2px; height: auto; }
+  .timeline li { padding: 0 0 22px 34px; }
+  .timeline li::before { top: 3px; }
+}
+
+/* flow */
+.flow {
+  display: block; width: 100%; max-width: 420px; height: auto;
+  margin: 16px auto 8px;
+}
+.flow .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+.flow .box.agent { stroke: var(--accent); stroke-dasharray: 6 4; }
+.flow .ttl { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; fill: var(--text); }
+.flow .ttl .num { fill: var(--accent); }
+.flow .sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13.5px; fill: var(--muted); }
+.flow .flag { fill: var(--muted); font-style: italic; }
+.flow .lnktxt { fill: var(--accent); text-decoration: underline; }
+.flow .arrow { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.flow .arrowhead { fill: var(--muted); }
+.flow-note { text-align: center; }
+
+/* table */
+.wrap { overflow-x: visible; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 8px 0 0; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 14px; }
+td.item { font-weight: 600; white-space: nowrap; }
+@media (max-width: 719px) {
+  thead { display: none; }
+  table, tbody, tr, td { display: block; width: 100%; }
+  tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
+  td { border: 0; padding: 3px 0; }
+  td.item { white-space: normal; padding-bottom: 6px; }
+  td[data-label]::before {
+    content: attr(data-label); display: block; font-size: 13px;
+    color: var(--muted); font-weight: 600;
+  }
+}
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Test-phase switchover: official workflow</h1>
+<p class="lede">How a team moves from validation-phase submissions to the two official test submissions per board in the Virtual Embryo Challenge. This is a community guide, not an official document. Facts come from the official pages as read on 14 October 2026 and from the linked tool READMEs. The organisers' pages are authoritative, so re-read the timeline and rules on 20 October.</p>
+<p class="small">Items marked <span class="flag">not stated</span> do not appear in the official text read for this guide. Ask the organisers before relying on them.</p>
+
+<h2>1. Timeline</h2>
+
+<ol class="timeline">
+  <li>
+    <span class="date">14 Oct 2026</span>
+    <span class="when">Now: validation phase</span>
+    <span class="body">The leaderboard shows one headline number per file. Pin the scorer version and set up the disclosure process before 19 October.</span>
+    <span class="src">Source: <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/test-phase-switchover">test-phase README</a></span>
+  </li>
+  <li>
+    <span class="date">20 Oct 2026</span>
+    <span class="when">Test phase starts</span>
+    <span class="body">Validation answers are released. Test inputs come out without labels, and the test leaderboard opens. First week to 27 October: check files and choose two per board.</span>
+    <span class="src">Source: <a href="https://virtualembryo.ai/challenge/tasks">tasks page</a>, <a href="https://virtualembryo.ai/challenge/timeline">timeline page</a></span>
+  </li>
+  <li>
+    <span class="date">2 Dec 2026</span>
+    <span class="when">Final submissions due</span>
+    <span class="body">The last moment a submission can be made or a final entry nominated. Nothing after this counts, in either track. The evidence deadline for Agent Team entries: <span class="flag">not stated; ask the organisers</span>.</span>
+    <span class="src">Source: <a href="https://virtualembryo.ai/challenge/timeline">timeline page</a></span>
+  </li>
+  <li>
+    <span class="date">4 Dec 2026</span>
+    <span class="when">Official evaluation starts</span>
+    <span class="body">Evaluation runs on the hidden test sets. Agent Team entries are checked against the evidence attached to them.</span>
+    <span class="src">Source: <a href="https://virtualembryo.ai/challenge/timeline">timeline page</a></span>
+  </li>
+  <li>
+    <span class="date">11 Dec 2026</span>
+    <span class="when">Winners announced</span>
+    <span class="body">Announced at NeurIPS. Final rankings come from the hidden test sets, not the development leaderboard. A written method report is due within 14 days of notification.</span>
+    <span class="src">Source: <a href="https://virtualembryo.ai/challenge/rules">rules sections 13 and 15</a></span>
+  </li>
+</ol>
+
+
+<h2>2. Workflow</h2>
+<p>Read top to bottom. Each tool box links to its folder on GitHub. Step 8 applies to Agent Team entries only, shown with a dashed border.</p>
+<svg class="flow" viewBox="0 0 360 907" role="img" aria-labelledby="flowTitle flowDesc" xmlns="http://www.w3.org/2000/svg">
+    <title id="flowTitle">Official workflow from validation to test submission</title>
+    <desc id="flowDesc">Nine steps in a single column. Each tool box links to its folder on GitHub. Step 8 applies to Agent Team entries only.</desc>
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path class="arrowhead" d="M0,0 L10,5 L0,10 z"/>
+      </marker>
+    </defs>
+    <g>
+    <rect class="box" x="10" y="14" width="340" height="58" rx="8"/>
+    <text class="ttl" x="26" y="38"><tspan class="num">1.</tspan> Download validation answers</text>
+    <text class="sub" x="26" y="58">Tasks page: released at the phase start</text>
+    </g>
+    <line class="arrow" x1="180" y1="74" x2="180" y2="98" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="100" width="340" height="77" rx="8"/>
+    <text class="ttl" x="26" y="124"><tspan class="num">2.</tspan> Rescore your submission history</text>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore" class="lnk"><text class="sub lnktxt" x="26" y="144">history-rescore: per-metric scores</text></a>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/scorer-versions" class="lnk"><text class="sub lnktxt" x="26" y="163">Pin the veckit version first: scorer-versions</text></a>
+    </g>
+    <line class="arrow" x1="180" y1="179" x2="180" y2="203" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="205" width="340" height="58" rx="8"/>
+    <text class="ttl" x="26" y="229"><tspan class="num">3.</tspan> Find which local signals tracked</text>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore" class="lnk"><text class="sub lnktxt" x="26" y="249">history-rescore: rank check per metric</text></a>
+    </g>
+    <line class="arrow" x1="180" y1="265" x2="180" y2="289" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="291" width="340" height="77" rx="8"/>
+    <text class="ttl" x="26" y="315"><tspan class="num">4.</tspan> Retrain with validation stages</text>
+    <text class="sub" x="26" y="335">Released with answers: data page</text>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/data-safety" class="lnk"><text class="sub lnktxt" x="26" y="354">External sources: data-safety</text></a>
+    </g>
+    <line class="arrow" x1="180" y1="370" x2="180" y2="394" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="396" width="340" height="58" rx="8"/>
+    <text class="ttl" x="26" y="420"><tspan class="num">5.</tspan> Check files against test contracts</text>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/test-phase-switchover" class="lnk"><text class="sub lnktxt" x="26" y="440">check_test_contract.py, per board</text></a>
+    </g>
+    <line class="arrow" x1="180" y1="456" x2="180" y2="480" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="482" width="340" height="77" rx="8"/>
+    <text class="ttl" x="26" y="506"><tspan class="num">6.</tspan> Choose two files per board</text>
+    <text class="sub flag" x="26" y="526">val-to-test: not in the repository yet</text>
+    <text class="sub" x="26" y="545">Two per board for the whole phase</text>
+    </g>
+    <line class="arrow" x1="180" y1="561" x2="180" y2="585" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="587" width="340" height="58" rx="8"/>
+    <text class="ttl" x="26" y="611"><tspan class="num">7.</tspan> Designate the two files (captain)</text>
+    <text class="sub flag" x="26" y="631">Procedure: not stated; ask the organisers</text>
+    </g>
+    <line class="arrow" x1="180" y1="647" x2="180" y2="671" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box agent" x="10" y="673" width="340" height="115" rx="8"/>
+    <text class="ttl" x="26" y="697"><tspan class="num">8.</tspan> Agent Team only: audit, lock, run</text>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/agent-prelock-audit" class="lnk"><text class="sub lnktxt" x="26" y="717">agent-prelock-audit, before the lock</text></a>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/codex-agent-run" class="lnk"><text class="sub lnktxt" x="26" y="736">codex-agent-run: lock, run, package</text></a>
+    <a href="https://github.com/xxx12e/vec-community-kit" class="lnk"><text class="sub lnktxt" x="26" y="755">or vec_agent_evidence (community kit)</text></a>
+    <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/agent-skills" class="lnk"><text class="sub lnktxt" x="26" y="774">Skills guide: agent-skills</text></a>
+    </g>
+    <line class="arrow" x1="180" y1="790" x2="180" y2="814" marker-end="url(#arr)"/>
+    <g>
+    <rect class="box" x="10" y="816" width="340" height="77" rx="8"/>
+    <text class="ttl" x="26" y="840"><tspan class="num">9.</tspan> Submit before 2 December 2026</text>
+    <a href="https://virtualembryo.ai/challenge/rules" class="lnk"><text class="sub lnktxt" x="26" y="860">Do not leave it to the last hour</text></a>
+    <text class="sub" x="26" y="879">Keep your own copy of each upload</text>
+    </g>
+  </svg>
+
+<h2>3. What changes</h2>
+<div class="wrap">
+<table>
+  <thead>
+    <tr><th>Item</th><th>Validation phase (to 19 Oct)</th><th>Test phase (from 20 Oct)</th><th>Source</th></tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td class="item" data-label="Item">T1 target</td>
+        <td data-label="Validation phase (to 19 Oct)">E10.5</td>
+        <td data-label="Test phase (from 20 Oct)">E12.5, extrapolation, on a hidden E12.5</td>
+        <td class="small" data-label="Source">Validation: <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore">history-rescore README</a>. Test: <a href="https://virtualembryo.ai/challenge/tasks">tasks page</a>.</td>
+      </tr>
+      <tr>
+        <td class="item" data-label="Item">T2 embryo target</td>
+        <td data-label="Validation phase (to 19 Oct)">E7.5, interpolation</td>
+        <td data-label="Test phase (from 20 Oct)">E7.75, interpolation</td>
+        <td class="small" data-label="Source">Validation: <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore">history-rescore README</a>. Test: <a href="https://virtualembryo.ai/challenge/tasks">tasks page</a>.</td>
+      </tr>
+      <tr>
+        <td class="item" data-label="Item">T2 heart target</td>
+        <td data-label="Validation phase (to 19 Oct)">E8.5 interpolation and E10.5 extrapolation</td>
+        <td data-label="Test phase (from 20 Oct)">E12.5, extrapolation</td>
+        <td class="small" data-label="Source">Validation: <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore">history-rescore README</a>. Test: <a href="https://virtualembryo.ai/challenge/tasks">tasks page</a>.</td>
+      </tr>
+      <tr>
+        <td class="item" data-label="Item">T3 target</td>
+        <td data-label="Validation phase (to 19 Oct)">Gata4 knockout</td>
+        <td data-label="Test phase (from 20 Oct)">Beta-catenin knockout at E8.75, "the hidden test"</td>
+        <td class="small" data-label="Source">Validation: <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore">history-rescore README</a>. Test: <a href="https://virtualembryo.ai/challenge/tasks">tasks page</a>.</td>
+      </tr>
+      <tr>
+        <td class="item" data-label="Item">Feedback</td>
+        <td data-label="Validation phase (to 19 Oct)">One headline number per submitted file. A per-metric breakdown comes only from local rescoring, once the answers are out.</td>
+        <td data-label="Test phase (from 20 Oct)">A score per submission, "not as answers". Per-metric breakdown: <span class="flag">not stated; ask the organisers</span>.</td>
+        <td class="small" data-label="Source"><a href="https://virtualembryo.ai/challenge/timeline">timeline page</a>; <a href="https://github.com/i-habib/virtual-embryo-community/tree/main/history-rescore">history-rescore README</a>.</td>
+      </tr>
+      <tr>
+        <td class="item" data-label="Item">Submissions that count</td>
+        <td data-label="Validation phase (to 19 Oct)"><span class="flag">Not stated in the pages read for this guide; ask the organisers.</span></td>
+        <td data-label="Test phase (from 20 Oct)">2 official submissions per board, for the whole phase, not per day. Uploads per day: <span class="flag">not stated</span>.</td>
+        <td class="small" data-label="Source"><a href="https://virtualembryo.ai/challenge/rules">rules section 11</a>.</td>
+      </tr>
+      <tr>
+        <td class="item" data-label="Item">Data for training</td>
+        <td data-label="Validation phase (to 19 Oct)">Validation answers are withheld until the test phase starts.</td>
+        <td data-label="Test phase (from 20 Oct)">Validation stages are released with their answers and become training material. Test inputs come without labels; test answers are never released. Whether the held-out list in rules section 10 still covers released validation stages: <span class="flag">not stated; ask the organisers</span>.</td>
+        <td class="small" data-label="Source"><a href="https://virtualembryo.ai/challenge/tasks">tasks page</a>, <a href="https://virtualembryo.ai/challenge/data">data page</a>, <a href="https://virtualembryo.ai/challenge/timeline">timeline page</a>, <a href="https://virtualembryo.ai/challenge/rules">rules section 10</a>.</td>
+      </tr>
+  </tbody>
+</table>
+</div>
+<ul class="small" style="margin-top:16px">
+  <li>A planning note says "no performance feedback". The official text says a test submission "comes back as a score, not as answers", and this table follows the official text.</li>
+  <li>T2 has two test boards, embryo and heart, so the per-board limit gives up to four official files for T2 in total.</li>
+</ul>
+
+<h2>4. Rules to keep in view</h2>
+<ul>
+  <li>A captain may change track before the final deadline. Doing so retires every score the team has earned (rules section 8).</li>
+  <li>Keep your own copy of everything you submit (rules section 12).</li>
+  <li>Any use of the data in a publication or public presentation needs prior approval from Dr. Neil Chi and the data-generating team (FAQ).</li>
+  <li>Format checks are unlimited in every phase and spend nothing (rules section 11). The checker here does not replace the organisers' upload check or scorer.</li>
+</ul>
+
+<h2>5. Open items: ask the organisers</h2>
+<ul>
+  <li class="flag">How the captain designates the two official files per board.</li>
+  <li class="flag">Whether a test submission returns a per-metric breakdown.</li>
+  <li class="flag">Whether the held-out list in rules section 10 stops applying to released validation stages.</li>
+  <li class="flag">Whether the heart extrapolation window matches the Task 1 window.</li>
+  <li class="flag">A separate evidence deadline for Agent Team entries beyond 2 December.</li>
+  <li class="flag">The number of uploads allowed per day.</li>
+</ul>
+
+<footer>
+  Community guide. Source checklist: <a href="README.md">test-phase-switchover/README.md</a>. The organisers' pages stay authoritative: <a href="https://virtualembryo.ai/challenge/rules">rules</a>, <a href="https://virtualembryo.ai/challenge/timeline">timeline</a>, <a href="https://virtualembryo.ai/challenge/data">data</a>, <a href="https://virtualembryo.ai/challenge/tasks">tasks</a>, <a href="https://virtualembryo.ai/challenge/faq">FAQ</a>.
+</footer>
+</main>
+</body>
+</html>

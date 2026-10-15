@@ -2,6 +2,8 @@
 
 Prepared 14 October 2026 from the official pages as the server returned them that day. The timeline page calls itself "the authoritative schedule", so re-read the official pages on 20 October before acting on any item here. Items marked **Not stated; ask the organisers** do not appear in the official text read for this checklist.
 
+Visual guide to the same workflow: [official-workflow.html](official-workflow.html).
+
 ## What was read
 
 - Official pages, text extracted from the server HTML and text present for each: [rules](https://virtualembryo.ai/challenge/rules), [timeline](https://virtualembryo.ai/challenge/timeline), [FAQ](https://virtualembryo.ai/challenge/faq), [data](https://virtualembryo.ai/challenge/data), [tasks](https://virtualembryo.ai/challenge/tasks), [evaluation](https://virtualembryo.ai/challenge/evaluation).
