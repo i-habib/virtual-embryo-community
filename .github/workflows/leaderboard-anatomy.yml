@@ -1,0 +1,50 @@
+name: 'leaderboard-anatomy: daily snapshot'
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leaderboard-anatomy-main
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch leaderboard snapshots
+        id: fetch
+        continue-on-error: true
+        working-directory: leaderboard-anatomy
+        run: python fetch.py
+      - name: Build page
+        working-directory: leaderboard-anatomy
+        run: python build.py
+      - name: Commit snapshots and page if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add leaderboard-anatomy/snapshots leaderboard-anatomy/index.html
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "leaderboard-anatomy: snapshot $(date -u +%F) [skip ci]"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
+      - name: Report failed fetches
+        if: steps.fetch.outcome == 'failure'
+        run: |
+          echo "fetch.py failed for at least one request; the page was built from what was stored."
+          exit 1
