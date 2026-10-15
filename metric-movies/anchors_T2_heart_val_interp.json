@@ -1,0 +1,56 @@
+{
+  "key": "T2:heart:val_interp",
+  "label": "T2 heart \u00b7 interpolation, validation (E8.5)",
+  "task": "T2",
+  "setting": "heart",
+  "split": "val_interp",
+  "target_ko": null,
+  "public": true,
+  "n_genes": 500,
+  "genes_file": "T2__heart__val_interp.genes.txt",
+  "genes_sha256": "a9a553108e19acb6",
+  "needs_coords": true,
+  "obs_required": [],
+  "obsm_required": [
+    "spatial_3D"
+  ],
+  "min_cells": 1000,
+  "max_cells": 17616,
+  "truth_cells": 1185,
+  "ref_cells": 5872,
+  "floor_model": "copy_last",
+  "anchors": {
+    "de_score": {
+      "floor": 0.0,
+      "ceiling": 0.8182
+    },
+    "de_direction": {
+      "floor": 0.0,
+      "ceiling": 0.9553
+    },
+    "mmd_u": {
+      "floor": 0.0207,
+      "ceiling": 0.00087
+    },
+    "variogram": {
+      "floor": 0.023828,
+      "ceiling": 0.001021
+    },
+    "d2_shape": {
+      "floor": 0.03079,
+      "ceiling": 0.00412
+    },
+    "occupancy_dice": {
+      "floor": 0.6748,
+      "ceiling": 0.8796
+    },
+    "scale_log_ratio": {
+      "floor": 0.3284,
+      "ceiling": -0.0119
+    },
+    "neighborhood_mmd": {
+      "floor": 0.05728,
+      "ceiling": 0.00432
+    }
+  }
+}

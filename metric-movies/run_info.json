@@ -1,0 +1,261 @@
+{
+  "board": "T2:heart:val_interp",
+  "anchors_source": "https://virtualembryo.ai/challenge/panels/index.json",
+  "scorer": "veckit GitHub main cc3859a (issue #7 fix included), T2 metrics_v2 functions",
+  "truth": {
+    "source_cells": 53742,
+    "cells": 4000,
+    "subsample_seed": 0,
+    "subsample_index_sha1": "0db57446e87f8c74",
+    "genes": 500,
+    "cell_types": 22,
+    "digest": "51737529b4e9d24d",
+    "diameter_um": 1172.64
+  },
+  "metric_seed": 0,
+  "clip_seconds": {
+    "scale": 0.1,
+    "stretch": 0.1,
+    "crop": 0.1,
+    "rotate": 0.1,
+    "shuffle": 21.2,
+    "jitter": 0.1,
+    "crop_random_control": 0.1
+  },
+  "occupancy_voxel_over_nn_range": {
+    "scale": [
+      6.75,
+      6.75
+    ],
+    "stretch": [
+      6.75,
+      6.75
+    ],
+    "crop": [
+      5.16,
+      6.75
+    ],
+    "rotate": [
+      6.75,
+      6.75
+    ],
+    "jitter": [
+      6.75,
+      6.75
+    ],
+    "crop_random_control": [
+      5.16,
+      6.75
+    ]
+  },
+  "cells_kept": {
+    "crop": [
+      4000,
+      3833,
+      3667,
+      3500,
+      3333,
+      3167,
+      3000,
+      2833,
+      2667,
+      2500,
+      2333,
+      2167,
+      2000
+    ],
+    "crop_random_control": [
+      4000,
+      3833,
+      3667,
+      3500,
+      3333,
+      3167,
+      3000,
+      2833,
+      2667,
+      2500,
+      2333,
+      2167,
+      2000
+    ]
+  },
+  "shuffle_frac_moved": [
+    0.0,
+    0.14,
+    0.597,
+    0.818,
+    0.913,
+    0.964,
+    0.985,
+    0.994,
+    0.999,
+    0.999,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "verify": [
+    {
+      "clip": "scale",
+      "value": 1.4,
+      "metric": "d2_shape",
+      "full_scorer": 0.00167,
+      "direct": 0.0016698691031584246,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "scale",
+      "value": 1.4,
+      "metric": "occupancy_dice",
+      "full_scorer": 1.0,
+      "direct": 1.0,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "scale",
+      "value": 1.4,
+      "metric": "scale_log_ratio",
+      "full_scorer": 0.3365,
+      "direct": 0.3364722356347077,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "scale",
+      "value": 1.4,
+      "metric": "neighborhood_mmd",
+      "full_scorer": -0.00029,
+      "direct": -0.00028664470301009715,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "scale",
+      "value": 1.4,
+      "metric": "mmd_u",
+      "full_scorer": -0.00033,
+      "direct": -0.00032787024974823,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "shuffle",
+      "value": 0.5,
+      "metric": "d2_shape",
+      "full_scorer": 0.00167,
+      "direct": 0.0016698691650107907,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "shuffle",
+      "value": 0.5,
+      "metric": "occupancy_dice",
+      "full_scorer": 1.0,
+      "direct": 1.0,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "shuffle",
+      "value": 0.5,
+      "metric": "scale_log_ratio",
+      "full_scorer": 0.0,
+      "direct": 0.0,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "shuffle",
+      "value": 0.5,
+      "metric": "neighborhood_mmd",
+      "full_scorer": 0.13081,
+      "direct": 0.1308126300573349,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "shuffle",
+      "value": 0.5,
+      "metric": "mmd_u",
+      "full_scorer": -0.00032,
+      "direct": -0.00032324640778824687,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "crop",
+      "value": 0.3,
+      "metric": "d2_shape",
+      "full_scorer": 0.03765,
+      "direct": 0.037645592955638116,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "crop",
+      "value": 0.3,
+      "metric": "occupancy_dice",
+      "full_scorer": 0.7864,
+      "direct": 0.7863636363636364,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "crop",
+      "value": 0.3,
+      "metric": "scale_log_ratio",
+      "full_scorer": -0.1961,
+      "direct": -0.19612841154264987,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "crop",
+      "value": 0.3,
+      "metric": "neighborhood_mmd",
+      "full_scorer": 0.01962,
+      "direct": 0.019624013453722,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "crop",
+      "value": 0.3,
+      "metric": "mmd_u",
+      "full_scorer": 0.00611,
+      "direct": 0.0061074839904904366,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "rotate",
+      "value": 90.0,
+      "metric": "d2_shape",
+      "full_scorer": 0.00167,
+      "direct": 0.0016698692620806528,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "rotate",
+      "value": 90.0,
+      "metric": "occupancy_dice",
+      "full_scorer": 1.0,
+      "direct": 1.0,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "rotate",
+      "value": 90.0,
+      "metric": "scale_log_ratio",
+      "full_scorer": -0.0,
+      "direct": -2.5781232707570617e-10,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "rotate",
+      "value": 90.0,
+      "metric": "neighborhood_mmd",
+      "full_scorer": -0.00029,
+      "direct": -0.00028664470301009715,
+      "match_after_rounding": true
+    },
+    {
+      "clip": "rotate",
+      "value": 90.0,
+      "metric": "mmd_u",
+      "full_scorer": -0.00033,
+      "direct": -0.00032787024974823,
+      "match_after_rounding": true
+    }
+  ],
+  "total_seconds": 53.0
+}
