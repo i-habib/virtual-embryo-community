@@ -5,7 +5,7 @@ No model is called. A fake `codex` executable is put first on PATH; it answers -
 under $CODEX_HOME/sessions and writes a prediction file into the workspace.
 
 Run from the codex-agent-run directory:
-    /Users/ivanhabib/Projects/vec-community-work/.civenv/bin/python -m pytest -q
+    python -m pytest -q
 """
 from __future__ import annotations
 

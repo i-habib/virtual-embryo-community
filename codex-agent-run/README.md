@@ -60,7 +60,7 @@ Packaging refuses, and writes nothing, when: the lock or a locked input changed;
 ## Tests
 
 ```
-/Users/ivanhabib/Projects/vec-community-work/.civenv/bin/python -m pytest -q
+python -m pytest -q
 ```
 
 The tests put a fake `codex` executable first on PATH. It answers `--version` and `exec --help`, reads the prompt from stdin, prints `--json`-style events, writes a session file and a prediction file, and can be made to sleep, fail or leak a credential. No model is called. The tests cover refusals (overwrite, placeholders, credentials, operator block, leftover predictions, full access), redaction, a full lock-launch-package run, tampering with the lock, the prompt or the brief, edits to predictions after the run, the budget kill, a credential in the stream, and the size cap.
