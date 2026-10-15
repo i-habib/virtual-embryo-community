@@ -1,0 +1,62 @@
+{
+  "name": "oct20_template",
+  "description": "Template for 20 October 2026, when the validation answers are released. Every path containing PLACEHOLDER must be replaced with the released file before prepare.py will run. Pair names other than val and test are scored but are not compared by analyse.py unless named with --val-pair and --test-pair.",
+  "subsample_cells": 4000,
+  "subsample_seed": 0,
+  "seeds": [0, 1, 2],
+  "stages": {
+    "E8.25": {"path": "${VEC_STAGE_DIR}/E8.25_late.h5ad", "time": 8.25},
+    "E8.5": {"path": "PLACEHOLDER/heart_E8.5.h5ad", "time": 8.5},
+    "E8.75": {"path": "${VEC_STAGE_DIR}/E8.75.h5ad", "time": 8.75},
+    "E9.5": {"path": "${VEC_STAGE_DIR}/E9.5.h5ad", "time": 9.5},
+    "E10.5": {"path": "PLACEHOLDER/heart_E10.5.h5ad", "time": 10.5},
+    "T1_E8.5": {"path": "PLACEHOLDER/T1_E8.5.h5ad", "time": 8.5},
+    "T1_E9.5": {"path": "PLACEHOLDER/T1_E9.5.h5ad", "time": 9.5},
+    "T1_E10.5": {"path": "PLACEHOLDER/T1_E10.5.h5ad", "time": 10.5},
+    "Mab21l2_KO": {"path": "PLACEHOLDER/E9.5_mab21l2_ko.h5ad", "time": 9.5},
+    "Gata4_KO": {"path": "PLACEHOLDER/T3_gata4_KO.h5ad", "time": 9.5},
+    "T3_WT": {"path": "PLACEHOLDER/T3_wild_type_matched.h5ad", "time": 9.5}
+  },
+  "pairs": {
+    "val": {
+      "inputs": ["E8.25", "E8.5", "E8.75"],
+      "target": "E9.5",
+      "task": "T2",
+      "setting": "heart",
+      "board": "T2:heart:val_extrap"
+    },
+    "test": {
+      "inputs": ["E8.25", "E8.5", "E8.75", "E9.5"],
+      "target": "E10.5",
+      "task": "T2",
+      "setting": "heart",
+      "board": "T2:heart:val_extrap"
+    },
+    "t1_val": {
+      "inputs": ["T1_E8.5"],
+      "target": "T1_E9.5",
+      "task": "T1",
+      "board": "T1:val"
+    },
+    "t1_test": {
+      "inputs": ["T1_E8.5", "T1_E9.5"],
+      "target": "T1_E10.5",
+      "task": "T1",
+      "board": "T1:val"
+    },
+    "t3_gata4_from_mab21l2": {
+      "inputs": ["Mab21l2_KO"],
+      "target": "Gata4_KO",
+      "task": "T3",
+      "wt": "T3_WT",
+      "board": "T3:gata4"
+    },
+    "t3_mab21l2_from_gata4": {
+      "inputs": ["Gata4_KO"],
+      "target": "Mab21l2_KO",
+      "task": "T3",
+      "wt": "T3_WT",
+      "board": "T3:gata4"
+    }
+  }
+}

@@ -3,3 +3,6 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 .venv/
+
+# val-to-test: subsampled release data, rebuilt by prepare.py
+val-to-test/work/

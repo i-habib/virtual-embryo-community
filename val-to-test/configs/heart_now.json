@@ -1,0 +1,51 @@
+{
+  "name": "heart_now",
+  "description": "Heart MERFISH pseudo pairs from released stages (E8.0, E8.25, E8.75, E9.5). Stage files are read from VEC_STAGE_DIR. Both pairs have two input stages.",
+  "subsample_cells": 4000,
+  "subsample_seed": 0,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "stages": {
+    "E8.0": {
+      "path": "${VEC_STAGE_DIR}/E8.0.h5ad",
+      "time": 8.0
+    },
+    "E8.25": {
+      "path": "${VEC_STAGE_DIR}/E8.25_late.h5ad",
+      "time": 8.25
+    },
+    "E8.75": {
+      "path": "${VEC_STAGE_DIR}/E8.75.h5ad",
+      "time": 8.75
+    },
+    "E9.5": {
+      "path": "${VEC_STAGE_DIR}/E9.5.h5ad",
+      "time": 9.5
+    }
+  },
+  "pairs": {
+    "val": {
+      "inputs": [
+        "E8.0",
+        "E8.25"
+      ],
+      "target": "E8.75",
+      "task": "T2",
+      "setting": "heart",
+      "board": "T2:heart:val_extrap"
+    },
+    "test": {
+      "inputs": [
+        "E8.25",
+        "E8.75"
+      ],
+      "target": "E9.5",
+      "task": "T2",
+      "setting": "heart",
+      "board": "T2:heart:val_extrap"
+    }
+  }
+}
