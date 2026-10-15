@@ -18,8 +18,7 @@ The agent must not be able to read the notes, scores or held-out files that a pe
 2. Run the pre-lock audit on that workspace, if the folder is present:
 
    ```bash
-   python agent-prelock-audit/prelock_audit.py   # see ../../agent-prelock-audit/README.md
-   --workspace WS --cli claude --out LOCKDIR
+   python agent-prelock-audit/prelock_audit.py --workspace WS --cli claude --out LOCKDIR
    ```
 
    See [agent-prelock-audit](../../agent-prelock-audit/README.md). It writes `prelock_lock.json`, which lists each context file the CLI loads (with size and SHA-256), and `prelock_report.md`. It exits with status 1 when any BLOCK finding exists. The audit also scans the workspace, the git history, the auto memory folder, the CLI's session logs and any path given with `--extra-scan`. Fix each BLOCK finding by changing the workspace or the environment, then run the audit again. Do not clear a finding by editing the report.
