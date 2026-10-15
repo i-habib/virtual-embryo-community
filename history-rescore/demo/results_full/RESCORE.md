@@ -6,7 +6,7 @@ Generated 2026-10-14T20:26:21+00:00 UTC.
 
 - Protocol: `full`. Seeds: 3 (0 to 2).
 - Scored against the whole released target and reference (no subsample).
-- Panel index: `/Users/ivanhabib/Projects/vec-community-work/virtual-embryo-community/history-rescore/demo/index_snapshot.json` (sha256 26830523bcba).
+- Panel index: `demo/index_snapshot.json` (sha256 26830523bcba).
 - Scorer: veckit 0.1.1 (source sha256 375fb9d2f9ad).
 - Board weights and directions: metric-lens `BOARDS`. Anchors: the panel index.
 
