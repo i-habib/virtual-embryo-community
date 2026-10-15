@@ -22,7 +22,7 @@ The agent must not be able to read the notes, scores or held-out files that a pe
    --workspace WS --cli claude --out LOCKDIR
    ```
 
-   It writes `prelock_lock.json`, which lists each context file the CLI loads (with size and SHA-256), and `prelock_report.md`. It exits with status 1 when any BLOCK finding exists. The audit also scans the workspace, the git history, the auto memory folder, the CLI's session logs and any path given with `--extra-scan`. Fix each BLOCK finding by changing the workspace or the environment, then run the audit again. Do not clear a finding by editing the report.
+   See [agent-prelock-audit](../../agent-prelock-audit/README.md). It writes `prelock_lock.json`, which lists each context file the CLI loads (with size and SHA-256), and `prelock_report.md`. It exits with status 1 when any BLOCK finding exists. The audit also scans the workspace, the git history, the auto memory folder, the CLI's session logs and any path given with `--extra-scan`. Fix each BLOCK finding by changing the workspace or the environment, then run the audit again. Do not clear a finding by editing the report.
 
    If the audit folder is missing, do steps 3 to 5 by hand and list what you checked in the lock notes.
 
