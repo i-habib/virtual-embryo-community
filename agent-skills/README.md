@@ -16,7 +16,7 @@ Run the tool commands from the repository root. The skills use paths such as `te
 
 Codex and other agents that read `AGENTS.md`: paste the body of each `SKILL.md` (the text after the closing `---`) into `AGENTS.md`, under a heading with the skill name.
 
-## The six skills
+## The eleven skills
 
 | Skill | When to use it | Main tools |
 |---|---|---|
@@ -26,8 +26,12 @@ Codex and other agents that read `AGENTS.md`: paste the body of each `SKILL.md` 
 | [vec-external-data-guard](vec-external-data-guard/SKILL.md) | Before any external dataset is used | [data-safety](../data-safety/README.md) |
 | [vec-load-release-data](vec-load-release-data/SKILL.md) | When release or external `.h5ad` files are read or normalised | [count-recovery](../count-recovery/README.md), [panel-normalise](../panel-normalise/README.md) |
 | [vec-final-phase](vec-final-phase/SKILL.md) | From 20 October 2026 through the 2 December deadline | [test-phase-switchover](../test-phase-switchover/README.md), [history-rescore](../history-rescore/README.md) |
+| [vec-harness-dryrun](vec-harness-dryrun/SKILL.md) | Before locking an Agent Team run, and after every harness or prompt change | [agent-harness-lab](../agent-harness-lab/README.md), [agent-trace-explorer](../agent-trace-explorer/README.md) |
+| [vec-context-hygiene](vec-context-hygiene/SKILL.md) | After the last dry run and before the lock | [agent-prelock-audit](../agent-prelock-audit/README.md), `shasum` |
+| [vec-submission-ledger](vec-submission-ledger/SKILL.md) | Whenever a prediction is written, scored or uploaded | [vec-score-locally](vec-score-locally/SKILL.md), [scorer-versions](../scorer-versions/README.md), [metric-lens](../metric-lens/README.md) |
+| [vec-budget-guard](vec-budget-guard/SKILL.md) | During a locked run with a time or compute budget | [codex-agent-run](../codex-agent-run/README.md), `check_test_contract.py` in [test-phase-switchover](../test-phase-switchover/README.md) |
+| [vec-board-genes](vec-board-genes/SKILL.md) | Before writing or fixing any board prediction | `check_test_contract.py` in [test-phase-switchover](../test-phase-switchover/README.md) |
 
-The Codex step of `vec-record-provenance` refers to `codex-agent-run`, which has no README yet. Until it does, that step uses the kit's `codex-package` command.
 
 ## Check the skills
 

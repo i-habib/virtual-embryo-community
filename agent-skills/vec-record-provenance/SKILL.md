@@ -33,7 +33,7 @@ python -m vec_agent_evidence run --task T3 --prompt runs/RUN_ID/prompt.md --mode
 
 Keep the complete stdout and stderr. The kit writes the stream JSON from `claude -p --output-format stream-json`.
 
-For a Codex run, the kit's `codex-package` command packs a finished `codex exec --json` run after the fact. That adapter has been tested on synthetic transcripts only. The `codex-agent-run` folder in this repository is still being written and has no README yet, so until it has one, use the kit's adapter and record the same fields by hand.
+For a Codex run, use [codex-agent-run](../../codex-agent-run/README.md): `codex_lock.py` before the run, `codex_launch.py` to run it, `codex_package.py` to build the bundle. The kit's `codex-package` command can also pack a finished `codex exec --json` run after the fact.
 
 For a Harness Lab run, `trace-explorer build runs/RUN_ID/trace.jsonl -o report.html` makes a static report from the trace. See [agent-trace-explorer](../../agent-trace-explorer/README.md). The report is a viewer, not a certificate. Check it for secrets before sharing, because agent stdout is copied into it as logged.
 
